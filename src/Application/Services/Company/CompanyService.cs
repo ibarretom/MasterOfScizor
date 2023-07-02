@@ -1,4 +1,6 @@
 ﻿using Domain.Entities.Barbers;
+using Domain.Exceptions;
+using Domain.Exceptions.Messages;
 using Domain.ValueObjects.DTO.Barber;
 using Infra.Repositories.Addresses;
 using Infra.Repositories.CompanyRepository;
@@ -19,7 +21,7 @@ internal class CompanyService
     public async Task Create(CreateCompanyRequestDTO company)
     {
         if (await _addressLocalizationRepository.GetById(company.Branch.Address.AddressId) is null)
-            throw new Exception("Address not found");
+            throw new AddressException(AddressExceptionMessagesResource.ADDRESS_NOT_FOUND);
 
         if(await _companyRepository.GetByCompanyIdentifier(company.Identifier) is not null)
             throw new Exception("Company already exists");

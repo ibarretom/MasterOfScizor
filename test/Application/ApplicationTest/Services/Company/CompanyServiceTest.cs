@@ -1,5 +1,7 @@
 ﻿using Application.Services.Company;
 using Domain.Entities.Barbers;
+using Domain.Exceptions;
+using Domain.Exceptions.Messages;
 using Domain.ValueObjects.Addresses;
 using DomainTest.ValueObjects.DTO;
 using Infra.Repositories.Addresses;
@@ -75,8 +77,8 @@ public class CompanyServiceTest
         var companyService = new CompanyService(companyRepositoryMock.Object, addressLocalizationRepositoryMock.Object);
 
         Func<Task> action = async () => await companyService.Create(companyDTO);
-        var error = await Assert.ThrowsAsync<Exception>(action);
+        var error = await Assert.ThrowsAsync<AddressException>(action);
 
-        Assert.Equal("Address not found", error.Message);
+        Assert.Equal(AddressExceptionMessagesResource.ADDRESS_NOT_FOUND, error.Message);
     }
 }
