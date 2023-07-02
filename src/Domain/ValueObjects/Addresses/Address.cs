@@ -2,12 +2,12 @@
 
 internal class Address
 {
-    public AddressLocalization Localization { get; }
+    public Guid AddressId { get; set; }
     public AddressIdentifier Identifier { get; set; }
 
-    public Address(AddressLocalization localization, AddressIdentifier identifier)
+    public Address(Guid addressId, AddressIdentifier identifier)
     {
-        Localization = localization;
+        AddressId = addressId;
         Identifier = identifier;
     }
 }

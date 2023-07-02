@@ -1,10 +1,13 @@
 ﻿using Domain.Entities.Barbers.Service;
 using Domain.ValueObjects.Addresses;
+using System.Runtime.CompilerServices;
 
+[assembly: InternalsVisibleTo("Infra")]
 namespace Domain.Entities.Barbers;
 
 internal class Branch
 {
+    public Guid BarberId { get; }
     public string Identifier { get; }
     public Address Address { get; set; }
     public string Phone { get; set; }
@@ -15,8 +18,9 @@ internal class Branch
     public HashSet<Employee> Barber { get; } = new HashSet<Employee>();
     public bool IsOpened { get; set; }
 
-    public Branch(string identifier, Address address, string phone, string email, bool isOpened)
+    public Branch(Guid barberId, string identifier, Address address, string phone, string email, bool isOpened)
     {
+        BarberId = barberId;
         Identifier = identifier;
         Address = address;
         Phone = phone;
