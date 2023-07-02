@@ -61,9 +61,9 @@ public class CompanyServiceTest
         var companyService = new CompanyService(companyRepositoryMock.Object, addressLocalizationRepositoryMock.Object);
 
         Func<Task> action = async () => await companyService.Create(companyDTO);
-        var error = await Assert.ThrowsAsync<Exception>(action);
+        var error = await Assert.ThrowsAsync<CompanyException>(action);
 
-        Assert.Equal("Company already exists", error.Message);
+        Assert.Equal(CompanyExceptionMessagesResource.COMPANY_ALREADY_EXISTS, error.Message);
     }
 
     [Fact]
