@@ -16,12 +16,21 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>AddressExceptionMessagesResource.resx</DependentUpon>
     </Compile>
+    <Compile Update="Exceptions\Messages\CompanyExceptionMessagesResource.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>CompanyExceptionMessagesResource.resx</DependentUpon>
+    </Compile>
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Update="Exceptions\Messages\AddressExceptionMessagesResource.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>AddressExceptionMessagesResource.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Exceptions\Messages\CompanyExceptionMessagesResource.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>CompanyExceptionMessagesResource.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
 

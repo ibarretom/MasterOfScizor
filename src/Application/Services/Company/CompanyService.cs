@@ -24,7 +24,7 @@ internal class CompanyService
             throw new AddressException(AddressExceptionMessagesResource.ADDRESS_NOT_FOUND);
 
         if(await _companyRepository.GetByCompanyIdentifier(company.Identifier) is not null)
-            throw new Exception("Company already exists");
+            throw new CompanyException(CompanyExceptionMessagesResource.COMPANY_ALREADY_EXISTS);
 
         var companyCreated = new Barber(company.OwnerId, company.Name, company.Identifier, string.Empty);
         companyCreated.AddBranch(new Branch(companyCreated.Id, company.Branch.Identifier, company.Branch.Address, company.Branch.Phone, company.Branch.Email, false));
