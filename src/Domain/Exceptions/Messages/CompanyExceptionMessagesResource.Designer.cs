@@ -61,11 +61,38 @@ namespace Domain.Exceptions.Messages {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Branch was not found.
+        /// </summary>
+        internal static string BRANCH_NOT_FOUND {
+            get {
+                return ResourceManager.GetString("BRANCH_NOT_FOUND", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Company was not found.
+        /// </summary>
+        internal static string COMAPNY_NOT_FOUND {
+            get {
+                return ResourceManager.GetString("COMAPNY_NOT_FOUND", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Company already exists.
         /// </summary>
         internal static string COMPANY_ALREADY_EXISTS {
             get {
                 return ResourceManager.GetString("COMPANY_ALREADY_EXISTS", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Service already exists.
+        /// </summary>
+        internal static string SERVICE_ALREADY_EXISTS {
+            get {
+                return ResourceManager.GetString("SERVICE_ALREADY_EXISTS", resourceCulture);
             }
         }
     }
