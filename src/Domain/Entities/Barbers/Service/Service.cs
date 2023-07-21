@@ -7,29 +7,28 @@ namespace Domain.Entities.Barbers.Service;
 internal class Service
 {
     public Guid Id { get; private set; }
-    public Guid CompanyId { get; }
-    public Category Category { get; set; }
+    public Guid BranchId { get; }
+    public Category? Category { get; set; }
     public string Name { get; set; }
     public string Description { get; set; }
     public decimal Price { get; set; }
     public decimal PromotionalPrice { get; set; }
     public bool IsPromotionActive { get; set; }
     public bool Active { get; set; }
-    public string Worker { get; set; }
+    //public string Worker { get; set; }
     public TimeSpan Duration { get; set; }
 
-    public Service(Guid companyId, Category category, string name, string description, string price, string promotionalPrice, bool isPromotionActive, bool active, string worker, TimeSpan duration)
+    public Service(Guid branchId, Category? category, string name, string description, decimal price, decimal promotionalPrice, bool isPromotionActive, bool active, TimeSpan duration)
     {
         SetId();
-        CompanyId = companyId;
+        BranchId = branchId;
         Category = category;
         Name = name;
         Description = description;
-        Price = decimal.Parse(price);
-        PromotionalPrice = decimal.Parse(promotionalPrice);
+        Price = price;
+        PromotionalPrice = promotionalPrice;
         IsPromotionActive = isPromotionActive;
         Active = active;
-        Worker = worker;
         Duration = duration;
     }
 

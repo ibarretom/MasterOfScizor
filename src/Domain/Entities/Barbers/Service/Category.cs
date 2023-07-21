@@ -10,6 +10,10 @@ internal class Category
     public Guid CompanyId { get; }
     public string Name { get; set; }
 
+    public Category()
+    {
+        Name = string.Empty;
+    }
     public Category(string name, Guid companyId)
     {
         SetId();
@@ -19,7 +23,7 @@ internal class Category
 
     public void SetId()
     {
-        if(Id == Guid.Empty)
+        if (Id == Guid.Empty)
             Id = Guid.NewGuid();
     }
 
