@@ -6,4 +6,5 @@ namespace Infra.Repositories.CompanyRepository;
 internal interface IBranchRepository
 {
     Task Create(Branch branch);
+    Task<bool> Exists(Guid id);
 }
