@@ -35,7 +35,7 @@ internal class Branch
 
     public void RemoveSchedule(Schedule schedule)
     {
-        Schedule.RemoveWhere(existentSchedule => schedule.DayOfWeek == existentSchedule.DayOfWeek);
+        Schedule.RemoveWhere(existentSchedule => schedule.WeekDay == existentSchedule.WeekDay);
     }
 
     public void AddCategory(Category category)

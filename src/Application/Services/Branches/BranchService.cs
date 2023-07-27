@@ -20,10 +20,10 @@ internal class BranchService
 
     public async Task AddService(ServiceRequestDTO service)
     {
-        if(!(await _branchRepository.Exists(service.BranchId)))
+        if (!(await _branchRepository.Exists(service.BranchId)))
             throw new CompanyException(CompanyExceptionMessagesResource.BRANCH_NOT_FOUND);
 
-        if(await _serviceRepository.Exists(service.BranchId, service.Name, service.Category?.Id ?? Guid.Empty))
+        if (await _serviceRepository.Exists(service.BranchId, service.Name, service.Category?.Id ?? Guid.Empty))
             throw new CompanyException(CompanyExceptionMessagesResource.SERVICE_ALREADY_EXISTS);
 
         var serviceCreated = new Service(service.BranchId, service.Category is not null ? new Category(service.Category.Name, service.Category.CompanyId) : null, service.Name, service.Description,
