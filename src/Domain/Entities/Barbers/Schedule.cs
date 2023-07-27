@@ -5,22 +5,22 @@ namespace Domain.Entities.Barbers;
 
 internal class Schedule
 {
-    public Guid CompanyId { get; }
+    public Guid BranchId { get; }
     public DateTime StartTime { get; set; }
     public DateTime EndTime { get; set; }
-    public DayOfWeek DayOfWeek { get; set; }
+    public DayOfWeek WeekDay { get; set; }
 
-    public Schedule(Guid companyId, DateTime startTime, DateTime endTime, DayOfWeek dayOfWeek)
+    public Schedule(Guid branchId, DateTime startTime, DateTime endTime, DayOfWeek dayOfWeek)
     {
-        CompanyId = companyId;
+        BranchId = branchId;
         StartTime = startTime;
         EndTime = endTime;
-        DayOfWeek = dayOfWeek;
+        WeekDay = dayOfWeek;
     }
 
     public override int GetHashCode()
     {
-        return DayOfWeek.GetHashCode();
+        return WeekDay.GetHashCode();
     }
 
     public override bool Equals(object? obj)
