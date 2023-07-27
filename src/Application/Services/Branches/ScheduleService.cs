@@ -1,0 +1,30 @@
+﻿using Domain.ValueObjects.DTO.Barber;
+using Infra.Repositories.Company;
+
+namespace Application.Services.Branches;
+
+internal class ScheduleService
+{
+    private IScheduleRepository _scheduleRepository { get; set; }
+
+    public ScheduleService(IScheduleRepository scheduleRepository)
+    {
+        _scheduleRepository = scheduleRepository;
+    }
+
+    public async Task<ScheduleCreateResponseDTO> AddSchedule(ScheduleCreateRequestDTO schedule)
+    {
+        var scheduleResponse = new ScheduleCreateResponseDTO();
+
+        foreach (var day in schedule.Schedule)
+        {
+            if (await _scheduleRepository.Exists(day.WeekDay, day.BranchId))
+                scheduleResponse.ExistentSchedule.Add(day);
+
+            await _scheduleRepository.Add(day);
+            scheduleResponse.CreatedSchedule.Add(day);
+        }
+
+        return scheduleResponse;
+    }
+}
