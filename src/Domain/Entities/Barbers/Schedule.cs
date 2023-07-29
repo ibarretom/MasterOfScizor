@@ -1,4 +1,6 @@
-﻿using Domain.Services.Encription;
+﻿using Domain.Exceptions;
+using Domain.Exceptions.Messages;
+using Domain.Services.Encription;
 using System.Text.Json;
 
 namespace Domain.Entities.Barbers;
@@ -6,16 +8,27 @@ namespace Domain.Entities.Barbers;
 internal class Schedule
 {
     public Guid BranchId { get; }
-    public DateTime StartTime { get; set; }
-    public DateTime EndTime { get; set; }
+    public DateTime StartTime { get; private set; }
+    public DateTime EndTime { get; private set; }
     public DayOfWeek WeekDay { get; set; }
 
     public Schedule(Guid branchId, DateTime startTime, DateTime endTime, DayOfWeek dayOfWeek)
     {
         BranchId = branchId;
+        SetScheduleTime(startTime, endTime);
+        WeekDay = dayOfWeek;
+    }
+
+    public void SetScheduleTime(DateTime startTime, DateTime endTime)
+    {
+        if (DateTime.Compare(startTime, DateTime.MinValue) <= 0 || DateTime.Compare(endTime, DateTime.MinValue) <= 0) 
+            throw new ScheduleException(ScheduleExceptionMessagesResource.INVALID_DATETIME);
+
+        if (DateTime.Compare(startTime, endTime) >= 0) 
+            throw new ScheduleException(ScheduleExceptionMessagesResource.START_TIME_MUST_BE_GREATER_THEN_END_TIME); 
+        
         StartTime = startTime;
         EndTime = endTime;
-        WeekDay = dayOfWeek;
     }
 
     public override int GetHashCode()

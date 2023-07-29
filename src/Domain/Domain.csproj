@@ -21,6 +21,11 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>CompanyExceptionMessagesResource.resx</DependentUpon>
     </Compile>
+    <Compile Update="Exceptions\Messages\ScheduleExceptionMessagesResource.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>ScheduleExceptionMessagesResource.resx</DependentUpon>
+    </Compile>
     <Compile Update="Exceptions\Messages\ServiceExceptionMessagesResource.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -36,6 +41,10 @@
     <EmbeddedResource Update="Exceptions\Messages\CompanyExceptionMessagesResource.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>CompanyExceptionMessagesResource.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Exceptions\Messages\ScheduleExceptionMessagesResource.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>ScheduleExceptionMessagesResource.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <EmbeddedResource Update="Exceptions\Messages\ServiceExceptionMessagesResource.resx">
       <Generator>ResXFileCodeGenerator</Generator>
