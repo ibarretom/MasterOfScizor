@@ -20,7 +20,7 @@ public class ScheduleServiceTest
 
         var scheduleService = new ScheduleService(scheduleRepository.Object);
 
-        var createdSchedule = await scheduleService.AddSchedule(schedule);
+        var createdSchedule = await scheduleService.Add(schedule);
 
         Assert.True(createdSchedule.CreatedSchedule.Count.Equals(schedule.Schedule.Count));
         Assert.True(!createdSchedule.ExistentSchedule.Any());
@@ -43,7 +43,7 @@ public class ScheduleServiceTest
 
         var branchService = new ScheduleService(scheduleRepository.Object);
 
-        var createdResponse = await branchService.AddSchedule(schedule);
+        var createdResponse = await branchService.Add(schedule);
 
         Assert.True(createdResponse.CreatedSchedule.Count.Equals(6));
         Assert.True(createdResponse.ExistentSchedule.ElementAt(0).Equals(schedule.Schedule.Where(schedule => schedule.WeekDay.Equals(DayOfWeek.Saturday)).FirstOrDefault()));

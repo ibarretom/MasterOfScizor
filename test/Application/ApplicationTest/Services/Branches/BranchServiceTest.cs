@@ -33,7 +33,7 @@ public class BranchServiceTest
 
         var branchService = new BranchService(serviceRepository.Object, branchRepository.Object, categoryRepository.Object);
 
-        await branchService.AddService(serviceDTO);
+        await branchService.Add(serviceDTO);
 
         Assert.True(createdService.Name.Equals(serviceDTO.Name));
         Assert.True(!createdService.Category?.Id.Equals(Guid.Empty));
@@ -68,7 +68,7 @@ public class BranchServiceTest
 
         var branchService = new BranchService(serviceRepository.Object, branchRepository.Object, categoryRepository.Object);
 
-        await branchService.AddService(serviceDTO);
+        await branchService.Add(serviceDTO);
 
         Assert.True(createdService.Category is null);
     }
@@ -87,7 +87,7 @@ public class BranchServiceTest
 
         var serviceDTO = ServiceRequestDTOBuilder.Build();
 
-        var exception = await Assert.ThrowsAsync<CompanyException>(() => branchService.AddService(serviceDTO));
+        var exception = await Assert.ThrowsAsync<CompanyException>(() => branchService.Add(serviceDTO));
 
         Assert.True(exception.Message.Equals(CompanyExceptionMessagesResource.BRANCH_NOT_FOUND));
     }
@@ -107,7 +107,7 @@ public class BranchServiceTest
         var serviceDTO = ServiceRequestDTOBuilder.Build();
         serviceDTO.BranchId = Guid.Empty;
 
-        var exception = await Assert.ThrowsAsync<CompanyException>(() => branchService.AddService(serviceDTO));
+        var exception = await Assert.ThrowsAsync<CompanyException>(() => branchService.Add(serviceDTO));
 
         Assert.True(exception.Message.Equals(CompanyExceptionMessagesResource.BRANCH_NOT_FOUND));
     }
@@ -127,7 +127,7 @@ public class BranchServiceTest
 
         var serviceDTO = ServiceRequestDTOBuilder.Build();
 
-        var exception = await Assert.ThrowsAsync<CompanyException>(() => branchService.AddService(serviceDTO));
+        var exception = await Assert.ThrowsAsync<CompanyException>(() => branchService.Add(serviceDTO));
 
         Assert.True(exception.Message.Equals(CompanyExceptionMessagesResource.SERVICE_ALREADY_EXISTS));
     }
@@ -148,7 +148,7 @@ public class BranchServiceTest
         var serviceDTO = ServiceRequestDTOBuilder.Build();
         serviceDTO.Category = null;
 
-        var exception = await Assert.ThrowsAsync<CompanyException>(() => branchService.AddService(serviceDTO));
+        var exception = await Assert.ThrowsAsync<CompanyException>(() => branchService.Add(serviceDTO));
 
         Assert.True(exception.Message.Equals(CompanyExceptionMessagesResource.SERVICE_ALREADY_EXISTS));
     }
@@ -178,7 +178,7 @@ public class BranchServiceTest
 
         var branchService = new BranchService(serviceRepository.Object, branchRepository.Object, categoryRepository.Object);
 
-        await branchService.UpdateService(serviceDTO);
+        await branchService.Update(serviceDTO);
 
         Assert.True(serviceUpdated.Id.Equals(serviceDTO.Id));
         Assert.True(serviceUpdated.BranchId.Equals(serviceDTO.BranchId));
@@ -208,7 +208,7 @@ public class BranchServiceTest
         
         var serviceDTO = ServiceUpdateRequestDTOBuilder.Build();
         
-        var exception = await Assert.ThrowsAsync<CompanyException>(() => branchService.UpdateService(serviceDTO));
+        var exception = await Assert.ThrowsAsync<CompanyException>(() => branchService.Update(serviceDTO));
         Assert.True(exception.Message.Equals(CompanyExceptionMessagesResource.SERVICE_NOT_FOUND));
     }
 
@@ -230,7 +230,7 @@ public class BranchServiceTest
 
         var branchService = new BranchService(serviceRepository.Object, branchRepository.Object, categoryRepository.Object);
 
-        var exception = await Assert.ThrowsAsync<ServiceException>(() => branchService.UpdateService(serviceDTO));
+        var exception = await Assert.ThrowsAsync<ServiceException>(() => branchService.Update(serviceDTO));
 
         Assert.True(exception.Message.Equals(ServiceExceptionMessagesResource.CATEGORY_NOT_FOUND));
     }

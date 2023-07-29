@@ -20,7 +20,7 @@ internal class BranchService
         _categoryRepository = categoryRepository;
     }
 
-    public async Task AddService(ServiceRequestDTO service)
+    public async Task Add(ServiceRequestDTO service)
     {
         if (!(await _branchRepository.Exists(service.BranchId)))
             throw new CompanyException(CompanyExceptionMessagesResource.BRANCH_NOT_FOUND);
@@ -34,7 +34,7 @@ internal class BranchService
         await _serviceRepository.Add(serviceCreated);
     }
 
-    public async Task UpdateService(ServiceUpdateRequestDTO service)
+    public async Task Update(ServiceUpdateRequestDTO service)
     {
         var existentService = await _serviceRepository.GetById(service.BranchId, service.Id) ?? throw new CompanyException(CompanyExceptionMessagesResource.SERVICE_NOT_FOUND);
 

@@ -12,7 +12,7 @@ internal class ScheduleService
         _scheduleRepository = scheduleRepository;
     }
 
-    public async Task<ScheduleCreateResponseDTO> AddSchedule(ScheduleCreateRequestDTO schedule)
+    public async Task<ScheduleCreateResponseDTO> Add(ScheduleCreateRequestDTO schedule)
     {
         var scheduleResponse = new ScheduleCreateResponseDTO();
 
