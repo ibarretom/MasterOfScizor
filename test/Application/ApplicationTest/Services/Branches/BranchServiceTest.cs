@@ -17,7 +17,7 @@ public class BranchServiceTest
     {
         var serviceDTO = ServiceRequestDTOBuilder.Build();
 
-        var createdService = new Service(Guid.Empty, new Category(string.Empty, Guid.Empty), string.Empty, string.Empty, false, false, TimeSpan.Zero);
+        var createdService = new Service(Guid.NewGuid(), new Category(string.Empty, Guid.Empty), string.Empty, string.Empty, (decimal) 0.1, (decimal) 0.1, false, false, TimeSpan.Zero);
 
         var serviceRepository = new Mock<IServiceRepository>();
         serviceRepository
@@ -53,7 +53,7 @@ public class BranchServiceTest
     {
         var serviceDTO = ServiceRequestDTOBuilder.Build();
         serviceDTO.Category = null;
-        var createdService = new Service(Guid.Empty, new Category(), string.Empty, string.Empty, false, false, TimeSpan.Zero);
+        var createdService = new Service(Guid.NewGuid(), new Category(), string.Empty, string.Empty, (decimal) 0.1, (decimal) 0.1, false, false, TimeSpan.Zero);
 
         var serviceRepository = new Mock<IServiceRepository>();
         serviceRepository.Setup(repository => repository.Add(It.IsAny<Service>()))
@@ -75,7 +75,7 @@ public class BranchServiceTest
     }
 
     [Fact]
-    public async void ShouldNotBeAbleToCreateANewServiceWithForAnInexistentBranch()
+    public async void ShouldNotBeAbleToCreateANewServiceWithAnInexistentBranch()
     {
         var repository = new Mock<IServiceRepository>();
 
@@ -158,7 +158,7 @@ public class BranchServiceTest
     public async void ShouldBeAbleToUpdateAService()
     {
         var serviceDTO = ServiceUpdateRequestDTOBuilder.Build();
-        var serviceUpdated = new Service(serviceDTO.BranchId, new Category(string.Empty, Guid.Empty), string.Empty, string.Empty, false, false, TimeSpan.Zero);
+        var serviceUpdated = new Service(serviceDTO.BranchId, new Category(string.Empty, Guid.Empty), string.Empty, string.Empty,   (decimal) 0.1, (decimal) 0.1, false, false, TimeSpan.Zero);
         serviceDTO.Id = serviceUpdated.Id;
 
         var serviceRepository = new Mock<IServiceRepository>();
@@ -211,7 +211,7 @@ public class BranchServiceTest
     public async void ShouldNotBeAbleToUpdateAServiceWithAInexistentCategory()
     {
         var serviceDTO = ServiceUpdateRequestDTOBuilder.Build();
-        var service = new Service(serviceDTO.BranchId, new Category(string.Empty, Guid.Empty), string.Empty, string.Empty, false, false, TimeSpan.Zero);
+        var service = new Service(serviceDTO.BranchId, new Category(string.Empty, Guid.Empty), string.Empty, string.Empty, (decimal) 1.2, (decimal) 1.2, false, false, TimeSpan.Zero);
         serviceDTO.Id = service.Id;
 
         var serviceRepository = new Mock<IServiceRepository>();

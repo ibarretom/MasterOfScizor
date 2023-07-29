@@ -61,6 +61,15 @@ namespace Domain.Exceptions.Messages {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The service branch id must be a valid value.
+        /// </summary>
+        internal static string BRANCH_ID_MUST_BE_VALID {
+            get {
+                return ResourceManager.GetString("BRANCH_ID_MUST_BE_VALID", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The category was not found..
         /// </summary>
         internal static string CATEGORY_NOT_FOUND {

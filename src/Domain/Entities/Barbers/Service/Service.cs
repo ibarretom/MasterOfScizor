@@ -9,7 +9,7 @@ namespace Domain.Entities.Barbers.Service;
 internal class Service
 {
     public Guid Id { get; private set; }
-    public Guid BranchId { get; }
+    public Guid BranchId { get; private set; }
     public Category? Category { get; set; }
     public string Name { get; set; }
     public string Description { get; set; }
@@ -20,13 +20,14 @@ internal class Service
     //public string Worker { get; set; }
     public TimeSpan Duration { get; set; }
 
-    public Service(Guid branchId, Category? category, string name, string description, bool isPromotionActive, bool active, TimeSpan duration)
+    public Service(Guid branchId, Category? category, string name, string description, decimal price, decimal promotionalPrice, bool isPromotionActive, bool active, TimeSpan duration)
     {
         SetId();
-        BranchId = branchId;
+        SetBranchId(branchId);
         Category = category;
         Name = name;
         Description = description;
+        SetPrices(price, promotionalPrice);
         IsPromotionActive = isPromotionActive;
         Active = active;
         Duration = duration;
@@ -38,11 +39,21 @@ internal class Service
             Id = Guid.NewGuid();
     }
 
+    private void SetBranchId(Guid branchId)
+    {
+        if(branchId == Guid.Empty)
+            throw new ServiceException(ServiceExceptionMessagesResource.BRANCH_ID_MUST_BE_VALID);
+
+        BranchId = branchId;
+    }
+
     public void SetPrices(decimal regularPrice, decimal promotionalPrice)
     {
-        if (Decimal.Compare(regularPrice, 0) <= Decimal.Zero|| Decimal.Compare(promotionalPrice, 0) <= Decimal.Zero) throw new ServiceException(ServiceExceptionMessagesResource.PRICE_MUST_BE_GRATHER_THEN_ZERO);
+        if (Decimal.Compare(regularPrice, 0) <= Decimal.Zero|| Decimal.Compare(promotionalPrice, 0) <= Decimal.Zero) 
+            throw new ServiceException(ServiceExceptionMessagesResource.PRICE_MUST_BE_GRATHER_THEN_ZERO);
 
-        if(Decimal.Compare(regularPrice, promotionalPrice) == Decimal.MinusOne) throw new ServiceException(ServiceExceptionMessagesResource.PROMOTIONAL_PRICE_CANT_BE_GREATER_THEN_REGULAR_PRICE);
+        if(Decimal.Compare(regularPrice, promotionalPrice) == Decimal.MinusOne) 
+            throw new ServiceException(ServiceExceptionMessagesResource.PROMOTIONAL_PRICE_CANT_BE_GREATER_THEN_REGULAR_PRICE);
 
         Price = regularPrice;
         PromotionalPrice = promotionalPrice;
