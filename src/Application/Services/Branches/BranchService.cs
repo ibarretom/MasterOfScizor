@@ -11,11 +11,13 @@ internal class BranchService
 {
     private readonly IServiceRepository _serviceRepository;
     private readonly IBranchRepository _branchRepository;
+    private readonly ICategoryRepository _categoryRepository;
 
-    public BranchService(IServiceRepository serviceRepository, IBranchRepository branchRepository)
+    public BranchService(IServiceRepository serviceRepository, IBranchRepository branchRepository, ICategoryRepository categoryRepository)
     {
         _branchRepository = branchRepository;
         _serviceRepository = serviceRepository;
+        _categoryRepository = categoryRepository;
     }
 
     public async Task AddService(ServiceRequestDTO service)
@@ -30,5 +32,24 @@ internal class BranchService
                 service.Price, service.PromotionalPrice, service.IsPromotionActive, service.Active, service.Duration);
 
         await _serviceRepository.Add(serviceCreated);
+    }
+
+    public async Task UpdateService(ServiceUpdateRequestDTO service)
+    {
+        var existentService = await _serviceRepository.GetById(service.BranchId, service.Id) ?? throw new CompanyException(CompanyExceptionMessagesResource.SERVICE_NOT_FOUND);
+
+        if (service.Category is not null && !(await _categoryRepository.Exists(service.BranchId, service.Category.Id)))
+            throw new ServiceException(ServiceExceptionMessagesResource.CATEGORY_NOT_FOUND);
+
+        existentService.Name = service.Name;
+        existentService.Description = service.Description;
+        existentService.Price = service.Price;
+        existentService.PromotionalPrice = service.PromotionalPrice;
+        existentService.IsPromotionActive = service.IsPromotionActive;
+        existentService.Active = service.Active;
+        existentService.Duration = service.Duration;
+        existentService.Category = service.Category is not null ? service.Category : null;
+
+        await _serviceRepository.Add(existentService);
     }
 }
