@@ -117,19 +117,7 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="BRANCH_NOT_FOUND" xml:space="preserve">
-    <value>Branch was not found</value>
-  </data>
-  <data name="COMAPNY_NOT_FOUND" xml:space="preserve">
-    <value>Company was not found</value>
-  </data>
-  <data name="COMPANY_ALREADY_EXISTS" xml:space="preserve">
-    <value>Company already exists</value>
-  </data>
-  <data name="SERVICE_ALREADY_EXISTS" xml:space="preserve">
-    <value>Service already exists</value>
-  </data>
-  <data name="SERVICE_NOT_FOUND" xml:space="preserve">
-    <value>Service was not found</value>
+  <data name="CATEGORY_NOT_FOUND" xml:space="preserve">
+    <value>The category was not found.</value>
   </data>
 </root>
