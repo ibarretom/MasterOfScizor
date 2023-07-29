@@ -52,4 +52,16 @@ internal class BranchService
 
         await _serviceRepository.Update(existentService);
     }
+
+    public async Task Disable(Guid branchId, Guid serviceId)
+    {
+        if (!(await _branchRepository.Exists(branchId)))
+            throw new CompanyException(CompanyExceptionMessagesResource.BRANCH_NOT_FOUND);
+
+        var serviceToDisable = await _serviceRepository.GetById(branchId, serviceId) ?? throw new CompanyException(CompanyExceptionMessagesResource.SERVICE_NOT_FOUND);
+
+        serviceToDisable.Active = false;
+
+        await _serviceRepository.Update(serviceToDisable);
+    }
 }

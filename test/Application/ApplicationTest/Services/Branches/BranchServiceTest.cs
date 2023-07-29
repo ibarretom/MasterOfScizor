@@ -2,6 +2,7 @@
 using Domain.Entities.Barbers.Service;
 using Domain.Exceptions;
 using Domain.Exceptions.Messages;
+using DomainTest.Entities.Barber.Services;
 using DomainTest.ValueObjects.DTO;
 using Infra.Repositories.Company;
 using Infra.Repositories.CompanyRepository;
@@ -79,7 +80,7 @@ public class BranchServiceTest
         var repository = new Mock<IServiceRepository>();
 
         var branchRepository = new Mock<IBranchRepository>();
-        
+
         var categoryRepository = new Mock<ICategoryRepository>();
 
         var branchService = new BranchService(repository.Object, branchRepository.Object, categoryRepository.Object);
@@ -120,7 +121,7 @@ public class BranchServiceTest
 
         var branchRepository = new Mock<IBranchRepository>();
         branchRepository.Setup(repository => repository.Exists(It.IsAny<Guid>()).Result).Returns(true);
-        
+
         var categoryRepository = new Mock<ICategoryRepository>();
 
         var branchService = new BranchService(serviceRepository.Object, branchRepository.Object, categoryRepository.Object);
@@ -197,11 +198,11 @@ public class BranchServiceTest
         var categoryRepository = new Mock<ICategoryRepository>();
 
         var branchRepository = new Mock<IBranchRepository>();
-        
+
         var branchService = new BranchService(serviceRepository.Object, branchRepository.Object, categoryRepository.Object);
-        
+
         var serviceDTO = ServiceUpdateRequestDTOBuilder.Build();
-        
+
         var exception = await Assert.ThrowsAsync<CompanyException>(() => branchService.Update(serviceDTO));
         Assert.True(exception.Message.Equals(CompanyExceptionMessagesResource.SERVICE_NOT_FOUND));
     }
@@ -232,9 +233,62 @@ public class BranchServiceTest
     [Fact]
     public async void ShouldBeAbleToDisableAService()
     {
+        var service = ServiceBuilder.Build();
+        service.Active = true;
+
+        var serviceRepository = new Mock<IServiceRepository>();
+        serviceRepository.Setup(repository => repository.GetById(service.BranchId, service.Id).Result)
+            .Returns(service);
+
+        var branchRepository = new Mock<IBranchRepository>();
+        branchRepository.Setup(repository => repository.Exists(service.BranchId).Result)
+            .Returns(true);
+
+        var categoryRepository = new Mock<ICategoryRepository>();
+
+        var branchService = new BranchService(serviceRepository.Object, branchRepository.Object, categoryRepository.Object);
+
+        await branchService.Disable(service.BranchId, service.Id);
+
+        Assert.True(service.Active.Equals(false));
+    }
+
+    [Fact]
+    public async void ShouldNotBeAbleToDisableAServiceThatDoesntExists()
+    {
         var branchId = Guid.NewGuid();
         var serviceId = Guid.NewGuid();
 
+        var serviceRepository = new Mock<IServiceRepository>();
+        serviceRepository.Setup(repository => repository.GetById(branchId, serviceId).Result).Returns<Service>(null);
 
+        var branchRepository = new Mock<IBranchRepository>();
+        branchRepository.Setup(repository => repository.Exists(branchId).Result).Returns(true);
+
+        var categoryRepository = new Mock<ICategoryRepository>();
+
+        var branchService = new BranchService(serviceRepository.Object, branchRepository.Object, categoryRepository.Object);
+
+        var exception = await Assert.ThrowsAsync<CompanyException>(() => branchService.Disable(branchId, serviceId));
+        Assert.True(exception.Message.Equals(CompanyExceptionMessagesResource.SERVICE_NOT_FOUND));
+    }
+
+    [Fact]
+    public async void ShouldNotBeAbleToDisableAServiceWithBranchInexistent()
+    {
+        var branchId = Guid.NewGuid();
+        var serviceId = Guid.NewGuid();
+
+        var serviceRepository = new Mock<IServiceRepository>();
+
+        var branchRepository = new Mock<IBranchRepository>();
+        branchRepository.Setup(repository => repository.Exists(branchId).Result).Returns(false);
+
+        var categoryRepository = new Mock<ICategoryRepository>();
+
+        var branchService = new BranchService(serviceRepository.Object, branchRepository.Object, categoryRepository.Object);
+
+        var exception = await Assert.ThrowsAsync<CompanyException>(() => branchService.Disable(branchId, serviceId));
+        Assert.True(exception.Message.Equals(CompanyExceptionMessagesResource.BRANCH_NOT_FOUND));
     }
 }
