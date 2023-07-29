@@ -1,4 +1,6 @@
-﻿using Domain.Services.Encription;
+﻿using Domain.Exceptions;
+using Domain.Exceptions.Messages;
+using Domain.Services.Encription;
 using System.Security.Cryptography;
 using System.Text.Json;
 
@@ -11,22 +13,20 @@ internal class Service
     public Category? Category { get; set; }
     public string Name { get; set; }
     public string Description { get; set; }
-    public decimal Price { get; set; }
-    public decimal PromotionalPrice { get; set; }
+    public decimal Price { get; private set; }
+    public decimal PromotionalPrice { get; private set; }
     public bool IsPromotionActive { get; set; }
     public bool Active { get; set; }
     //public string Worker { get; set; }
     public TimeSpan Duration { get; set; }
 
-    public Service(Guid branchId, Category? category, string name, string description, decimal price, decimal promotionalPrice, bool isPromotionActive, bool active, TimeSpan duration)
+    public Service(Guid branchId, Category? category, string name, string description, bool isPromotionActive, bool active, TimeSpan duration)
     {
         SetId();
         BranchId = branchId;
         Category = category;
         Name = name;
         Description = description;
-        Price = price;
-        PromotionalPrice = promotionalPrice;
         IsPromotionActive = isPromotionActive;
         Active = active;
         Duration = duration;
@@ -36,6 +36,16 @@ internal class Service
     {
         if (Id == Guid.Empty)
             Id = Guid.NewGuid();
+    }
+
+    public void SetPrices(decimal regularPrice, decimal promotionalPrice)
+    {
+        if (Decimal.Compare(regularPrice, 0) <= Decimal.Zero|| Decimal.Compare(promotionalPrice, 0) <= Decimal.Zero) throw new ServiceException(ServiceExceptionMessagesResource.PRICE_MUST_BE_GRATHER_THEN_ZERO);
+
+        if(Decimal.Compare(regularPrice, promotionalPrice) == Decimal.MinusOne) throw new ServiceException(ServiceExceptionMessagesResource.PROMOTIONAL_PRICE_CANT_BE_GREATER_THEN_REGULAR_PRICE);
+
+        Price = regularPrice;
+        PromotionalPrice = promotionalPrice;
     }
 
     public override int GetHashCode()

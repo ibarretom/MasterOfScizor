@@ -68,5 +68,23 @@ namespace Domain.Exceptions.Messages {
                 return ResourceManager.GetString("CATEGORY_NOT_FOUND", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Price or Promotional price must be grather then zero..
+        /// </summary>
+        internal static string PRICE_MUST_BE_GRATHER_THEN_ZERO {
+            get {
+                return ResourceManager.GetString("PRICE_MUST_BE_GRATHER_THEN_ZERO", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Promotional price can not be grather than regular price..
+        /// </summary>
+        internal static string PROMOTIONAL_PRICE_CANT_BE_GREATER_THEN_REGULAR_PRICE {
+            get {
+                return ResourceManager.GetString("PROMOTIONAL_PRICE_CANT_BE_GREATER_THEN_REGULAR_PRICE", resourceCulture);
+            }
+        }
     }
 }
