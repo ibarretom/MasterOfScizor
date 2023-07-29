@@ -5,7 +5,7 @@ namespace Application.Services.Branches;
 
 internal class ScheduleService
 {
-    private IScheduleRepository _scheduleRepository { get; set; }
+    private readonly IScheduleRepository _scheduleRepository;
 
     public ScheduleService(IScheduleRepository scheduleRepository)
     {
