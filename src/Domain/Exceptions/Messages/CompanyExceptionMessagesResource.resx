@@ -120,11 +120,11 @@
   <data name="BRANCH_NOT_FOUND" xml:space="preserve">
     <value>Branch was not found</value>
   </data>
-  <data name="COMAPNY_NOT_FOUND" xml:space="preserve">
-    <value>Company was not found</value>
-  </data>
   <data name="COMPANY_ALREADY_EXISTS" xml:space="preserve">
     <value>Company already exists</value>
+  </data>
+  <data name="COMPANY_NOT_FOUND" xml:space="preserve">
+    <value>Company was not found</value>
   </data>
   <data name="SERVICE_ALREADY_EXISTS" xml:space="preserve">
     <value>Service already exists</value>
