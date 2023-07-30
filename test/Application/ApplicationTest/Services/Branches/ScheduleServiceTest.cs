@@ -2,7 +2,6 @@
 using Domain.Entities.Barbers;
 using DomainTest.ValueObjects.DTO;
 using Infra.Repositories.Company;
-using Infra.Repositories.CompanyRepository;
 using Moq;
 
 namespace ApplicationTest.Services.Branches;
@@ -70,7 +69,7 @@ public class ScheduleServiceTest
                 updatedSchedule.Add(day);
             });
         scheduleRepository.Setup(repository => repository.Exists(It.IsAny<DayOfWeek>(), It.IsAny<Guid>()).Result).Returns(true);
-        
+
         var scheduleService = new ScheduleService(scheduleRepository.Object);
 
         await scheduleService.Update(schedule);
@@ -102,7 +101,7 @@ public class ScheduleServiceTest
             {
                 scheduleUpdated.Add(day);
             });
-          scheduleRepository.Setup(repository => repository.Exists(schedule.Schedule.First().WeekDay, schedule.Schedule.First().BranchId).Result).Returns(true);
+        scheduleRepository.Setup(repository => repository.Exists(schedule.Schedule.First().WeekDay, schedule.Schedule.First().BranchId).Result).Returns(true);
 
         var scheduleService = new ScheduleService(scheduleRepository.Object);
 
@@ -119,6 +118,62 @@ public class ScheduleServiceTest
         foreach (var day in scheduleAdded)
         {
             Assert.Contains(day, schedule.Schedule);
+        }
+    }
+
+    [Fact]
+    public void ShouldBeAbleToGetAScheduleByDayOfWeek()
+    {
+        var schedule = new Schedule(Guid.NewGuid(), DateTime.UtcNow, DateTime.UtcNow.AddHours(1), DayOfWeek.Wednesday);
+
+        var scheduleRepository = new Mock<IScheduleRepository>();
+        scheduleRepository.Setup(repository => repository.GetByDay(schedule.BranchId, schedule.WeekDay).Result).Returns(schedule);
+
+        var scheduleService = new ScheduleService(scheduleRepository.Object);
+
+        var scheduleResponse = scheduleService.GetByDay(schedule.BranchId, schedule.WeekDay).Result;
+
+        Assert.True(scheduleResponse.Items.Count.Equals(1));
+        Assert.Contains(schedule, scheduleResponse.Items);
+    }
+
+    [Fact]
+    public void ShouldReturnAEmptyListWhenAScheduleDoesntExists()
+    {
+        var schedule = new Schedule(Guid.NewGuid(), DateTime.UtcNow, DateTime.UtcNow.AddHours(2), DayOfWeek.Monday);
+
+        var scheduleRepository = new Mock<IScheduleRepository>();
+
+        var scheduleService = new ScheduleService(scheduleRepository.Object);
+
+        var scheduleResponse = scheduleService.GetByDay(schedule.BranchId, schedule.WeekDay).Result;
+
+        Assert.True(scheduleResponse.Items.Count.Equals(0));
+    }
+
+    [Fact]
+    public async void ShouldBeAbleToRetrieveTheIntireScheduleRegistered()
+    {
+        var branchId = Guid.NewGuid();
+        var schedule = new HashSet<Schedule>()
+        {
+            new Schedule(branchId, DateTime.UtcNow, DateTime.UtcNow.AddHours(2), DayOfWeek.Monday),
+            new Schedule(branchId, DateTime.UtcNow, DateTime.UtcNow.AddHours(3), DayOfWeek.Tuesday),
+            new Schedule(branchId, DateTime.UtcNow, DateTime.UtcNow.AddHours(1), DayOfWeek.Wednesday),
+        };
+
+        var scheduleRepository = new Mock<IScheduleRepository>();
+        scheduleRepository.Setup(repository => repository.GetAll(branchId).Result).Returns(schedule);
+
+        var scheduleService = new ScheduleService(scheduleRepository.Object);
+
+        var scheduleResponse = await scheduleService.GetAll(branchId);
+
+        Assert.True(scheduleResponse.Items.Count.Equals(3));
+        
+        foreach( var scheduleItem in scheduleResponse.Items )
+        {
+            Assert.Contains(scheduleItem, schedule);
         }
     }
 }
