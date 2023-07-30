@@ -31,4 +31,13 @@ internal class CompanyService
         
         await _companyRepository.Create(companyCreated);
     }
+
+    public async Task SetAvatar(Guid companyId, string avatar)
+    {
+        var company = await _companyRepository.GetById(companyId) ?? throw new CompanyException(CompanyExceptionMessagesResource.COMPANY_NOT_FOUND);
+
+        company.Avatar = avatar;
+        
+        await _companyRepository.Update(company);
+    }
 }
