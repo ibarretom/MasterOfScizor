@@ -1,7 +1,7 @@
 ﻿using Bogus;
 using Domain.Entities.Barbers.Service;
 
-namespace DomainTest.Entities.Barber.Services;
+namespace DomainTest.Entities.Barbers.Services;
 
 internal class ServiceBuilder
 {

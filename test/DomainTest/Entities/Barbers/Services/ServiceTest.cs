@@ -2,7 +2,7 @@
 using Domain.Exceptions;
 using Domain.Exceptions.Messages;
 
-namespace DomainTest.Entities.Barber.Services;
+namespace DomainTest.Entities.Barbers.Services;
 
 public class ServiceTest
 {

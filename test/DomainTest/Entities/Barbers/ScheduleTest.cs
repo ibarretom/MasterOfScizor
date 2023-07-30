@@ -2,7 +2,7 @@
 using Domain.Exceptions;
 using Domain.Exceptions.Messages;
 
-namespace DomainTest.Entities.Barber;
+namespace DomainTest.Entities.Barbers;
 
 public class ScheduleTest
 {
