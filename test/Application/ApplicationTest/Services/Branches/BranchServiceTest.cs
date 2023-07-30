@@ -2,7 +2,7 @@
 using Domain.Entities.Barbers.Service;
 using Domain.Exceptions;
 using Domain.Exceptions.Messages;
-using DomainTest.Entities.Barber.Services;
+using DomainTest.Entities.Barbers.Services;
 using DomainTest.ValueObjects.DTO;
 using Infra.Repositories.Company;
 using Infra.Repositories.CompanyRepository;
