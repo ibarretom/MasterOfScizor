@@ -126,10 +126,16 @@
   <data name="COMPANY_NOT_FOUND" xml:space="preserve">
     <value>Company was not found</value>
   </data>
+  <data name="INVALID_BRANCH_ID" xml:space="preserve">
+    <value>The branch id must be valid</value>
+  </data>
   <data name="SERVICE_ALREADY_EXISTS" xml:space="preserve">
     <value>Service already exists</value>
   </data>
   <data name="SERVICE_NOT_FOUND" xml:space="preserve">
     <value>Service was not found</value>
+  </data>
+  <data name="WORKER_ALREADY_EXISTS" xml:space="preserve">
+    <value>The worker was already registred</value>
   </data>
 </root>

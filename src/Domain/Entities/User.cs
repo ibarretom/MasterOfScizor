@@ -28,6 +28,11 @@ public class User
         Roles.Add(role);
     }
 
+    public void AddRoles(HashSet<UserRole> roles)
+    {
+        Roles.UnionWith(roles);
+    }
+
     public void SetPassword(string password, IEncriptService encriptService)
     {
         Password = encriptService.Hash($"{Email}{password}");

@@ -88,6 +88,15 @@ namespace Domain.Exceptions.Messages {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The branch id must be valid.
+        /// </summary>
+        internal static string INVALID_BRANCH_ID {
+            get {
+                return ResourceManager.GetString("INVALID_BRANCH_ID", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Service already exists.
         /// </summary>
         internal static string SERVICE_ALREADY_EXISTS {
@@ -102,6 +111,15 @@ namespace Domain.Exceptions.Messages {
         internal static string SERVICE_NOT_FOUND {
             get {
                 return ResourceManager.GetString("SERVICE_NOT_FOUND", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The worker was already registred.
+        /// </summary>
+        internal static string WORKER_ALREADY_EXISTS {
+            get {
+                return ResourceManager.GetString("WORKER_ALREADY_EXISTS", resourceCulture);
             }
         }
     }
