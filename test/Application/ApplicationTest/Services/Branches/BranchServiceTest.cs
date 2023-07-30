@@ -291,4 +291,60 @@ public class BranchServiceTest
         var exception = await Assert.ThrowsAsync<CompanyException>(() => branchService.Disable(branchId, serviceId));
         Assert.True(exception.Message.Equals(CompanyExceptionMessagesResource.BRANCH_NOT_FOUND));
     }
+
+    [Fact]
+    public async void ShouldBeAbleToRetrieveAServiceById()
+    {
+        var service = ServiceBuilder.Build(Guid.NewGuid());
+
+        var serviceRepository = new Mock<IServiceRepository>();
+        serviceRepository.Setup(repository => repository.GetById(service.BranchId, service.Id).Result)
+            .Returns(service);
+
+        var branchRepository = new Mock<IBranchRepository>();
+        branchRepository.Setup(repository => repository.Exists(service.BranchId).Result)
+            .Returns(true);
+
+        var categoryRepository = new Mock<ICategoryRepository>();
+
+        var branchService = new BranchService(serviceRepository.Object, branchRepository.Object, categoryRepository.Object);
+
+        var serviceRetrieved = await branchService.GetSingle(service.BranchId, service.Id);
+
+        Assert.True(serviceRetrieved.Items.Count().Equals(1));
+        Assert.True(serviceRetrieved.Items.First().Equals(service));
+    }
+
+    [Fact]
+    public async void ShouldBeAbleToRetrieveAllServicesRegistred()
+    {
+        var branchId = Guid.NewGuid();
+        var services = new List<Service>() { 
+            ServiceBuilder.Build(branchId),
+            ServiceBuilder.Build(branchId),
+            ServiceBuilder.Build(branchId),
+            ServiceBuilder.Build(branchId)
+        };
+
+        var serviceRepository = new Mock<IServiceRepository>();
+        serviceRepository.Setup(repository => repository.GetAll(branchId).Result)
+            .Returns(services);
+        
+        var branchRepository = new Mock<IBranchRepository>();
+        branchRepository.Setup(repository => repository.Exists(branchId).Result)
+            .Returns(true);
+        
+        var categoryRepository = new Mock<ICategoryRepository>();
+        
+        var branchService = new BranchService(serviceRepository.Object, branchRepository.Object, categoryRepository.Object);
+        
+        var servicesRetrieved = await branchService.GetAll(branchId);
+        
+        Assert.True(servicesRetrieved.Items.Count().Equals(4));
+        
+        foreach (var service in servicesRetrieved.Items)
+        {
+            Assert.Contains(service, services);
+        }
+    }
 }

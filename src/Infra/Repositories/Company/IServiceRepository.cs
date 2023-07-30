@@ -8,5 +8,6 @@ internal interface IServiceRepository
     Task Update(Service service);
     Task<bool> Exists(Guid branchId, string name, Guid categoryId);
     Task<Service> GetById(Guid branchId, Guid serviceId);
+    Task<IEnumerable<Service>> GetAll(Guid branchId);
     Task Disable(Guid branchId, Guid serviceId);
 }

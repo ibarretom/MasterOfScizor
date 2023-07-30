@@ -63,4 +63,24 @@ internal class BranchService
 
         await _serviceRepository.Update(serviceToDisable);
     }
+
+    public async Task<ServiceGetResponseDTO> GetSingle(Guid branchId, Guid serviceId)
+    {
+        if (!(await _branchRepository.Exists(branchId)))
+            throw new CompanyException(CompanyExceptionMessagesResource.BRANCH_NOT_FOUND);
+
+        var service = await _serviceRepository.GetById(branchId, serviceId);
+
+        return new ServiceGetResponseDTO(new List<Service>() { service });
+    }
+
+    public async Task<ServiceGetResponseDTO> GetAll(Guid branchId)
+    {
+        if (!(await _branchRepository.Exists(branchId)))
+            throw new CompanyException(CompanyExceptionMessagesResource.BRANCH_NOT_FOUND);
+
+        var services = await _serviceRepository.GetAll(branchId);
+
+        return new ServiceGetResponseDTO(services);
+    }
 }
