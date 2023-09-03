@@ -95,5 +95,14 @@ namespace Domain.Exceptions.Messages {
                 return ResourceManager.GetString("PROMOTIONAL_PRICE_CANT_BE_GREATER_THEN_REGULAR_PRICE", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Service Id: {0}; does not exists..
+        /// </summary>
+        internal static string SERVICE_DOES_NOT_EXISTS {
+            get {
+                return ResourceManager.GetString("SERVICE_DOES_NOT_EXISTS", resourceCulture);
+            }
+        }
     }
 }

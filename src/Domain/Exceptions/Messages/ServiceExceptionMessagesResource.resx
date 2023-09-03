@@ -129,4 +129,7 @@
   <data name="PROMOTIONAL_PRICE_CANT_BE_GREATER_THEN_REGULAR_PRICE" xml:space="preserve">
     <value>Promotional price can not be grather than regular price.</value>
   </data>
+  <data name="SERVICE_DOES_NOT_EXISTS" xml:space="preserve">
+    <value>Service Id: {0}; does not exists.</value>
+  </data>
 </root>
