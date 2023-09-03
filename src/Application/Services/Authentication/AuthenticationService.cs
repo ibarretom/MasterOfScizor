@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
 using Domain.Entities;
 using Domain.Services.Authentication;
-using Domain.ValueObjects;
 using Domain.ValueObjects.DTO;
+using Domain.ValueObjects.Enums;
 using Infra.Repositories.UserRepository;
 using System.Runtime.CompilerServices;
 

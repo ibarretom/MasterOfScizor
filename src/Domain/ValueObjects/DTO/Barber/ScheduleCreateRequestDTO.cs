@@ -1,5 +1,4 @@
 ﻿using Domain.Entities.Barbers;
-using System.Collections.Generic;
 
 namespace Domain.ValueObjects.DTO.Barber;
 

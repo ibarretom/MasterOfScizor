@@ -3,7 +3,7 @@ using AutoMapper;
 using Domain.Entities;
 using Domain.Services.Authentication;
 using Domain.Services.Mappers;
-using Domain.ValueObjects;
+using Domain.ValueObjects.Enums;
 using DomainTest.ValueObjects.DTO;
 using Infra.Repositories.UserRepository;
 using Moq;

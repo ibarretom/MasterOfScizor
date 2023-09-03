@@ -1,5 +1,5 @@
 ﻿using Domain.Services.Authentication;
-using Domain.ValueObjects;
+using Domain.ValueObjects.Enums;
 
 namespace Domain.Entities;
 

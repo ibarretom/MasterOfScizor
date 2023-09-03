@@ -1,7 +1,7 @@
 ﻿using Bogus;
 using Bogus.Extensions.Brazil;
-using Domain.ValueObjects;
 using Domain.ValueObjects.DTO;
+using Domain.ValueObjects.Enums;
 
 namespace DomainTest.ValueObjects.DTO;
 

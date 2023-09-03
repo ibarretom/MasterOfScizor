@@ -1,4 +1,6 @@
-﻿namespace Domain.ValueObjects.DTO;
+﻿using Domain.ValueObjects.Enums;
+
+namespace Domain.ValueObjects.DTO;
 
 internal class EmployeeCreateRequestDTO
 {

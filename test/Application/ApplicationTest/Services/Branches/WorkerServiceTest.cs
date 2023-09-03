@@ -3,7 +3,7 @@ using Domain.Entities;
 using Domain.Exceptions;
 using Domain.Exceptions.Messages;
 using Domain.Services.Authentication;
-using Domain.ValueObjects;
+using Domain.ValueObjects.Enums;
 using DomainTest.Entities;
 using DomainTest.ValueObjects.DTO;
 using Infra.Repositories.Company;

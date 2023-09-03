@@ -2,8 +2,8 @@
 using Domain.Exceptions;
 using Domain.Exceptions.Messages;
 using Domain.Services.Authentication;
-using Domain.ValueObjects;
 using Domain.ValueObjects.DTO;
+using Domain.ValueObjects.Enums;
 using Infra.Repositories.Company;
 
 namespace Application.Services.Branches;
