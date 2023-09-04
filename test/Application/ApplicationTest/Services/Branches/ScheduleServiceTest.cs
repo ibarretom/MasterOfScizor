@@ -15,7 +15,7 @@ public class ScheduleServiceTest
 
         var scheduleRepository = new Mock<IScheduleRepository>();
 
-        scheduleRepository.Setup(repository => repository.Add(It.IsAny<Schedule>()));
+        scheduleRepository.Setup(repository => repository.Add(It.IsAny<Schedule>(), It.IsAny<Guid>()));
 
         var scheduleService = new ScheduleService(scheduleRepository.Object);
 
@@ -36,7 +36,7 @@ public class ScheduleServiceTest
         var schedule = ScheduleRequestDTOBuilder.Build();
 
         var scheduleRepository = new Mock<IScheduleRepository>();
-        scheduleRepository.Setup(repository => repository.Add(It.IsAny<Schedule>()));
+        scheduleRepository.Setup(repository => repository.Add(It.IsAny<Schedule>(), It.IsAny<Guid>()));
 
         scheduleRepository.Setup(repository => repository.Exists(DayOfWeek.Saturday, schedule.Schedule.ElementAt(5).BranchId).Result).Returns(true);
 
@@ -58,13 +58,13 @@ public class ScheduleServiceTest
 
 
         var scheduleRepository = new Mock<IScheduleRepository>();
-        scheduleRepository.Setup(repository => repository.Add(It.IsAny<Schedule>()))
-            .Callback<Schedule>(day =>
+        scheduleRepository.Setup(repository => repository.Add(It.IsAny<Schedule>(), It.IsAny<Guid>()))
+            .Callback<Schedule, Guid>((day, _)=>
             {
                 scheduleAdded.Add(day);
             });
-        scheduleRepository.Setup(repository => repository.Update(It.IsAny<Schedule>()))
-            .Callback<Schedule>(day =>
+        scheduleRepository.Setup(repository => repository.Update(It.IsAny<Schedule>(), It.IsAny<Guid>()))
+            .Callback<Schedule, Guid>((day, _)=>
             {
                 updatedSchedule.Add(day);
             });
@@ -79,7 +79,7 @@ public class ScheduleServiceTest
 
         foreach (var day in updatedSchedule)
         {
-            Assert.Contains(day, schedule.Schedule);
+            Assert.Contains(day, schedule.Schedule.Select(day => new Schedule(day.StartTime, day.EndTime, day.WeekDay)));
         }
     }
 
@@ -91,13 +91,13 @@ public class ScheduleServiceTest
         var scheduleUpdated = new HashSet<Schedule>();
 
         var scheduleRepository = new Mock<IScheduleRepository>();
-        scheduleRepository.Setup(repository => repository.Add(It.IsAny<Schedule>()))
-            .Callback<Schedule>(day =>
+        scheduleRepository.Setup(repository => repository.Add(It.IsAny<Schedule>(), It.IsAny<Guid>()))
+            .Callback<Schedule, Guid>((day, _) =>
             {
                 scheduleAdded.Add(day);
             });
-        scheduleRepository.Setup(repository => repository.Update(It.IsAny<Schedule>()))
-            .Callback<Schedule>(day =>
+        scheduleRepository.Setup(repository => repository.Update(It.IsAny<Schedule>(), It.IsAny<Guid>()))
+            .Callback<Schedule, Guid>((day, _) =>
             {
                 scheduleUpdated.Add(day);
             });
@@ -112,54 +112,56 @@ public class ScheduleServiceTest
 
         foreach (var day in scheduleUpdated)
         {
-            Assert.Contains(day, schedule.Schedule);
+            Assert.Contains(day, schedule.Schedule.Select(day => new Schedule(day.StartTime, day.EndTime, day.WeekDay)));
         }
 
         foreach (var day in scheduleAdded)
         {
-            Assert.Contains(day, schedule.Schedule);
+            Assert.Contains(day, schedule.Schedule.Select(day => new Schedule(day.StartTime, day.EndTime, day.WeekDay)));
         }
     }
 
     [Fact]
-    public void ShouldBeAbleToGetAScheduleByDayOfWeek()
+    public async Task ShouldBeAbleToGetAScheduleByDayOfWeek()
     {
-        var schedule = new Schedule(Guid.NewGuid(), DateTime.UtcNow, DateTime.UtcNow.AddHours(1), DayOfWeek.Wednesday);
+        var branchId = Guid.NewGuid();
+        var schedule = new Schedule(DateTime.UtcNow, DateTime.UtcNow.AddHours(1), DayOfWeek.Wednesday);
 
         var scheduleRepository = new Mock<IScheduleRepository>();
-        scheduleRepository.Setup(repository => repository.GetByDay(schedule.BranchId, schedule.WeekDay).Result).Returns(schedule);
+        scheduleRepository.Setup(repository => repository.GetByDay(branchId, schedule.WeekDay).Result).Returns(schedule);
 
         var scheduleService = new ScheduleService(scheduleRepository.Object);
 
-        var scheduleResponse = scheduleService.GetByDay(schedule.BranchId, schedule.WeekDay).Result;
+        var scheduleResponse = await scheduleService.GetByDay(branchId, schedule.WeekDay);
 
         Assert.True(scheduleResponse.Items.Count.Equals(1));
         Assert.Contains(schedule, scheduleResponse.Items);
     }
 
     [Fact]
-    public void ShouldReturnAEmptyListWhenAScheduleDoesntExists()
+    public void ShouldReturnAEmptyListWhenAScheduleDoesNotExists()
     {
-        var schedule = new Schedule(Guid.NewGuid(), DateTime.UtcNow, DateTime.UtcNow.AddHours(2), DayOfWeek.Monday);
+        var branchId = Guid.NewGuid();
+        var schedule = new Schedule(DateTime.UtcNow, DateTime.UtcNow.AddHours(2), DayOfWeek.Monday);
 
         var scheduleRepository = new Mock<IScheduleRepository>();
 
         var scheduleService = new ScheduleService(scheduleRepository.Object);
 
-        var scheduleResponse = scheduleService.GetByDay(schedule.BranchId, schedule.WeekDay).Result;
+        var scheduleResponse = scheduleService.GetByDay(branchId, schedule.WeekDay).Result;
 
         Assert.True(scheduleResponse.Items.Count.Equals(0));
     }
 
     [Fact]
-    public async void ShouldBeAbleToRetrieveTheIntireScheduleRegistered()
+    public async void ShouldBeAbleToRetrieveTheEntireScheduleRegistered()
     {
         var branchId = Guid.NewGuid();
         var schedule = new HashSet<Schedule>()
         {
-            new Schedule(branchId, DateTime.UtcNow, DateTime.UtcNow.AddHours(2), DayOfWeek.Monday),
-            new Schedule(branchId, DateTime.UtcNow, DateTime.UtcNow.AddHours(3), DayOfWeek.Tuesday),
-            new Schedule(branchId, DateTime.UtcNow, DateTime.UtcNow.AddHours(1), DayOfWeek.Wednesday),
+            new Schedule(DateTime.UtcNow, DateTime.UtcNow.AddHours(2), DayOfWeek.Monday),
+            new Schedule(DateTime.UtcNow, DateTime.UtcNow.AddHours(3), DayOfWeek.Tuesday),
+            new Schedule(DateTime.UtcNow, DateTime.UtcNow.AddHours(1), DayOfWeek.Wednesday),
         };
 
         var scheduleRepository = new Mock<IScheduleRepository>();
