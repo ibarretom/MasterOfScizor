@@ -7,14 +7,12 @@ namespace Domain.Entities.Barbers;
 
 internal class Schedule
 {
-    public Guid BranchId { get; }
     public DateTime StartTime { get; private set; }
     public DateTime EndTime { get; private set; }
     public DayOfWeek WeekDay { get; set; }
 
-    public Schedule(Guid branchId, DateTime startTime, DateTime endTime, DayOfWeek dayOfWeek)
+    public Schedule(DateTime startTime, DateTime endTime, DayOfWeek dayOfWeek)
     {
-        BranchId = branchId;
         SetScheduleTime(startTime, endTime);
         WeekDay = dayOfWeek;
     }

@@ -17,8 +17,9 @@ internal class Branch
     public HashSet<Service.Service> Service { get; } = new HashSet<Service.Service>();
     public HashSet<Employee> Barber { get; } = new HashSet<Employee>();
     public bool IsOpened { get; set; }
+    public Configuration Configuration { get; set; }
 
-    public Branch(Guid barberId, string identifier, Address address, string phone, string email, bool isOpened)
+    public Branch(Guid barberId, string identifier, Address address, string phone, string email, bool isOpened, Configuration configuration)
     {
         BarberId = barberId;
         Identifier = identifier;
@@ -26,6 +27,7 @@ internal class Branch
         Phone = phone;
         Email = email;
         IsOpened = isOpened;
+        Configuration = configuration;
     }
 
     public void AddSchedule(Schedule schedule)
@@ -66,5 +68,10 @@ internal class Branch
     public void RemoveEmployee(Employee employee)
     {
         Barber.RemoveWhere(existentBarber => employee.Id == existentBarber.Id);
+    }
+
+    public Schedule? GetScheduleFor(DayOfWeek weekDay)
+    {
+        return Schedule.FirstOrDefault(schedule => schedule.WeekDay == weekDay);
     }
 }

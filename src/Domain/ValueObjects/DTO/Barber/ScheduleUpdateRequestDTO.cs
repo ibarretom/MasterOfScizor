@@ -4,7 +4,7 @@ namespace Domain.ValueObjects.DTO.Barber;
 
 internal class ScheduleUpdateRequestDTO : ScheduleCreateRequestDTO
 {
-    public ScheduleUpdateRequestDTO(HashSet<Schedule> schedule) : base(schedule)
+    public ScheduleUpdateRequestDTO(HashSet<ScheduleRequestDTO> schedule) : base(schedule)
     {
     }
 }

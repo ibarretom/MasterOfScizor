@@ -1,6 +1,7 @@
 ﻿using Domain.Entities.Barbers;
 using Domain.ValueObjects.DTO.Barber;
 using Infra.Repositories.Company;
+using Infra.Repositories.CompanyRepository;
 using System.Reflection.Metadata.Ecma335;
 
 namespace Application.Services.Branches;
@@ -8,7 +9,7 @@ namespace Application.Services.Branches;
 internal class ScheduleService
 {
     private readonly IScheduleRepository _scheduleRepository;
-
+   
     public ScheduleService(IScheduleRepository scheduleRepository)
     {
         _scheduleRepository = scheduleRepository;
@@ -26,7 +27,7 @@ internal class ScheduleService
                 continue;
             }
 
-            await _scheduleRepository.Add(day);
+            await _scheduleRepository.Add(new Schedule(day.StartTime, day.EndTime, day.WeekDay), day.BranchId);
             scheduleResponse.CreatedSchedule.Add(day);
         }
 
@@ -39,11 +40,11 @@ internal class ScheduleService
         {
             if (!(await _scheduleRepository.Exists(day.WeekDay, day.BranchId)))
             {
-                await _scheduleRepository.Add(day);
+                await _scheduleRepository.Add(new Schedule(day.StartTime, day.EndTime, day.WeekDay), day.BranchId);
                 continue;
             }
 
-            await _scheduleRepository.Update(day);
+            await _scheduleRepository.Update(new Schedule(day.StartTime, day.EndTime, day.WeekDay), day.BranchId);
         }
     }
 

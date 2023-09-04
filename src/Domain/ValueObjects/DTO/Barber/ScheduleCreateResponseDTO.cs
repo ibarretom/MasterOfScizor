@@ -4,8 +4,8 @@ namespace Domain.ValueObjects.DTO.Barber;
 
 internal class ScheduleCreateResponseDTO
 {
-    public HashSet<Schedule> CreatedSchedule { get; set; } = new HashSet<Schedule> { };
-    public HashSet<Schedule> ExistentSchedule { get; set; } = new HashSet<Schedule> { };
+    public HashSet<ScheduleRequestDTO> CreatedSchedule { get; set; } = new HashSet<ScheduleRequestDTO> { };
+    public HashSet<ScheduleRequestDTO> ExistentSchedule { get; set; } = new HashSet<ScheduleRequestDTO> { };
 
     public ScheduleCreateResponseDTO()
     {

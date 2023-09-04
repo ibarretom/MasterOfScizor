@@ -8,14 +8,14 @@ internal class ScheduleRequestDTOBuilder
     public static ScheduleCreateRequestDTO Build()
     {
         var barnchId = Guid.NewGuid();
-        var schedule = new HashSet<Schedule>
+        var schedule = new HashSet<ScheduleRequestDTO>
         {
-            new Schedule(barnchId, DateTime.Now, DateTime.Now.AddHours(1), DayOfWeek.Monday),
-            new Schedule(barnchId, DateTime.Now, DateTime.Now.AddHours(1), DayOfWeek.Tuesday),
-            new Schedule(barnchId, DateTime.Now, DateTime.Now.AddHours(1), DayOfWeek.Wednesday),
-            new Schedule(barnchId, DateTime.Now, DateTime.Now.AddHours(1), DayOfWeek.Thursday),
-            new Schedule(barnchId, DateTime.Now, DateTime.Now.AddHours(1), DayOfWeek.Friday),
-            new Schedule(barnchId, DateTime.Now, DateTime.Now.AddHours(1), DayOfWeek.Saturday),
+            new ScheduleRequestDTO(barnchId, DateTime.Now, DateTime.Now.AddHours(1), DayOfWeek.Monday),
+            new ScheduleRequestDTO(barnchId, DateTime.Now, DateTime.Now.AddHours(1), DayOfWeek.Tuesday),
+            new ScheduleRequestDTO(barnchId, DateTime.Now, DateTime.Now.AddHours(1), DayOfWeek.Wednesday),
+            new ScheduleRequestDTO(barnchId, DateTime.Now, DateTime.Now.AddHours(1), DayOfWeek.Thursday),
+            new ScheduleRequestDTO(barnchId, DateTime.Now, DateTime.Now.AddHours(1), DayOfWeek.Friday),
+            new ScheduleRequestDTO(barnchId, DateTime.Now, DateTime.Now.AddHours(1), DayOfWeek.Saturday),
         };
 
         return new ScheduleCreateRequestDTO(schedule);

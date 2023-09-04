@@ -2,6 +2,7 @@
 using Domain.Exceptions;
 using Domain.Exceptions.Messages;
 using Domain.ValueObjects.DTO.Barber;
+using Domain.ValueObjects.Enums;
 using Infra.Repositories.Addresses;
 using Infra.Repositories.CompanyRepository;
 
@@ -27,7 +28,10 @@ internal class CompanyService
             throw new CompanyException(CompanyExceptionMessagesResource.COMPANY_ALREADY_EXISTS);
 
         var companyCreated = new Barber(company.OwnerId, company.Name, company.Identifier, string.Empty);
-        companyCreated.AddBranch(new Branch(companyCreated.Id, company.Branch.Identifier, company.Branch.Address, company.Branch.Phone, company.Branch.Email, false));
+
+        var branchConfig = new Configuration(OrderQueueType.Schedule, true, null, new Schedule(DateTime.Now, DateTime.Now.AddHours(1), DayOfWeek.Monday), new TimeSpan(20), true);
+
+        companyCreated.AddBranch(new Branch(companyCreated.Id, company.Branch.Identifier, company.Branch.Address, company.Branch.Phone, company.Branch.Email, false, branchConfig));
         
         await _companyRepository.Create(companyCreated);
     }
