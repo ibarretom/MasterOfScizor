@@ -29,7 +29,7 @@ internal class CompanyService
 
         var companyCreated = new Barber(company.OwnerId, company.Name, company.Identifier, string.Empty);
 
-        var branchConfig = new Configuration(OrderQueueType.Schedule, true, null, new Schedule(DateTime.Now, DateTime.Now.AddHours(1), DayOfWeek.Monday), new TimeSpan(20), true);
+        var branchConfig = new Configuration(OrderQueueType.Schedule, true, null, new TimeSpan(20), true);
 
         companyCreated.AddBranch(new Branch(companyCreated.Id, company.Branch.Identifier, company.Branch.Address, company.Branch.Phone, company.Branch.Email, false, branchConfig));
         
