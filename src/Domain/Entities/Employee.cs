@@ -1,4 +1,5 @@
-﻿using Domain.Exceptions;
+﻿using Domain.Entities.Barbers;
+using Domain.Exceptions;
 using Domain.Exceptions.Messages;
 using Domain.Services.Encription;
 using System.Text.Json;
@@ -11,13 +12,22 @@ internal class Employee : User
     public bool Active { get; set; }
     public string Avatar { get; set; }
     public string Document { get; set; }
-
+    public Schedule? LunchInterval { get; set; }
     public Employee(Guid branchId, bool active, string avatar, string document, string name, string email, string phone) : base(name, email, phone)
     {
         SetBranchId(branchId);
         Active = active;
         Avatar = avatar;
         Document = document;
+    } 
+    
+    public Employee(Guid branchId, bool active, string avatar, string document, string name, string email, string phone, Schedule lunchInterval) : base(name, email, phone)
+    {
+        SetBranchId(branchId);
+        Active = active;
+        Avatar = avatar;
+        Document = document;
+        LunchInterval = lunchInterval;
     }
 
     private void SetBranchId(Guid branchId)

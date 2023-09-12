@@ -12,6 +12,7 @@ internal class Order
     public Guid UserId { get; }
     public OrderStatus Status { get; }
     public DateTime ScheduleTime { get; }
+    public DateTime RelocatedSchedule { get; set; }
 
     public Order(Guid branchId, Guid workerId, List<Service> services, Guid userId, OrderStatus orderStatus, DateTime scheduleTime)
     {

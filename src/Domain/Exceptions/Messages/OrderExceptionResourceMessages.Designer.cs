@@ -22,14 +22,14 @@ namespace Domain.Exceptions.Messages {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class CompanyExceptionMessagesResource {
+    internal class OrderExceptionResourceMessages {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
         private static global::System.Globalization.CultureInfo resourceCulture;
         
         [global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
-        internal CompanyExceptionMessagesResource() {
+        internal OrderExceptionResourceMessages() {
         }
         
         /// <summary>
@@ -39,7 +39,7 @@ namespace Domain.Exceptions.Messages {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Domain.Exceptions.Messages.CompanyExceptionMessagesResource", typeof(CompanyExceptionMessagesResource).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Domain.Exceptions.Messages.OrderExceptionResourceMessages", typeof(OrderExceptionResourceMessages).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -61,101 +61,83 @@ namespace Domain.Exceptions.Messages {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The branch is not working for the desired day..
+        ///   Looks up a localized string similar to The employee is not registered on the barber..
         /// </summary>
-        internal static string BRANCH_IS_NOT_OPENNED_THIS_DAY {
+        internal static string EMPLOYEE_DOES_NOT_EXISTS {
             get {
-                return ResourceManager.GetString("BRANCH_IS_NOT_OPENNED_THIS_DAY", resourceCulture);
+                return ResourceManager.GetString("EMPLOYEE_DOES_NOT_EXISTS", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Branch was not found.
+        ///   Looks up a localized string similar to It was not possible to register the order due order Policy. The order doesn&apos;t match the policies for the required worker..
         /// </summary>
-        internal static string BRANCH_NOT_FOUND {
+        internal static string INVALID_ORDER {
             get {
-                return ResourceManager.GetString("BRANCH_NOT_FOUND", resourceCulture);
+                return ResourceManager.GetString("INVALID_ORDER", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The schedule for branch {0} is not configured..
+        ///   Looks up a localized string similar to The desired order time is already alocated..
         /// </summary>
-        internal static string BRANCH_WITHOUT_SCHEDULE {
+        internal static string ORDER_TIME_ALREADY_ALOCATED {
             get {
-                return ResourceManager.GetString("BRANCH_WITHOUT_SCHEDULE", resourceCulture);
+                return ResourceManager.GetString("ORDER_TIME_ALREADY_ALOCATED", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Company already exists.
+        ///   Looks up a localized string similar to The branch alocates orders by queue, so the order time must be grather then the order now..
         /// </summary>
-        internal static string COMPANY_ALREADY_EXISTS {
+        internal static string ORDER_TIME_IS_BEFORE_DATE_NOW {
             get {
-                return ResourceManager.GetString("COMPANY_ALREADY_EXISTS", resourceCulture);
+                return ResourceManager.GetString("ORDER_TIME_IS_BEFORE_DATE_NOW", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Company was not found.
+        ///   Looks up a localized string similar to This order is schedule for a time grather then commercial time..
         /// </summary>
-        internal static string COMPANY_NOT_FOUND {
+        internal static string ORDER_TIME_IS_GREATER_THEN_COMMERCIAL_TIME {
             get {
-                return ResourceManager.GetString("COMPANY_NOT_FOUND", resourceCulture);
+                return ResourceManager.GetString("ORDER_TIME_IS_GREATER_THEN_COMMERCIAL_TIME", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to This employee was not found..
+        ///   Looks up a localized string similar to The order can not be scheduled during the lunch time..
         /// </summary>
-        internal static string EMPLOYEE_NOT_FOUND {
+        internal static string ORDER_TIME_IS_IN_LUNCH_INTERVAL {
             get {
-                return ResourceManager.GetString("EMPLOYEE_NOT_FOUND", resourceCulture);
+                return ResourceManager.GetString("ORDER_TIME_IS_IN_LUNCH_INTERVAL", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The branch id must be valid.
+        ///   Looks up a localized string similar to This order is schedule for a time before the commercial time..
         /// </summary>
-        internal static string INVALID_BRANCH_ID {
+        internal static string ORDER_TIME_IS_LESS_THEN_COMMERCIAL_TIME {
             get {
-                return ResourceManager.GetString("INVALID_BRANCH_ID", resourceCulture);
+                return ResourceManager.GetString("ORDER_TIME_IS_LESS_THEN_COMMERCIAL_TIME", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The lunch time is invalid. Is not in a valid commercial time..
+        ///   Looks up a localized string similar to The required order is not in commercial time..
         /// </summary>
-        internal static string INVALID_LUNCH_TIME_FOR_BRANCH {
+        internal static string ORDER_TIME_IS_NOT_IN_COMMERCIAL_TIME {
             get {
-                return ResourceManager.GetString("INVALID_LUNCH_TIME_FOR_BRANCH", resourceCulture);
+                return ResourceManager.GetString("ORDER_TIME_IS_NOT_IN_COMMERCIAL_TIME", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Service already exists.
+        ///   Looks up a localized string similar to The required order time is not allowed..
         /// </summary>
-        internal static string SERVICE_ALREADY_EXISTS {
+        internal static string ORDER_TIME_NOT_ALLOWED {
             get {
-                return ResourceManager.GetString("SERVICE_ALREADY_EXISTS", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Service was not found.
-        /// </summary>
-        internal static string SERVICE_NOT_FOUND {
-            get {
-                return ResourceManager.GetString("SERVICE_NOT_FOUND", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The worker was already registred.
-        /// </summary>
-        internal static string WORKER_ALREADY_EXISTS {
-            get {
-                return ResourceManager.GetString("WORKER_ALREADY_EXISTS", resourceCulture);
+                return ResourceManager.GetString("ORDER_TIME_NOT_ALLOWED", resourceCulture);
             }
         }
     }

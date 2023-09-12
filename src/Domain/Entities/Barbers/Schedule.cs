@@ -29,6 +29,11 @@ internal class Schedule
         EndTime = endTime;
     }
 
+    public bool Includes(Schedule schedule)
+    {
+        return schedule.StartTime >= StartTime && schedule.EndTime <= EndTime;
+    }
+
     public override int GetHashCode()
     {
         return WeekDay.GetHashCode();

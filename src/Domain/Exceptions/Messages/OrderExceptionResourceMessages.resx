@@ -117,37 +117,31 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="BRANCH_IS_NOT_OPENNED_THIS_DAY" xml:space="preserve">
-    <value>The branch is not working for the desired day.</value>
+  <data name="EMPLOYEE_DOES_NOT_EXISTS" xml:space="preserve">
+    <value>The employee is not registered on the barber.</value>
   </data>
-  <data name="BRANCH_NOT_FOUND" xml:space="preserve">
-    <value>Branch was not found</value>
+  <data name="INVALID_ORDER" xml:space="preserve">
+    <value>It was not possible to register the order due order Policy. The order doesn't match the policies for the required worker.</value>
   </data>
-  <data name="BRANCH_WITHOUT_SCHEDULE" xml:space="preserve">
-    <value>The schedule for branch {0} is not configured.</value>
+  <data name="ORDER_TIME_ALREADY_ALOCATED" xml:space="preserve">
+    <value>The desired order time is already alocated.</value>
   </data>
-  <data name="COMPANY_ALREADY_EXISTS" xml:space="preserve">
-    <value>Company already exists</value>
+  <data name="ORDER_TIME_IS_BEFORE_DATE_NOW" xml:space="preserve">
+    <value>The branch alocates orders by queue, so the order time must be grather then the order now.</value>
   </data>
-  <data name="COMPANY_NOT_FOUND" xml:space="preserve">
-    <value>Company was not found</value>
+  <data name="ORDER_TIME_IS_GREATER_THEN_COMMERCIAL_TIME" xml:space="preserve">
+    <value>This order is schedule for a time grather then commercial time.</value>
   </data>
-  <data name="EMPLOYEE_NOT_FOUND" xml:space="preserve">
-    <value>This employee was not found.</value>
+  <data name="ORDER_TIME_IS_IN_LUNCH_INTERVAL" xml:space="preserve">
+    <value>The order can not be scheduled during the lunch time.</value>
   </data>
-  <data name="INVALID_BRANCH_ID" xml:space="preserve">
-    <value>The branch id must be valid</value>
+  <data name="ORDER_TIME_IS_LESS_THEN_COMMERCIAL_TIME" xml:space="preserve">
+    <value>This order is schedule for a time before the commercial time.</value>
   </data>
-  <data name="INVALID_LUNCH_TIME_FOR_BRANCH" xml:space="preserve">
-    <value>The lunch time is invalid. Is not in a valid commercial time.</value>
+  <data name="ORDER_TIME_IS_NOT_IN_COMMERCIAL_TIME" xml:space="preserve">
+    <value>The required order is not in commercial time.</value>
   </data>
-  <data name="SERVICE_ALREADY_EXISTS" xml:space="preserve">
-    <value>Service already exists</value>
-  </data>
-  <data name="SERVICE_NOT_FOUND" xml:space="preserve">
-    <value>Service was not found</value>
-  </data>
-  <data name="WORKER_ALREADY_EXISTS" xml:space="preserve">
-    <value>The worker was already registred</value>
+  <data name="ORDER_TIME_NOT_ALLOWED" xml:space="preserve">
+    <value>The required order time is not allowed.</value>
   </data>
 </root>

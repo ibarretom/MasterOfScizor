@@ -21,6 +21,16 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>CompanyExceptionMessagesResource.resx</DependentUpon>
     </Compile>
+    <Compile Update="Exceptions\Messages\MasterOfScizorExceptionsMessagesResource.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>MasterOfScizorExceptionsMessagesResource.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Exceptions\Messages\OrderExceptionResourceMessages.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>OrderExceptionResourceMessages.resx</DependentUpon>
+    </Compile>
     <Compile Update="Exceptions\Messages\ScheduleExceptionMessagesResource.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -30,6 +40,11 @@
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>ServiceExceptionMessagesResource.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Exceptions\Messages\UserExceptionMessagesResource.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>UserExceptionMessagesResource.resx</DependentUpon>
     </Compile>
   </ItemGroup>
 
@@ -42,6 +57,14 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>CompanyExceptionMessagesResource.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <EmbeddedResource Update="Exceptions\Messages\MasterOfScizorExceptionsMessagesResource.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>MasterOfScizorExceptionsMessagesResource.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Exceptions\Messages\OrderExceptionResourceMessages.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>OrderExceptionResourceMessages.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
     <EmbeddedResource Update="Exceptions\Messages\ScheduleExceptionMessagesResource.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>ScheduleExceptionMessagesResource.Designer.cs</LastGenOutput>
@@ -49,6 +72,10 @@
     <EmbeddedResource Update="Exceptions\Messages\ServiceExceptionMessagesResource.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>ServiceExceptionMessagesResource.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Exceptions\Messages\UserExceptionMessagesResource.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>UserExceptionMessagesResource.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
 

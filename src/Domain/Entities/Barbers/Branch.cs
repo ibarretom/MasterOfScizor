@@ -1,4 +1,6 @@
 ﻿using Domain.Entities.Barbers.Service;
+using Domain.Exceptions;
+using Domain.Exceptions.Messages;
 using Domain.ValueObjects.Addresses;
 using System.Runtime.CompilerServices;
 
@@ -7,6 +9,7 @@ namespace Domain.Entities.Barbers;
 
 internal class Branch
 {
+    public Guid Id { get; }
     public Guid BarberId { get; }
     public string Identifier { get; }
     public Address Address { get; set; }
@@ -17,10 +20,11 @@ internal class Branch
     public HashSet<Service.Service> Service { get; } = new HashSet<Service.Service>();
     public HashSet<Employee> Barber { get; } = new HashSet<Employee>();
     public bool IsOpened { get; set; }
-    public Configuration Configuration { get; set; }
+    public Configuration Configuration { get; private set; }
 
     public Branch(Guid barberId, string identifier, Address address, string phone, string email, bool isOpened, Configuration configuration)
     {
+        Id = Guid.NewGuid();
         BarberId = barberId;
         Identifier = identifier;
         Address = address;
@@ -28,6 +32,23 @@ internal class Branch
         Email = email;
         IsOpened = isOpened;
         Configuration = configuration;
+    }
+
+    public void AddEmployeeLunchInterval(Schedule lunchInterval, Guid employeeId)
+    {
+        if (!IsValidLunchTime(lunchInterval))
+            throw new CompanyException(CompanyExceptionMessagesResource.INVALID_LUNCH_TIME_FOR_BRANCH);
+
+        var employee = Barber.FirstOrDefault(barber => barber.Id == employeeId) ?? throw new CompanyException(CompanyExceptionMessagesResource.EMPLOYEE_NOT_FOUND);
+        
+        employee.LunchInterval = lunchInterval;
+    }
+
+    private bool IsValidLunchTime(Schedule lunchInterval)
+    {
+        var validForAllWorkingDays = Schedule.All(schedule => schedule.Includes(lunchInterval));
+
+        return validForAllWorkingDays;
     }
 
     public void AddSchedule(Schedule schedule)

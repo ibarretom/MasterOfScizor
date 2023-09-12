@@ -117,37 +117,7 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="BRANCH_IS_NOT_OPENNED_THIS_DAY" xml:space="preserve">
-    <value>The branch is not working for the desired day.</value>
-  </data>
-  <data name="BRANCH_NOT_FOUND" xml:space="preserve">
-    <value>Branch was not found</value>
-  </data>
-  <data name="BRANCH_WITHOUT_SCHEDULE" xml:space="preserve">
-    <value>The schedule for branch {0} is not configured.</value>
-  </data>
-  <data name="COMPANY_ALREADY_EXISTS" xml:space="preserve">
-    <value>Company already exists</value>
-  </data>
-  <data name="COMPANY_NOT_FOUND" xml:space="preserve">
-    <value>Company was not found</value>
-  </data>
-  <data name="EMPLOYEE_NOT_FOUND" xml:space="preserve">
-    <value>This employee was not found.</value>
-  </data>
-  <data name="INVALID_BRANCH_ID" xml:space="preserve">
-    <value>The branch id must be valid</value>
-  </data>
-  <data name="INVALID_LUNCH_TIME_FOR_BRANCH" xml:space="preserve">
-    <value>The lunch time is invalid. Is not in a valid commercial time.</value>
-  </data>
-  <data name="SERVICE_ALREADY_EXISTS" xml:space="preserve">
-    <value>Service already exists</value>
-  </data>
-  <data name="SERVICE_NOT_FOUND" xml:space="preserve">
-    <value>Service was not found</value>
-  </data>
-  <data name="WORKER_ALREADY_EXISTS" xml:space="preserve">
-    <value>The worker was already registred</value>
+  <data name="INVALID_LUNCH_INTERVAL" xml:space="preserve">
+    <value>The provided lunch time is invalid for this user. Lunch time must be a valid date time and StartTime must be grather then EndTime.</value>
   </data>
 </root>
