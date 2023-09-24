@@ -40,7 +40,7 @@ internal class Branch
             throw new CompanyException(CompanyExceptionMessagesResource.INVALID_LUNCH_TIME_FOR_BRANCH);
 
         var employee = Barber.FirstOrDefault(barber => barber.Id == employeeId) ?? throw new CompanyException(CompanyExceptionMessagesResource.EMPLOYEE_NOT_FOUND);
-        
+
         employee.LunchInterval = lunchInterval;
     }
 
@@ -91,8 +91,8 @@ internal class Branch
         Barber.RemoveWhere(existentBarber => employee.Id == existentBarber.Id);
     }
 
-    public Schedule? GetScheduleFor(DayOfWeek weekDay)
+    public Schedule? GetScheduleFor(DateTime day)
     {
-        return Schedule.FirstOrDefault(schedule => schedule.WeekDay == weekDay);
+        return Schedule.FirstOrDefault(schedule => schedule.Includes(day));
     }
 }

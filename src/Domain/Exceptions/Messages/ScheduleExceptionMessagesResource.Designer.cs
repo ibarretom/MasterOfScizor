@@ -70,6 +70,15 @@ namespace Domain.Exceptions.Messages {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Start time and end time must be differents..
+        /// </summary>
+        internal static string START_TIME_AND_END_TIME_MUST_BE_DIFFERENT {
+            get {
+                return ResourceManager.GetString("START_TIME_AND_END_TIME_MUST_BE_DIFFERENT", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The Start time must be grater then the End time..
         /// </summary>
         internal static string START_TIME_MUST_BE_GREATER_THEN_END_TIME {

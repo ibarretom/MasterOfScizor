@@ -1,12 +1,15 @@
 ﻿using Application.Services.Orders;
+using Domain.Entities.Barbers;
 using Domain.Entities.Barbers.Service;
 using Domain.Entities.Orders;
 using Domain.Exceptions;
 using Domain.Exceptions.Messages;
 using Domain.ValueObjects.Enums;
+using DomainTest.Entities.Barbers;
 using DomainTest.Entities.Barbers.Services;
 using DomainTest.ValueObjects.DTO;
 using Infra.Repositories.Company;
+using Infra.Repositories.CompanyRepository;
 using Moq;
 
 namespace ApplicationTest.Services.Orders;
@@ -18,37 +21,42 @@ public class OrderServiceTest
     {
         var orderDTO = OrderRequestDTOBuilder.Build();
 
-        var services = orderDTO.ServiceId.Select(serviceId => ServiceBuilder.Build(orderDTO.BranchId)).ToList();
-
-        var servicesId = services.Select(service => service.Id).ToList();
-
-        orderDTO = OrderRequestDTOBuilder.Build(servicesId);
-
-        var orderCreated = new Order(Guid.Empty, Guid.Empty, new List<Guid>(), Guid.Empty, OrderStatus.Pending, DateTime.UtcNow);
+        var orderCreated = new Order(Guid.Empty, Guid.Empty, new List<Service>(), Guid.Empty, OrderStatus.Pending, DateTime.UtcNow);
 
         var orderRepository = new Mock<IOrderRepository>();
-        orderRepository.Setup(repository => repository.Create(It.IsAny<Order>()))
+        orderRepository
+            .Setup(repository => repository.Create(It.IsAny<Order>()))
             .Callback<Order>(order =>
              {
                 orderCreated = order;
-            }).Returns(Task.CompletedTask);
+            })
+            .Returns(Task.CompletedTask);
+        orderRepository.Setup(repository => repository.GetBy(It.IsAny<Guid>(), It.IsAny<Guid>()).Result).Returns(new List<Order>());
 
         var currentService = ServiceBuilder.Build();
 
         var serviceRepository = new Mock<IServiceRepository>();
-        serviceRepository.Setup(repository => repository.GetById(It.IsAny<Guid>(), It.IsAny<Guid>()).Result)
-            .Callback<Guid, Guid>((branchId, serviceId) =>
-            {
-                currentService = ServiceBuilder.Build();
-                services.RemoveAt(0);
-            })
-            .Returns(currentService);
+        serviceRepository.Setup(repository => repository.Exists(It.IsAny<Guid>(), It.IsAny<Guid>()).Result)
+            .Returns(true);
 
-        var orderService = new OrderService(orderRepository.Object, serviceRepository.Object);
+        var configuration = ConfigurationBuilder.BuildRandom();
+        var branch = BranchBuilder.Build(configuration);
+
+        var branchRepository = new Mock<IBranchRepository>();
+        branchRepository.Setup(repository => repository.GetBy(It.IsAny<Guid>()).Result).Returns(branch);
+
+        var orderPolicy = new Mock<IOrderPolicy>();
+        orderPolicy.Setup(repository => repository.IsAllowed(It.IsAny<Order>(), It.IsAny<List<Order>>(), It.IsAny<Branch>())).Returns(true);
+
+        var orderService = new OrderService(orderRepository.Object, serviceRepository.Object, branchRepository.Object, orderPolicy.Object);
 
         await orderService.Create(orderDTO);
 
-        Assert.Contains(orderDTO.ServiceId, serviceId => orderCreated.ServiceId.Contains(serviceId));
+        orderDTO.Services.ForEach(service =>
+        {
+            Assert.Contains(service, orderCreated.Services);
+        });
+
         Assert.True(orderDTO.UserId.Equals(orderCreated.UserId), "User Id does not matches");
         Assert.True(orderDTO.WorkerId.Equals(orderCreated.WorkerId), "Worker Id does not matches");
         Assert.True(orderDTO.BranchId.Equals(orderCreated.BranchId), "Branch Id does not matches");
@@ -57,20 +65,23 @@ public class OrderServiceTest
     }
 
     [Fact]
-    public async Task ShouldThrowAnErrorWhenServiceIdDoesNotExists()
+    public async Task ShouldThrowAnErrorWhenServiceDoesNotExists()
     {
-        var services = new List<Guid>() { Guid.NewGuid()};
-
-        var orderDTO = OrderRequestDTOBuilder.Build(services);
+        var orderDTO = OrderRequestDTOBuilder.Build(1);
 
         var orderRepository = new Mock<IOrderRepository>();
 
         var serviceRepository = new Mock<IServiceRepository>();
+        serviceRepository.Setup(serviceRepository => serviceRepository.Exists(It.IsAny<Guid>(), It.IsAny<Guid>()).Result)
+            .Returns(false);
+        var branchRepository = new Mock<IBranchRepository>();
 
-        var orderService = new OrderService(orderRepository.Object, serviceRepository.Object);
+        var orderPolicy = new Mock<IOrderPolicy>();
 
-        var exception = await Assert.ThrowsAsync<ServiceException>(() => orderService.Create(orderDTO));
+        var orderService = new OrderService(orderRepository.Object, serviceRepository.Object, branchRepository.Object, orderPolicy.Object);
 
-        Assert.True(exception.Message.Equals(string.Format(ServiceExceptionMessagesResource.SERVICE_DOES_NOT_EXISTS, services.First())));
+        var exception = await Assert.ThrowsAsync<ServiceException>(async () => await orderService.Create(orderDTO));
+
+        Assert.True(exception.Message.Equals(string.Format(ServiceExceptionMessagesResource.SERVICE_DOES_NOT_EXISTS, orderDTO.Services.First().Id)), "Mensagens de erro não conferem.");
     }
 }

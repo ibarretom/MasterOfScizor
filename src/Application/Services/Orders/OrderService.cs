@@ -4,6 +4,7 @@ using Domain.Exceptions.Messages;
 using Domain.ValueObjects.DTO.Orders;
 using Domain.ValueObjects.Enums;
 using Infra.Repositories.Company;
+using Infra.Repositories.CompanyRepository;
 
 namespace Application.Services.Orders;
 
@@ -11,27 +12,39 @@ internal class OrderService
 {
     private readonly IOrderRepository _orderRepository;
     private readonly IServiceRepository _serviceRepository;
+    private readonly IBranchRepository _branchRepository;
+    private readonly IOrderPolicy _orderPolicy;
 
-    public OrderService(IOrderRepository orderRepository, IServiceRepository serviceRepository)
+    public OrderService(IOrderRepository orderRepository, IServiceRepository serviceRepository, IBranchRepository branchRepository, IOrderPolicy orderPolicy)
     {
         _orderRepository = orderRepository;
         _serviceRepository = serviceRepository;
+        _branchRepository = branchRepository;
+        _orderPolicy = orderPolicy;
     }
 
     public async Task Create(OrderRequestDTO order)
-    {
-
-        var servicesTask = order.ServiceId.Select(serviceId => Task.Run(async () =>
+     {
+        var servicesTask = order.Services.Select(service => Task.Run(async () =>
         {
-            var service = await _serviceRepository.GetById(order.BranchId, serviceId);
+            var serviceExists = await _serviceRepository.Exists(order.BranchId, service.Id);
 
-            return service is null
-                ? throw new ServiceException(string.Format(ServiceExceptionMessagesResource.SERVICE_DOES_NOT_EXISTS, serviceId))
-                : service;
+            if (!serviceExists)
+                throw new ServiceException(string.Format(ServiceExceptionMessagesResource.SERVICE_DOES_NOT_EXISTS, service.Id));
+
+            return serviceExists;
         }));
 
+        await Task.WhenAll(servicesTask);
 
-        var createdOrder = new Order(order.BranchId, order.WorkerId, order.ServiceId, order.UserId, OrderStatus.Accepted, order.ScheduleTime);
+        var branch = await _branchRepository.GetBy(order.BranchId);
+       
+        var allOrders = await _orderRepository.GetBy(order.BranchId, order.WorkerId);
+
+        var createdOrder = new Order(order.BranchId, order.WorkerId, order.Services, order.UserId, OrderStatus.Accepted, order.ScheduleTime);
+
+        if (!_orderPolicy.IsAllowed(createdOrder, allOrders, branch))
+            throw new OrderException(OrderExceptionResourceMessages.INVALID_ORDER);
 
         await _orderRepository.Create(createdOrder);
     }

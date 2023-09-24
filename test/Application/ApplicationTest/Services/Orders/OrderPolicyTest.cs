@@ -22,27 +22,27 @@ public class OrderPolicyTest
 
         var now = DateTime.UtcNow;
 
-        var schedule = new Schedule(now, now.AddHours(2), now.DayOfWeek);
+        var schedule = new Schedule(new TimeOnly(now.Hour, now.Minute), new TimeOnly(now.Hour, now.Minute).AddHours(2), now.DayOfWeek);
         branch.AddSchedule(schedule);
 
         var order = OrderBuilder.Build(now.AddDays(2));
 
         var orderPolicy = new OrderPolicy();
 
-        var exception = Assert.Throws<CompanyException>(() => orderPolicy.IsAllowed(order, new List<Order>(), branch));
+        var exception = Assert.Throws<OrderException>(() => orderPolicy.IsAllowed(order, new List<Order>(), branch));
 
-        Assert.True(exception.Message.Equals(CompanyExceptionMessagesResource.BRANCH_IS_NOT_OPENNED_THIS_DAY));
+        Assert.True(exception.Message.Equals(OrderExceptionResourceMessages.ORDER_TIME_IS_NOT_IN_COMMERCIAL_TIME));
     }
 
     private static void AddScheduleWithBoundarySchedules(DateTime time, Branch branch)
     {
-        var schedule = new Schedule(time.AddHours(-1), time.AddHours(2), time.DayOfWeek);
+        var schedule = new Schedule(new TimeOnly(time.Hour, time.Minute).AddHours(-1), new TimeOnly(time.Hour, time.Minute).AddHours(2), time.AddHours(-1).DayOfWeek);
         branch.AddSchedule(schedule);
 
-        var scheduleDayBefore = new Schedule(time.AddDays(-1), time.AddDays(-1).AddHours(2), time.AddDays(-1).DayOfWeek);
+        var scheduleDayBefore = new Schedule(new TimeOnly(time.AddDays(-1).Hour, time.AddDays(-1).Minute), new TimeOnly(time.AddDays(-1).Hour, time.AddDays(-1).Minute).AddHours(2), time.AddDays(-1).AddHours(-1).DayOfWeek);
         branch.AddSchedule(scheduleDayBefore);
 
-        var scheduleDayAfter = new Schedule(time.AddDays(1), time.AddDays(1).AddHours(2), time.AddDays(1).DayOfWeek);
+        var scheduleDayAfter = new Schedule(new TimeOnly(time.AddDays(1).Hour, time.AddDays(1).Minute), new TimeOnly(time.AddDays(1).Hour, time.AddDays(1).Minute).AddHours(2), time.AddDays(1).AddHours(-1).DayOfWeek);
         branch.AddSchedule(scheduleDayAfter);
     }
 
@@ -181,7 +181,7 @@ public class OrderPolicyTest
 
         var branch = BranchBuilder.Build(configuration, true);
 
-        var now = DateTime.UtcNow;
+        var now = DateTime.Now.ToUniversalTime();
 
         AddScheduleWithBoundarySchedules(now, branch);
 
@@ -232,7 +232,7 @@ public class OrderPolicyTest
         AddScheduleWithBoundarySchedules(now, branch);
 
         var employee = EmployeeBuilder.Build();
-        employee.LunchInterval = new Schedule(now, now.AddHours(1), now.DayOfWeek);
+        employee.LunchInterval = new Schedule(new TimeOnly(now.Hour, now.Minute), new TimeOnly(now.Hour, now.Minute).AddHours(1), now.DayOfWeek);
         branch.AddEmployee(employee);
 
         var order = OrderBuilder.Build(now.AddMinutes(-30), employee.Id, new List<Service>() { ServiceBuilder.Build(branch.Id, TimeSpan.FromMinutes(32)) });
@@ -255,7 +255,7 @@ public class OrderPolicyTest
         AddScheduleWithBoundarySchedules(now, branch);
 
         var employee = EmployeeBuilder.Build();
-        employee.LunchInterval = new Schedule(now, now.AddHours(1), now.DayOfWeek);
+        employee.LunchInterval = new Schedule(new TimeOnly(now.Hour, now.Minute), new TimeOnly(now.Hour, now.Minute).AddHours(1), now.DayOfWeek);
 
         branch.AddEmployee(employee);
 
@@ -353,7 +353,7 @@ public class OrderPolicyTest
 
         var isAllowed = orderPolicy.IsAllowed(testOrders.Order, testOrders.Orders, branch);
 
-        Assert.True(isAllowed);
+        Assert.True(isAllowed, testOrders.TestId);
     }
 
 
@@ -409,7 +409,7 @@ public class OrderPolicyTest
 
         var configuration = ConfigurationBuilder.BuildQueueWithVirtualQueue();
 
-        return new OrderPolicyTestData(order, allOrders, configuration);
+        return new OrderPolicyTestData(order, allOrders, configuration, "QueueOrderWithPreviousOrderAlmostClosing");
     }
 
     private static OrderPolicyTestData QueueOrderWithNoPreviousOrderAlmostClosing()
@@ -420,7 +420,7 @@ public class OrderPolicyTest
 
         var configuration = ConfigurationBuilder.BuildQueueWithVirtualQueue();
 
-        return new OrderPolicyTestData(order, allOrders, configuration);
+        return new OrderPolicyTestData(order, allOrders, configuration, "QueueOrderWithNoPreviousOrderAlmostClosing");
     }
 
     private static OrderPolicyTestData QueueLimitOrderWithFreeSpace()
@@ -431,7 +431,7 @@ public class OrderPolicyTest
 
         var configuration = ConfigurationBuilder.BuildWithQueueLimit(2);
 
-        return new OrderPolicyTestData(order, allOrders, configuration);
+        return new OrderPolicyTestData(order, allOrders, configuration, "QueueLimitOrderWithFreeSpace");
     }
 
     private static OrderPolicyTestData QueueScheduleCloseToLunchInterval()
@@ -442,7 +442,10 @@ public class OrderPolicyTest
 
         var configuration = ConfigurationBuilder.BuildWithScheduleWithNoDelay();
 
-        return new OrderPolicyTestData(order, allOrders, configuration, new Schedule(Now.AddHours(1), Now.AddHours(2), Now.DayOfWeek));
+        return new OrderPolicyTestData(order, allOrders, configuration, 
+            new Schedule(new TimeOnly(Now.Hour, Now.Minute).AddHours(1), 
+            new TimeOnly(Now.Hour, Now.Minute).AddHours(2), Now.DayOfWeek),
+            "QueueScheduleCloseToLunchInterval");
     }
 
     private static OrderPolicyTestData QueueScheduleCloseToEndTime()
@@ -453,7 +456,7 @@ public class OrderPolicyTest
 
         var configuration = ConfigurationBuilder.BuildWithScheduleWithNoDelay();
 
-        return new OrderPolicyTestData(order, allOrders, configuration);
+        return new OrderPolicyTestData(order, allOrders, configuration, "QueueScheduleCloseToEndTime");
     }
 
     private static OrderPolicyTestData QueueScheduleCloseToNextOrder()
@@ -464,7 +467,7 @@ public class OrderPolicyTest
 
         var configuration = ConfigurationBuilder.BuildWithScheduleWithNoDelay();
 
-        return new OrderPolicyTestData(order, allOrders, configuration);
+        return new OrderPolicyTestData(order, allOrders, configuration, "QueueScheduleCloseToNextOrder");
     }
 
     private static OrderPolicyTestData QueueScheduleCloseToPreviousOrder()
@@ -478,7 +481,7 @@ public class OrderPolicyTest
 
         var configuration = ConfigurationBuilder.BuildWithScheduleWithNoDelay();
 
-        return new OrderPolicyTestData(order, allOrders, configuration);
+        return new OrderPolicyTestData(order, allOrders, configuration, "QueueScheduleCloseToPreviousOrder");
     }
 
     private static OrderPolicyTestData QueueScheduleWithUpperAndBellowBoundary()
@@ -496,7 +499,7 @@ public class OrderPolicyTest
 
         var configuration = ConfigurationBuilder.BuildWithScheduleWithNoDelay();
 
-        return new OrderPolicyTestData(order, allOrders, configuration);
+        return new OrderPolicyTestData(order, allOrders, configuration, "QueueScheduleWithUpperAndBellowBoundary");
     }
 
     private class OrderPolicyTestData
@@ -504,22 +507,24 @@ public class OrderPolicyTest
         public Order Order { get; set; }
         public List<Order> Orders { get; set; }
         public Configuration Configuration { get; set; }
-
         public Schedule? LunchInterval { get; set; }
+        public string TestId { get; set; }
 
-        public OrderPolicyTestData(Order order, List<Order> orders, Configuration configuration)
+        public OrderPolicyTestData(Order order, List<Order> orders, Configuration configuration, string testId)
         {
             Order = order;
             Orders = orders;
             Configuration = configuration;
+            TestId = testId;
         }
 
-        public OrderPolicyTestData(Order order, List<Order> orders, Configuration configuration, Schedule schedule)
+        public OrderPolicyTestData(Order order, List<Order> orders, Configuration configuration, Schedule schedule, string testId)
         {
             Order = order;
             Orders = orders;
             Configuration = configuration;
             LunchInterval = schedule;
+            TestId = testId;
         }
     }
 }

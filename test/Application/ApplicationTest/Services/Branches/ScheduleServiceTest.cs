@@ -125,7 +125,8 @@ public class ScheduleServiceTest
     public async Task ShouldBeAbleToGetAScheduleByDayOfWeek()
     {
         var branchId = Guid.NewGuid();
-        var schedule = new Schedule(DateTime.UtcNow, DateTime.UtcNow.AddHours(1), DayOfWeek.Wednesday);
+        var now = DateTime.UtcNow;
+        var schedule = new Schedule(new TimeOnly(now.Hour, now.Minute), new TimeOnly(now.Hour, now.Minute).AddHours(1), DayOfWeek.Wednesday);
 
         var scheduleRepository = new Mock<IScheduleRepository>();
         scheduleRepository.Setup(repository => repository.GetByDay(branchId, schedule.WeekDay).Result).Returns(schedule);
@@ -142,7 +143,8 @@ public class ScheduleServiceTest
     public void ShouldReturnAEmptyListWhenAScheduleDoesNotExists()
     {
         var branchId = Guid.NewGuid();
-        var schedule = new Schedule(DateTime.UtcNow, DateTime.UtcNow.AddHours(2), DayOfWeek.Monday);
+        var now = DateTime.UtcNow;
+        var schedule = new Schedule(new TimeOnly(now.Hour, now.Minute), new TimeOnly(now.Hour, now.Minute).AddHours(2), DayOfWeek.Monday);
 
         var scheduleRepository = new Mock<IScheduleRepository>();
 
@@ -157,11 +159,12 @@ public class ScheduleServiceTest
     public async void ShouldBeAbleToRetrieveTheEntireScheduleRegistered()
     {
         var branchId = Guid.NewGuid();
+        var now = DateTime.UtcNow;
         var schedule = new HashSet<Schedule>()
         {
-            new Schedule(DateTime.UtcNow, DateTime.UtcNow.AddHours(2), DayOfWeek.Monday),
-            new Schedule(DateTime.UtcNow, DateTime.UtcNow.AddHours(3), DayOfWeek.Tuesday),
-            new Schedule(DateTime.UtcNow, DateTime.UtcNow.AddHours(1), DayOfWeek.Wednesday),
+            new Schedule(new TimeOnly(now.Hour, now.Minute), new TimeOnly(now.Hour, now.Minute).AddHours(2), DayOfWeek.Monday),
+            new Schedule(new TimeOnly(now.Hour, now.Minute), new TimeOnly(now.Hour, now.Minute).AddHours(3), DayOfWeek.Tuesday),
+            new Schedule(new TimeOnly(now.Hour, now.Minute), new TimeOnly(now.Hour, now.Minute).AddHours(1), DayOfWeek.Wednesday),
         };
 
         var scheduleRepository = new Mock<IScheduleRepository>();

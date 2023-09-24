@@ -10,12 +10,12 @@ internal class ScheduleUpdateRequestDTOBuilder
         var barnchId = Guid.NewGuid();
         var schedule = new HashSet<ScheduleRequestDTO>
         {
-            new ScheduleRequestDTO(barnchId, DateTime.Now, DateTime.Now.AddHours(1), DayOfWeek.Monday),
-            new ScheduleRequestDTO(barnchId, DateTime.Now, DateTime.Now.AddHours(1), DayOfWeek.Tuesday),
-            new ScheduleRequestDTO(barnchId, DateTime.Now, DateTime.Now.AddHours(1), DayOfWeek.Wednesday),
-            new ScheduleRequestDTO(barnchId, DateTime.Now, DateTime.Now.AddHours(1), DayOfWeek.Thursday),
-            new ScheduleRequestDTO(barnchId, DateTime.Now, DateTime.Now.AddHours(1), DayOfWeek.Friday),
-            new ScheduleRequestDTO(barnchId, DateTime.Now, DateTime.Now.AddHours(1), DayOfWeek.Saturday),
+            new ScheduleRequestDTO(barnchId, new TimeOnly(DateTime.UtcNow.Hour, DateTime.UtcNow.Minute), new TimeOnly(DateTime.UtcNow.Hour, DateTime.UtcNow.Minute).AddHours(1), DayOfWeek.Monday),
+            new ScheduleRequestDTO(barnchId, new TimeOnly(DateTime.UtcNow.Hour, DateTime.UtcNow.Minute), new TimeOnly(DateTime.UtcNow.Hour, DateTime.UtcNow.Minute).AddHours(1), DayOfWeek.Tuesday),
+            new ScheduleRequestDTO(barnchId, new TimeOnly(DateTime.UtcNow.Hour, DateTime.UtcNow.Minute), new TimeOnly(DateTime.UtcNow.Hour, DateTime.UtcNow.Minute).AddHours(1), DayOfWeek.Wednesday),
+            new ScheduleRequestDTO(barnchId, new TimeOnly(DateTime.UtcNow.Hour, DateTime.UtcNow.Minute), new TimeOnly(DateTime.UtcNow.Hour, DateTime.UtcNow.Minute).AddHours(1), DayOfWeek.Thursday),
+            new ScheduleRequestDTO(barnchId, new TimeOnly(DateTime.UtcNow.Hour, DateTime.UtcNow.Minute), new TimeOnly(DateTime.UtcNow.Hour, DateTime.UtcNow.Minute).AddHours(1), DayOfWeek.Friday),
+            new ScheduleRequestDTO(barnchId, new TimeOnly(DateTime.UtcNow.Hour, DateTime.UtcNow.Minute), new TimeOnly(DateTime.UtcNow.Hour, DateTime.UtcNow.Minute).AddHours(1), DayOfWeek.Saturday),
         };
 
         return new ScheduleUpdateRequestDTO(schedule);
