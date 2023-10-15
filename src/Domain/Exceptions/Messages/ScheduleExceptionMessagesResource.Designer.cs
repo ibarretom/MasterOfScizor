@@ -61,6 +61,15 @@ namespace Domain.Exceptions.Messages {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The date reference DayOfWeek must be equals to the Schedule DayOfWeek.
+        /// </summary>
+        internal static string INVALID_DATE_FOR_THIS_SCHEDULE {
+            get {
+                return ResourceManager.GetString("INVALID_DATE_FOR_THIS_SCHEDULE", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Start time or End time is invalido..
         /// </summary>
         internal static string INVALID_DATETIME {

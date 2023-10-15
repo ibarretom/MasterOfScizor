@@ -53,6 +53,7 @@ public class ScheduleTest
     public void ShouldIncludeInSaturdayToSunday()
     {
         var now = DateTime.UtcNow;
+        now = now.AddDays((DayOfWeek.Saturday - now.DayOfWeek - + 7) % 7);
 
         var beforeMidnight = new DateTime(now.Year, now.Month, now.Day, 23, 0, 0);
         var afterMidnight = new DateTime(now.Year, now.Month, now.AddDays(1).Day, 1, 0, 0);
@@ -64,4 +65,73 @@ public class ScheduleTest
 
         Assert.True(schedule.Includes(scheduleToCompare));
     }
+
+    [Fact]
+    public void ShouldNotIncludeWhenScheduleHasOverflowingDayAndTheDesiredDayIsInPreviousDayStartTime()
+    {
+        var now = DateTime.UtcNow;
+
+        var beforeMidnight = new DateTime(now.Year, now.Month, now.Day, 23, 0, 0);
+        var afterMidnight = new DateTime(now.Year, now.Month, now.AddDays(1).Day, 2, 0, 0);
+
+        var schedule = new Schedule(new TimeOnly(beforeMidnight.Hour, beforeMidnight.Minute), new TimeOnly(afterMidnight.Hour, afterMidnight.Minute), DayOfWeek.Saturday);
+
+        var dayToCompare = new DateTime(now.Year, now.Month, now.AddDays(1).Day, 23, 30, 0);
+
+        Assert.False(schedule.Includes(dayToCompare));
+    }
+
+    [Fact]
+    public void ShouldThrowsWhenDateToCompareDayOfWeekIsDifferentThenScheduleDayOfWeekForGetScheduleDates()
+    {
+        var now = DateTime.UtcNow;
+
+        var beforeMidnight = new DateTime(now.Year, now.Month, now.Day, 23, 0, 0);
+        var afterMidnight = new DateTime(now.Year, now.Month, now.AddDays(1).Day, 2, 0, 0);
+
+        var schedule = new Schedule(new TimeOnly(beforeMidnight.Hour, beforeMidnight.Minute), new TimeOnly(afterMidnight.Hour, afterMidnight.Minute), DayOfWeek.Saturday);
+
+        var dayToCompare = new DateTime(now.Year, now.Month, now.AddDays(1).Day, 23, 30, 0);
+
+        var exception = Assert.Throws<ScheduleException>(() => Schedule.GetScheduleDateTime(schedule, now));
+
+        Assert.True(exception.Message.Equals(ScheduleExceptionMessagesResource.INVALID_DATE_FOR_THIS_SCHEDULE));
+    }
+
+    [Fact]
+    public void ShouldReturnFalseWhenSchedulesDayOfWeekDoesNotMatches()
+    {
+        var now = DateTime.UtcNow;
+
+        var schedule = new Schedule(new TimeOnly(20, now.Minute), new TimeOnly(23, now.Minute), DayOfWeek.Saturday);
+
+        var scheduleToCompare = new Schedule(new TimeOnly(21, now.Minute), new TimeOnly(22, now.Minute), DayOfWeek.Sunday);
+
+        Assert.False(schedule.Includes(scheduleToCompare));
+    }
+
+    [Fact]
+    public void ShouldReturnFalseWhenSchedulesWithOverflowingIsNotMatching()
+    {
+          var now = DateTime.UtcNow;
+
+        var schedule = new Schedule(new TimeOnly(20, now.Minute), new TimeOnly(2, now.Minute), DayOfWeek.Saturday);
+
+        var scheduleToCompare = new Schedule(new TimeOnly(21, now.Minute), new TimeOnly(2, now.Minute), DayOfWeek.Sunday);
+
+        Assert.False(schedule.Includes(scheduleToCompare));
+    }
+
+    [Fact]
+    public void ShouldReturnFalseWhenScheduleWithOverflowingIsNotMatching()
+    {
+          var now = DateTime.UtcNow;
+
+        var schedule = new Schedule(new TimeOnly(20, now.Minute), new TimeOnly(2, now.Minute), DayOfWeek.Saturday);
+
+        var scheduleToCompare = new Schedule(new TimeOnly(21, now.Minute), new TimeOnly(22, now.Minute), DayOfWeek.Sunday);
+
+        Assert.False(schedule.Includes(scheduleToCompare));
+    }
+
 }

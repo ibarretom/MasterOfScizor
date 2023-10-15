@@ -71,7 +71,7 @@ internal class OrderPolicy : IOrderPolicy
 
         var orderTimeServices = order.Services.Aggregate(new TimeSpan(0), (acc, current) => acc + current.Duration);
 
-        var (_, EndTime) = Schedule.GetScheduleDateTime(workingTime);
+        var (_, EndTime) = Schedule.GetScheduleDateTime(workingTime, order.ScheduleTime);
 
         if (DateTime.Compare(lastOrderTimePlusServiceDuration, DateTime.UtcNow) >= 0)
         {
@@ -122,35 +122,32 @@ internal class OrderPolicy : IOrderPolicy
         var firstOrderBeforeRequestedOrder = allOrders.LastOrDefault(order => DateTime.Compare(new DateTime(order.ScheduleTime.Year, order.ScheduleTime.Month,
                         order.ScheduleTime.Day, order.ScheduleTime.Hour, order.ScheduleTime.Minute, 0), desiredTimeForThisOrder) <= 0);
 
-        if (HasConflictWithThePreviousOrder(desiredTimeForThisOrder, firstOrderBeforeRequestedOrder, allowedTimes))
+        if (HasConflictWithThePreviousOrder(desiredTimeForThisOrder, firstOrderBeforeRequestedOrder, GetAllowedTimes(order, branch, true)))
             return false;
 
         var firstOrderAfterRequestedOrder = allOrders.FirstOrDefault(order => DateTime.Compare(new DateTime(order.ScheduleTime.Year, order.ScheduleTime.Month,
                         order.ScheduleTime.Day, order.ScheduleTime.Hour, order.ScheduleTime.Minute, 0), desiredTimeForThisOrder) >= 0);
 
-        if (HasConflictWithTheNextOrder(desiredTimeForThisOrder, order.Services, firstOrderAfterRequestedOrder, allowedTimes))
+        if (HasConflictWithTheNextOrder(desiredTimeForThisOrder, order.Services, firstOrderAfterRequestedOrder, GetAllowedTimes(order,branch, true)))
             return false;
 
         return true;
     }
 
-    private static List<DateTime> GetAllowedTimes(Order order, Branch branch)
+    private static List<DateTime> GetAllowedTimes(Order order, Branch branch, bool withLastTime = false)
     {
         var interval = branch.Configuration.ScheduleDefaultInterval;
 
         var scheduleForOrderDay = branch.GetScheduleFor(order.ScheduleTime) ?? throw new CompanyException(CompanyExceptionMessagesResource.BRANCH_IS_NOT_OPENNED_THIS_DAY);
 
-        var (StartTime, EndTime) = Schedule.GetScheduleDateTime(scheduleForOrderDay);
+        var (StartTime, EndTime) = Schedule.GetScheduleDateTime(scheduleForOrderDay, order.ScheduleTime);
 
         var allowedTimes = new List<DateTime>();
 
         for (var currentTime = StartTime;
-                DateTime.Compare(currentTime, EndTime) < 0;
+                withLastTime ? DateTime.Compare(currentTime, EndTime) <= 0 : DateTime.Compare(currentTime, EndTime) < 0;
                 currentTime = currentTime.Add(interval))
         {
-            if (DateTime.Compare(currentTime.Add(interval), EndTime) > 0)
-                break;
-
             allowedTimes.Add(currentTime);
         }
 
@@ -164,7 +161,7 @@ internal class OrderPolicy : IOrderPolicy
         if (employee.LunchInterval is null)
             return false;
 
-        var (StartTime, EndTime) = Schedule.GetScheduleDateTime(employee.LunchInterval);
+        var (StartTime, EndTime) = Schedule.GetScheduleDateTime(employee.LunchInterval, order.ScheduleTime);
 
         var desiredTimePlusServiceDuration = desiredTime.Add(order.Services.Aggregate(new TimeSpan(0), (acc, current) => acc + current.Duration));
 
@@ -196,7 +193,7 @@ internal class OrderPolicy : IOrderPolicy
     {
         var desiredDay = branch.GetScheduleFor(order.ScheduleTime) ?? throw new CompanyException(CompanyExceptionMessagesResource.BRANCH_IS_NOT_OPENNED_THIS_DAY);
 
-        var (StartTime, EndTime) = Schedule.GetScheduleDateTime(desiredDay);
+        var (StartTime, EndTime) = Schedule.GetScheduleDateTime(desiredDay, order.ScheduleTime);
 
         var totalTimeServices = order.Services.Aggregate(new TimeSpan(0), (acc, current) => acc + current.Duration);
 

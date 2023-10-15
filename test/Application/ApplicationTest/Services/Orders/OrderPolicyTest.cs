@@ -336,6 +336,62 @@ public class OrderPolicyTest
 
         Assert.True(!isAllowed);
     }
+    [Fact]
+    private void ShouldPassAOrderWithCrossingDays()
+    {
+        var configuration = ConfigurationBuilder.BuildWithScheduleWithNoDelay();
+
+        var branch = BranchBuilder.Build(configuration);
+
+        var now = DateTime.UtcNow;
+
+        var schedule = new Schedule(new TimeOnly(22, 0), new TimeOnly(2, 0), now.DayOfWeek);
+        branch.AddSchedule(schedule);
+
+        var employee = EmployeeBuilder.Build();
+        branch.AddEmployee(employee);
+
+        var services = new List<Service>() { ServiceBuilder.Build(branch.Id, TimeSpan.FromMinutes(120)) };
+
+        var order = OrderBuilder.Build(new DateTime(now.Year, now.Month, now.Day, 23, 0, 0), employee.Id, services);
+
+        var orderPolicy = new OrderPolicy();
+
+        var isAllowed = orderPolicy.IsAllowed(order, new List<Order>(), branch);
+
+        Assert.True(isAllowed);
+    }
+
+    [Fact]
+    private void ShouldNotAcceptWhenTheScheduleIsFull()
+    {
+        var configuration = ConfigurationBuilder.BuildWithScheduleWithNoDelay();
+
+        var branch = BranchBuilder.Build(configuration);
+
+        var now = DateTime.UtcNow;
+        
+        var schedule = new Schedule(new TimeOnly(now.AddHours(-1).Hour, 0), new TimeOnly(now.AddHours(1).Hour, 0), now.DayOfWeek);
+        branch.AddSchedule(schedule);
+
+        var employee = EmployeeBuilder.Build();
+        branch.AddEmployee(employee);
+
+        var order = OrderBuilder.Build(new DateTime(now.Year, now.Month, now.Day, now.Hour, 0, 0), employee.Id,
+                           new List<Service> { ServiceBuilder.Build(Guid.NewGuid(), TimeSpan.FromMinutes(30)) });
+
+        var allOrders = new List<Order>()
+        {
+            OrderBuilder.Build(new DateTime(now.Year, now.Month, now.Day, now.AddHours(-1).Hour, 0, 0), employee.Id,
+                           new List<Service>() { ServiceBuilder.Build(Guid.NewGuid(), TimeSpan.FromMinutes(2*60)) }),
+        };
+
+        var orderPolicy = new OrderPolicy();
+
+        var isAllowed = orderPolicy.IsAllowed(order, allOrders, branch);
+
+        Assert.False(isAllowed);
+    }
 
     [Theory]
     [MemberData(nameof(BuildObjects))]
@@ -396,6 +452,21 @@ public class OrderPolicyTest
         {
                 QueueScheduleCloseToPreviousOrder(),
         };
+
+        yield return new object[]
+        {
+                QueueScheduleWithUpperAndBellowBoundary(),
+        };
+
+        yield return new object[]
+        {
+            QueueScheduleWithFullScheduleTodayButFreeAWeekAfter(),
+        };
+
+        yield return new object[]
+        {
+            QueueScheduleWithOrderForTomorrow(),
+        };
     }
 
     private static OrderPolicyTestData QueueOrderWithPreviousOrderAlmostClosing()
@@ -442,8 +513,8 @@ public class OrderPolicyTest
 
         var configuration = ConfigurationBuilder.BuildWithScheduleWithNoDelay();
 
-        return new OrderPolicyTestData(order, allOrders, configuration, 
-            new Schedule(new TimeOnly(Now.Hour, Now.Minute).AddHours(1), 
+        return new OrderPolicyTestData(order, allOrders, configuration,
+            new Schedule(new TimeOnly(Now.Hour, Now.Minute).AddHours(1),
             new TimeOnly(Now.Hour, Now.Minute).AddHours(2), Now.DayOfWeek),
             "QueueScheduleCloseToLunchInterval");
     }
@@ -491,7 +562,7 @@ public class OrderPolicyTest
 
         var allOrders = new List<Order>() {
                 OrderBuilder.Build(
-                    Now.AddMinutes(-0.5), Employee.Id,
+                    Now.AddMinutes(-30), Employee.Id,
                     new List<Service>() { ServiceBuilder.Build(Guid.NewGuid(), TimeSpan.FromMinutes(30))}
                 ),
                 OrderBuilder.Build(Now.AddMinutes(30))
@@ -502,6 +573,35 @@ public class OrderPolicyTest
         return new OrderPolicyTestData(order, allOrders, configuration, "QueueScheduleWithUpperAndBellowBoundary");
     }
 
+    private static OrderPolicyTestData QueueScheduleWithFullScheduleTodayButFreeAWeekAfter()
+    {
+        var order = OrderBuilder.Build(Now.AddDays(7), Employee.Id,
+                           new List<Service> { ServiceBuilder.Build(Guid.NewGuid(), TimeSpan.FromMinutes(30)) });
+
+        var allOrders = new List<Order>()
+        {
+            OrderBuilder.Build(Now.AddHours(-1), Employee.Id,
+                           new List<Service>() { ServiceBuilder.Build(Guid.NewGuid(), TimeSpan.FromMinutes(3*60)) }),
+        };
+
+        var configuration = ConfigurationBuilder.BuildWithScheduleWithNoDelay();
+
+        return new OrderPolicyTestData(order, allOrders, configuration, "QueueScheduleWithFullScheduleTodayButFreeAWeekAfter");
+    }
+
+    private static OrderPolicyTestData QueueScheduleWithOrderForTomorrow()
+    {
+        var order = OrderBuilder.Build(Now.AddDays(1), Employee.Id,
+                           new List<Service> { ServiceBuilder.Build(Guid.NewGuid(), TimeSpan.FromMinutes(30)) });
+
+        var allOrders = new List<Order>()
+        {
+        };
+
+        var configuration = ConfigurationBuilder.BuildWithScheduleWithNoDelay();
+
+        return new OrderPolicyTestData(order, allOrders, configuration, "QueueScheduleWithFullScheduleTodayButFreeAWeekAfter");
+    }
     private class OrderPolicyTestData
     {
         public Order Order { get; set; }
