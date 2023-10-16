@@ -23,5 +23,6 @@ internal class Order
         UserId = userId;
         Status = orderStatus;
         ScheduleTime = scheduleTime;
+        RelocatedSchedule = scheduleTime;
     }
 }

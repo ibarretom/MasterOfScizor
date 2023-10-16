@@ -48,7 +48,10 @@ public class OrderServiceTest
         var orderPolicy = new Mock<IOrderPolicy>();
         orderPolicy.Setup(repository => repository.IsAllowed(It.IsAny<Order>(), It.IsAny<List<Order>>(), It.IsAny<Branch>())).Returns(true);
 
-        var orderService = new OrderService(orderRepository.Object, serviceRepository.Object, branchRepository.Object, orderPolicy.Object);
+        var orderTools = new Mock<IOrderTool>();
+        orderTools.Setup(repository => repository.RelocateTime(It.IsAny<Order>(), It.IsAny<List<Order>>(), It.IsAny<Branch>())).Returns(orderDTO.ScheduleTime);
+
+        var orderService = new OrderService(orderRepository.Object, serviceRepository.Object, branchRepository.Object, orderPolicy.Object, orderTools.Object);
 
         await orderService.Create(orderDTO);
 
@@ -78,7 +81,9 @@ public class OrderServiceTest
 
         var orderPolicy = new Mock<IOrderPolicy>();
 
-        var orderService = new OrderService(orderRepository.Object, serviceRepository.Object, branchRepository.Object, orderPolicy.Object);
+        var orderTool = new Mock<IOrderTool>();
+
+        var orderService = new OrderService(orderRepository.Object, serviceRepository.Object, branchRepository.Object, orderPolicy.Object, orderTool.Object);
 
         var exception = await Assert.ThrowsAsync<ServiceException>(async () => await orderService.Create(orderDTO));
 

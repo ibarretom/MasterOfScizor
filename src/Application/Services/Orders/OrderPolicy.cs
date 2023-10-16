@@ -12,7 +12,7 @@ internal class OrderPolicy : IOrderPolicy
     public bool IsAllowed(Order order, List<Order> allOrders, Branch branch)
     {
 
-        var isWorkingInThisDay = branch.GetScheduleFor(order.ScheduleTime) is not null;
+        var isWorkingInThisDay = branch.GetScheduleFor(order.RelocatedSchedule) is not null;
 
         if (!isWorkingInThisDay)
             throw new OrderException(OrderExceptionResourceMessages.ORDER_TIME_IS_NOT_IN_COMMERCIAL_TIME);
@@ -42,14 +42,14 @@ internal class OrderPolicy : IOrderPolicy
 
     private static bool IsBeforeDateNowWith20MinutesOfMargin(Order order)
     {
-        return order.ScheduleTime < DateTime.UtcNow.AddMinutes(-20);
+        return order.RelocatedSchedule < DateTime.UtcNow.AddMinutes(-20);
     }
 
     private static bool HandleByVirtualQueue(Order order, List<Order> allOrders, Branch branch)
     {
-        var workingTime = branch.GetScheduleFor(order.ScheduleTime) ?? throw new CompanyException(CompanyExceptionMessagesResource.BRANCH_IS_NOT_OPENNED_THIS_DAY);
+        var workingTime = branch.GetScheduleFor(order.RelocatedSchedule) ?? throw new CompanyException(CompanyExceptionMessagesResource.BRANCH_IS_NOT_OPENNED_THIS_DAY);
 
-        var ordersOrderedByTime = allOrders.OrderBy(order => order.ScheduleTime);
+        var ordersOrderedByTime = allOrders.OrderBy(order => order.RelocatedSchedule);
 
         var lastOrder = ordersOrderedByTime.LastOrDefault();
 
@@ -57,7 +57,7 @@ internal class OrderPolicy : IOrderPolicy
             return HandleWithLastOrder(order, lastOrder, workingTime);
 
 
-        return IsLessThenClosingTime(order, branch, order.ScheduleTime);
+        return IsLessThenClosingTime(order, branch, order.RelocatedSchedule);
     }
 
     private static bool HandleWithLastOrder(Order order, Order lastOrder, Schedule workingTime)
@@ -71,7 +71,7 @@ internal class OrderPolicy : IOrderPolicy
 
         var orderTimeServices = order.Services.Aggregate(new TimeSpan(0), (acc, current) => acc + current.Duration);
 
-        var (_, EndTime) = Schedule.GetScheduleDateTime(workingTime, order.ScheduleTime);
+        var (_, EndTime) = Schedule.GetScheduleDateTime(workingTime, order.RelocatedSchedule);
 
         if (DateTime.Compare(lastOrderTimePlusServiceDuration, DateTime.UtcNow) >= 0)
         {
@@ -105,8 +105,8 @@ internal class OrderPolicy : IOrderPolicy
     {
         var allowedTimes = GetAllowedTimes(order, branch);
 
-        var orderTimeWithoutSeconds = new DateTime(order.ScheduleTime.Year, order.ScheduleTime.Month,
-                        order.ScheduleTime.Day, order.ScheduleTime.Hour, order.ScheduleTime.Minute, 0);
+        var orderTimeWithoutSeconds = new DateTime(order.RelocatedSchedule.Year, order.RelocatedSchedule.Month,
+                        order.RelocatedSchedule.Day, order.RelocatedSchedule.Hour, order.RelocatedSchedule.Minute, 0);
 
         var desiredTimeForThisOrder = allowedTimes.FirstOrDefault(time => DateTime.Compare(time, orderTimeWithoutSeconds) == 0);
 
@@ -119,14 +119,14 @@ internal class OrderPolicy : IOrderPolicy
         if (!IsLessThenClosingTime(order, branch, desiredTimeForThisOrder))
             return false;
 
-        var firstOrderBeforeRequestedOrder = allOrders.LastOrDefault(order => DateTime.Compare(new DateTime(order.ScheduleTime.Year, order.ScheduleTime.Month,
-                        order.ScheduleTime.Day, order.ScheduleTime.Hour, order.ScheduleTime.Minute, 0), desiredTimeForThisOrder) <= 0);
+        var firstOrderBeforeRequestedOrder = allOrders.LastOrDefault(order => DateTime.Compare(new DateTime(order.RelocatedSchedule.Year, order.RelocatedSchedule.Month,
+                        order.RelocatedSchedule.Day, order.RelocatedSchedule.Hour, order.RelocatedSchedule.Minute, 0), desiredTimeForThisOrder) <= 0);
 
         if (HasConflictWithThePreviousOrder(desiredTimeForThisOrder, firstOrderBeforeRequestedOrder, GetAllowedTimes(order, branch, true)))
             return false;
 
-        var firstOrderAfterRequestedOrder = allOrders.FirstOrDefault(order => DateTime.Compare(new DateTime(order.ScheduleTime.Year, order.ScheduleTime.Month,
-                        order.ScheduleTime.Day, order.ScheduleTime.Hour, order.ScheduleTime.Minute, 0), desiredTimeForThisOrder) >= 0);
+        var firstOrderAfterRequestedOrder = allOrders.FirstOrDefault(order => DateTime.Compare(new DateTime(order.RelocatedSchedule.Year, order.RelocatedSchedule.Month,
+                        order.RelocatedSchedule.Day, order.RelocatedSchedule.Hour, order.RelocatedSchedule.Minute, 0), desiredTimeForThisOrder) >= 0);
 
         if (HasConflictWithTheNextOrder(desiredTimeForThisOrder, order.Services, firstOrderAfterRequestedOrder, GetAllowedTimes(order,branch, true)))
             return false;
@@ -138,9 +138,9 @@ internal class OrderPolicy : IOrderPolicy
     {
         var interval = branch.Configuration.ScheduleDefaultInterval;
 
-        var scheduleForOrderDay = branch.GetScheduleFor(order.ScheduleTime) ?? throw new CompanyException(CompanyExceptionMessagesResource.BRANCH_IS_NOT_OPENNED_THIS_DAY);
+        var scheduleForOrderDay = branch.GetScheduleFor(order.RelocatedSchedule) ?? throw new CompanyException(CompanyExceptionMessagesResource.BRANCH_IS_NOT_OPENNED_THIS_DAY);
 
-        var (StartTime, EndTime) = Schedule.GetScheduleDateTime(scheduleForOrderDay, order.ScheduleTime);
+        var (StartTime, EndTime) = Schedule.GetScheduleDateTime(scheduleForOrderDay, order.RelocatedSchedule);
 
         var allowedTimes = new List<DateTime>();
 
@@ -161,7 +161,7 @@ internal class OrderPolicy : IOrderPolicy
         if (employee.LunchInterval is null)
             return false;
 
-        var (StartTime, EndTime) = Schedule.GetScheduleDateTime(employee.LunchInterval, order.ScheduleTime);
+        var (StartTime, EndTime) = Schedule.GetScheduleDateTime(employee.LunchInterval, order.RelocatedSchedule);
 
         var desiredTimePlusServiceDuration = desiredTime.Add(order.Services.Aggregate(new TimeSpan(0), (acc, current) => acc + current.Duration));
 
@@ -191,9 +191,9 @@ internal class OrderPolicy : IOrderPolicy
 
     private static bool IsLessThenClosingTime(Order order, Branch branch, DateTime desiredTimeForThisOrder)
     {
-        var desiredDay = branch.GetScheduleFor(order.ScheduleTime) ?? throw new CompanyException(CompanyExceptionMessagesResource.BRANCH_IS_NOT_OPENNED_THIS_DAY);
+        var desiredDay = branch.GetScheduleFor(order.RelocatedSchedule) ?? throw new CompanyException(CompanyExceptionMessagesResource.BRANCH_IS_NOT_OPENNED_THIS_DAY);
 
-        var (StartTime, EndTime) = Schedule.GetScheduleDateTime(desiredDay, order.ScheduleTime);
+        var (StartTime, EndTime) = Schedule.GetScheduleDateTime(desiredDay, order.RelocatedSchedule);
 
         var totalTimeServices = order.Services.Aggregate(new TimeSpan(0), (acc, current) => acc + current.Duration);
 
@@ -207,8 +207,8 @@ internal class OrderPolicy : IOrderPolicy
         if (previousOrder is null)
             return false;
 
-        var previousOrderTimeWithoutSeconds = new DateTime(previousOrder.ScheduleTime.Year, previousOrder.ScheduleTime.Month, previousOrder.ScheduleTime.Day,
-                                                           previousOrder.ScheduleTime.Hour, previousOrder.ScheduleTime.Minute, 0);
+        var previousOrderTimeWithoutSeconds = new DateTime(previousOrder.RelocatedSchedule.Year, previousOrder.RelocatedSchedule.Month, previousOrder.RelocatedSchedule.Day,
+                                                           previousOrder.RelocatedSchedule.Hour, previousOrder.RelocatedSchedule.Minute, 0);
 
         if (DateTime.Compare(desiredTime, previousOrderTimeWithoutSeconds) == 0)
             throw new OrderException(OrderExceptionResourceMessages.ORDER_TIME_ALREADY_ALOCATED);
@@ -227,7 +227,7 @@ internal class OrderPolicy : IOrderPolicy
         if (nextOrder is null)
             return false;
 
-        if (DateTime.Compare(desiredTime, nextOrder.ScheduleTime) == 0)
+        if (DateTime.Compare(desiredTime, nextOrder.RelocatedSchedule) == 0)
             throw new OrderException(OrderExceptionResourceMessages.ORDER_TIME_ALREADY_ALOCATED);
 
         var totalTimeService = desiredOrderServices.Aggregate(new TimeSpan(0), (acc, current) => acc + current.Duration);
@@ -236,8 +236,8 @@ internal class OrderPolicy : IOrderPolicy
 
         var desiredTimeEndFittedOnAvailableTimes = allowedTimes.FirstOrDefault(time => DateTime.Compare(time, desiredTimePlusServiceDuration) >= 0);
 
-        var nextOrderTimeWithoutSeconds = new DateTime(nextOrder.ScheduleTime.Year, nextOrder.ScheduleTime.Month, nextOrder.ScheduleTime.Day,
-                                                       nextOrder.ScheduleTime.Hour, nextOrder.ScheduleTime.Minute, 0);
+        var nextOrderTimeWithoutSeconds = new DateTime(nextOrder.RelocatedSchedule.Year, nextOrder.RelocatedSchedule.Month, nextOrder.RelocatedSchedule.Day,
+                                                       nextOrder.RelocatedSchedule.Hour, nextOrder.RelocatedSchedule.Minute, 0);
         
         return DateTime.Compare(desiredTimeEndFittedOnAvailableTimes, nextOrderTimeWithoutSeconds) > 0;
     }

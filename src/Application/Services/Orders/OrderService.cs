@@ -14,13 +14,15 @@ internal class OrderService
     private readonly IServiceRepository _serviceRepository;
     private readonly IBranchRepository _branchRepository;
     private readonly IOrderPolicy _orderPolicy;
+    private readonly IOrderTool _orderTool;
 
-    public OrderService(IOrderRepository orderRepository, IServiceRepository serviceRepository, IBranchRepository branchRepository, IOrderPolicy orderPolicy)
+    public OrderService(IOrderRepository orderRepository, IServiceRepository serviceRepository, IBranchRepository branchRepository, IOrderPolicy orderPolicy, IOrderTool orderTool)
     {
         _orderRepository = orderRepository;
         _serviceRepository = serviceRepository;
         _branchRepository = branchRepository;
         _orderPolicy = orderPolicy;
+        _orderTool = orderTool;
     }
 
     public async Task Create(OrderRequestDTO order)
@@ -42,6 +44,9 @@ internal class OrderService
         var allOrders = await _orderRepository.GetBy(order.BranchId, order.WorkerId);
 
         var createdOrder = new Order(order.BranchId, order.WorkerId, order.Services, order.UserId, OrderStatus.Accepted, order.ScheduleTime);
+        
+        if (branch.Configuration.OrderQueueType == OrderQueueType.Queue)
+            createdOrder.RelocatedSchedule = _orderTool.RelocateTime(createdOrder, allOrders, branch);
 
         if (!_orderPolicy.IsAllowed(createdOrder, allOrders, branch))
             throw new OrderException(OrderExceptionResourceMessages.INVALID_ORDER);

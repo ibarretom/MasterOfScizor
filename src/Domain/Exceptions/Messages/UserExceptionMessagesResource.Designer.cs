@@ -61,6 +61,15 @@ namespace Domain.Exceptions.Messages {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The employee does not have lunch time..
+        /// </summary>
+        internal static string EMPLOYEE_DOES_NOT_HAVE_LUNCH_INTERVAL {
+            get {
+                return ResourceManager.GetString("EMPLOYEE_DOES_NOT_HAVE_LUNCH_INTERVAL", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The provided lunch time is invalid for this user. Lunch time must be a valid date time and StartTime must be grather then EndTime..
         /// </summary>
         internal static string INVALID_LUNCH_INTERVAL {
