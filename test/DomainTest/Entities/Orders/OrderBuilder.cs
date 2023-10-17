@@ -1,29 +1,60 @@
-﻿using Domain.Entities.Barbers.Service;
+﻿using Domain.Entities;
+using Domain.Entities.Barbers;
+using Domain.Entities.Barbers.Service;
 using Domain.Entities.Orders;
 using Domain.ValueObjects.Enums;
+using DomainTest.Entities.Barbers;
 
 namespace DomainTest.Entities.Orders;
 
 internal class OrderBuilder
 {
     public static Order Build()
-    {
-        return new Order(Guid.NewGuid(), Guid.NewGuid(), new List<Service>(), Guid.NewGuid(), OrderStatus.Pending, DateTime.Now);
+    {   
+        var configuration = ConfigurationBuilder.BuildRandom();
+        var branch = BranchBuilder.Build(configuration);
+
+        var employee = EmployeeBuilder.Build();
+        branch.AddEmployee(employee);
+
+        var user = UserBuilder.Build();
+
+        return new Order(branch, employee, new List<Service>(), user, OrderStatus.Pending, DateTime.Now);
+    }    
+    
+    public static Order Build(List<Service> services)
+    {   
+        var configuration = ConfigurationBuilder.BuildRandom();
+        var branch = BranchBuilder.Build(configuration);
+
+        var employee = EmployeeBuilder.Build();
+        branch.AddEmployee(employee);
+
+        var user = UserBuilder.Build();
+
+        return new Order(branch, employee, services, user, OrderStatus.Pending, DateTime.Now);
     }
 
-    public static Order Build(DateTime orderTime)
+    public static Order Build(DateTime orderTime, Branch branch)
     {
-        return new Order(Guid.NewGuid(), Guid.NewGuid(), new List<Service>(), Guid.NewGuid(), OrderStatus.Pending, orderTime);
+        var employee = EmployeeBuilder.Build();
+        branch.AddEmployee(employee);
+
+        var user = UserBuilder.Build();
+
+        return new Order(branch, employee, new List<Service>(), user, OrderStatus.Pending, orderTime);
     }
 
-    public static Order Build(DateTime orderTime, Guid workerId)
+    public static Order Build(DateTime orderTime, Branch branch, Employee worker)
     {
-        return new Order(Guid.NewGuid(), workerId, new List<Service>(), Guid.NewGuid(), OrderStatus.Pending, orderTime);
+        var user = UserBuilder.Build();
+        return new Order(branch, worker, new List<Service>(), user, OrderStatus.Pending, orderTime);
     }
 
-    public static Order Build(DateTime orderTime, Guid workerId, List<Service> services)
+    public static Order Build(DateTime orderTime, Branch branch, Employee employee, List<Service> services)
     {
-        var order = new Order(Guid.NewGuid(), workerId, services, Guid.NewGuid(), OrderStatus.Pending, orderTime)
+        var user = UserBuilder.Build();
+        var order = new Order(branch, employee, services, user, OrderStatus.Pending, orderTime)
         {
             RelocatedSchedule = orderTime
         };

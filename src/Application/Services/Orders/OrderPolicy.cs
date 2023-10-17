@@ -71,7 +71,7 @@ internal class OrderPolicy : IOrderPolicy
 
         var orderTimeServices = order.Services.Aggregate(new TimeSpan(0), (acc, current) => acc + current.Duration);
 
-        var (_, EndTime) = Schedule.GetScheduleDateTime(workingTime, order.RelocatedSchedule);
+        var (_, EndTime) = Schedule.GetScheduleDateTime(workingTime, workingTime.GetDateToBeReference(order.RelocatedSchedule));
 
         if (DateTime.Compare(lastOrderTimePlusServiceDuration, DateTime.UtcNow) >= 0)
         {
@@ -140,7 +140,7 @@ internal class OrderPolicy : IOrderPolicy
 
         var scheduleForOrderDay = branch.GetScheduleFor(order.RelocatedSchedule) ?? throw new CompanyException(CompanyExceptionMessagesResource.BRANCH_IS_NOT_OPENNED_THIS_DAY);
 
-        var (StartTime, EndTime) = Schedule.GetScheduleDateTime(scheduleForOrderDay, order.RelocatedSchedule);
+        var (StartTime, EndTime) = Schedule.GetScheduleDateTime(scheduleForOrderDay, scheduleForOrderDay.GetDateToBeReference(order.RelocatedSchedule));
 
         var allowedTimes = new List<DateTime>();
 
@@ -156,7 +156,7 @@ internal class OrderPolicy : IOrderPolicy
 
     private static bool IsInLunchInterval(Order order, DateTime desiredTime, Branch branch)
     {
-        var employee = branch.Barber.FirstOrDefault(barber => barber.Id == order.WorkerId) ?? throw new OrderException(OrderExceptionResourceMessages.EMPLOYEE_DOES_NOT_EXISTS);
+        var employee = branch.Barber.FirstOrDefault(barber => barber.Id == order.Worker.Id) ?? throw new OrderException(OrderExceptionResourceMessages.EMPLOYEE_DOES_NOT_EXISTS);
 
         if (employee.LunchInterval is null)
             return false;
@@ -193,7 +193,7 @@ internal class OrderPolicy : IOrderPolicy
     {
         var desiredDay = branch.GetScheduleFor(order.RelocatedSchedule) ?? throw new CompanyException(CompanyExceptionMessagesResource.BRANCH_IS_NOT_OPENNED_THIS_DAY);
 
-        var (StartTime, EndTime) = Schedule.GetScheduleDateTime(desiredDay, order.RelocatedSchedule);
+        var (StartTime, EndTime) = Schedule.GetScheduleDateTime(desiredDay, desiredDay.GetDateToBeReference(order.RelocatedSchedule));
 
         var totalTimeServices = order.Services.Aggregate(new TimeSpan(0), (acc, current) => acc + current.Duration);
 

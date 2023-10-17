@@ -14,9 +14,9 @@ internal class OrderTool : IOrderTool
         if (!(branch.Configuration.OrderQueueType == OrderQueueType.Queue))
             return order.ScheduleTime;
 
-        var orderEmployee = branch.Barber.FirstOrDefault(employee => employee.Id == order.WorkerId) ?? throw new OrderException(OrderExceptionResourceMessages.EMPLOYEE_DOES_NOT_EXISTS);
+        var orderEmployee = branch.Barber.FirstOrDefault(employee => employee.Id == order.Worker.Id) ?? throw new OrderException(OrderExceptionResourceMessages.EMPLOYEE_DOES_NOT_EXISTS);
 
-        var relocatedOrder = new Order(order.BranchId, order.WorkerId, order.Services, order.UserId, order.Status, order.ScheduleTime);
+        var relocatedOrder = new Order(order.Branch, order.Worker, order.Services, order.User, order.Status, order.ScheduleTime);
 
         var servicesTotalDuration = order.Services.Aggregate(TimeSpan.Zero, (total, service) => total + service.Duration);
 
@@ -51,7 +51,7 @@ internal class OrderTool : IOrderTool
     {
         var lunchInterval = employee.LunchInterval ?? throw new OrderException(UserExceptionMessagesResource.EMPLOYEE_DOES_NOT_HAVE_LUNCH_INTERVAL);
 
-        var orderRelocated = new Order(order.BranchId, order.WorkerId, order.Services, order.UserId, order.Status, order.ScheduleTime)
+        var orderRelocated = new Order(order.Branch, order.Worker, order.Services, order.User, order.Status, order.ScheduleTime)
         {
             RelocatedSchedule = new DateTime(order.ScheduleTime.Year, order.ScheduleTime.Month, order.ScheduleTime.Day,
                                             lunchInterval.EndTime.Hour, lunchInterval.EndTime.Minute, 0, order.ScheduleTime.Kind)

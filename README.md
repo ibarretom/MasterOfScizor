@@ -46,7 +46,7 @@ If you want to learn more about creating good readme files then refer the follow
 - Gerenciar agendamentos
 - Relatório de agendamentos
 
-### Registro de funcionários
+### Registro de colaboradores
 
 - Nome
 - Email
@@ -63,6 +63,11 @@ If you want to learn more about creating good readme files then refer the follow
 - Descrição
 - Duração
 
+### Adicionar Serviço ao colaborador
+
+- Id do serviço
+- Id do colaborador
+
 ### Registrar cliente
 
 - Email
@@ -74,12 +79,12 @@ If you want to learn more about creating good readme files then refer the follow
 
 - User
 - Serviço
+- Colaborador.
 
 ## Security tests level
 
 - Um usuário não pode criar um serviço para uma branch que não é dele.
 - Um usuário não pode criar um serviço se não tiver autorização para criar.
--
 
 ## Lembretes
 
@@ -87,3 +92,9 @@ If you want to learn more about creating good readme files then refer the follow
 
 [] A branch deve ser pega pelo userId que está vindo no request.
 [] Validar se a branch é passada é vazia (Use case ou serviço?)
+
+### A fazer
+
+[] Criar pedido
+[] Aceitar pedido
+[]

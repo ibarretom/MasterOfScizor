@@ -25,11 +25,11 @@ internal class OrderService
         _orderTool = orderTool;
     }
 
-    public async Task Create(OrderRequestDTO order)
+    public async Task Create(Order order)
      {
         var servicesTask = order.Services.Select(service => Task.Run(async () =>
         {
-            var serviceExists = await _serviceRepository.Exists(order.BranchId, service.Id);
+            var serviceExists = await _serviceRepository.Exists(order.Branch.Id, service.Id);
 
             if (!serviceExists)
                 throw new ServiceException(string.Format(ServiceExceptionMessagesResource.SERVICE_DOES_NOT_EXISTS, service.Id));
@@ -39,11 +39,11 @@ internal class OrderService
 
         await Task.WhenAll(servicesTask);
 
-        var branch = await _branchRepository.GetBy(order.BranchId);
+        var branch = await _branchRepository.GetBy(order.Branch.Id);
        
-        var allOrders = await _orderRepository.GetBy(order.BranchId, order.WorkerId);
+        var allOrders = await _orderRepository.GetBy(order.Branch.Id, order.Worker.Id);
 
-        var createdOrder = new Order(order.BranchId, order.WorkerId, order.Services, order.UserId, OrderStatus.Accepted, order.ScheduleTime);
+        var createdOrder = new Order(order.Branch, order.Worker, order.Services, order.User, OrderStatus.Accepted, order.ScheduleTime);
         
         if (branch.Configuration.OrderQueueType == OrderQueueType.Queue)
             createdOrder.RelocatedSchedule = _orderTool.RelocateTime(createdOrder, allOrders, branch);

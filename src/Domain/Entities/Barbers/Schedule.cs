@@ -68,7 +68,7 @@ internal class Schedule
         if (!WeekDaysMatches(day))
             return false;
 
-        var bestDateTimeForThisSchedule = day.DayOfWeek == OverflowingDay ? day.AddDays(-1) : day;
+        var bestDateTimeForThisSchedule = GetDateToBeReference(day);
 
         var thisSchedule = GetScheduleDateTime(this, bestDateTimeForThisSchedule);
 
@@ -99,6 +99,11 @@ internal class Schedule
             endTime = endTime.AddDays(1);
 
         return (startTime, endTime);
+    }
+
+    public DateTime GetDateToBeReference(DateTime day)
+    {
+        return day.DayOfWeek == OverflowingDay ? day.AddDays(-1) : day;
     }
 
     public override int GetHashCode()

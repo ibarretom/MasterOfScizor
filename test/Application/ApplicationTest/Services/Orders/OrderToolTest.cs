@@ -39,7 +39,7 @@ public class OrderToolTest
 
         var now = DateTime.UtcNow;
 
-        var schedule = new Schedule(new TimeOnly(now.AddHours(-1).Hour, now.Minute), new TimeOnly(now.AddHours(2).Hour, now.Minute), now.DayOfWeek);
+        var schedule = new Schedule(new TimeOnly(now.AddHours(-1).Hour, now.Minute), new TimeOnly(now.AddHours(2).Hour, now.Minute), now.AddHours(-1).DayOfWeek);
         branch.AddSchedule(schedule);
 
         var employee = EmployeeBuilder.Build();
@@ -50,7 +50,7 @@ public class OrderToolTest
 
         branch.AddEmployeeLunchInterval(lunchTime, employee.Id);
 
-        var order = OrderBuilder.Build(now, employee.Id);
+        var order = OrderBuilder.Build(now, branch, employee);
 
         var orderTool = new OrderTool();
 
@@ -71,7 +71,7 @@ public class OrderToolTest
         var employee = EmployeeBuilder.Build();
         branch.AddEmployee(employee);
 
-        var order = OrderBuilder.Build(now, employee.Id);
+        var order = OrderBuilder.Build(now, branch, employee);
 
         var orders = new List<Order>();
 
@@ -94,11 +94,11 @@ public class OrderToolTest
         var employee = EmployeeBuilder.Build();
         branch.AddEmployee(employee);
 
-        var order = OrderBuilder.Build(now.AddHours(1), employee.Id);
+        var order = OrderBuilder.Build(now.AddHours(1), branch, employee);
 
         var orders = new List<Order>
         {
-            OrderBuilder.Build(now, employee.Id)
+            OrderBuilder.Build(now, branch, employee)
         };
 
         var orderTool = new OrderTool();
@@ -121,11 +121,11 @@ public class OrderToolTest
 
         branch.AddEmployee(employee);
 
-        var order = OrderBuilder.Build(now.AddHours(1), employee.Id);
+        var order = OrderBuilder.Build(now.AddHours(1), branch, employee);
 
         var orders = new List<Order>
         {
-            OrderBuilder.Build(now, employee.Id, new List<Service>() { ServiceBuilder.Build(branch.Id, TimeSpan.FromMinutes(60)), ServiceBuilder.Build(branch.Id, TimeSpan.FromMinutes(60))})
+            OrderBuilder.Build(now, branch, employee, new List<Service>() { ServiceBuilder.Build(branch.Id, TimeSpan.FromMinutes(60)), ServiceBuilder.Build(branch.Id, TimeSpan.FromMinutes(60))})
         };
 
         var orderTool = new OrderTool();
