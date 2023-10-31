@@ -345,7 +345,7 @@ public class OrderPolicyTest
 
         var now = DateTime.UtcNow;
 
-        var schedule = new Schedule(new TimeOnly(22, 0), new TimeOnly(2, 0), now.DayOfWeek);
+        var schedule = new Schedule(new TimeOnly(22, 0), new TimeOnly(3, 0), now.DayOfWeek);
         branch.AddSchedule(schedule);
 
         var employee = EmployeeBuilder.Build();
@@ -353,7 +353,7 @@ public class OrderPolicyTest
 
         var services = new List<Service>() { ServiceBuilder.Build(branch.Id, TimeSpan.FromMinutes(120)) };
 
-        var order = OrderBuilder.Build(new DateTime(now.Year, now.Month, now.Day, 23, 0, 0), branch, employee, services);
+        var order = OrderBuilder.Build(new DateTime(now.Year, now.Month, now.AddDays(1).Day, 1, 0, 0), branch, employee, services);
 
         var orderPolicy = new OrderPolicy();
 
@@ -391,6 +391,34 @@ public class OrderPolicyTest
         var isAllowed = orderPolicy.IsAllowed(order, allOrders, branch);
 
         Assert.False(isAllowed);
+    }
+
+    [Fact]
+    public void ShouldRejectWhenTheOrderIsScheduleToTheStartTimeOfAnotherOrder()
+    {
+        var configuration = ConfigurationBuilder.BuildWithScheduleWithNoDelay();
+
+        var branch = BranchBuilder.Build(configuration);
+
+        var now = DateTime.UtcNow;
+
+        var schedule = new Schedule(new TimeOnly(now.AddHours(-1).Hour, 0), new TimeOnly(now.AddHours(1).Hour, 0), now.AddHours(-1).DayOfWeek);
+
+        branch.AddSchedule(schedule);
+
+        var employee = EmployeeBuilder.Build();
+        branch.AddEmployee(employee);
+
+        var order = OrderBuilder.Build(new DateTime(now.Year, now.Month, now.Day, now.Hour, 0, 0), branch, employee,
+                                      new List<Service> { ServiceBuilder.Build(Guid.NewGuid())});
+
+        var allOrders = new List<Order>() { OrderBuilder.Build(new DateTime(now.Year, now.Month, now.Day, now.Hour, 0, 0), branch, employee, new List<Service> { ServiceBuilder.Build(Guid.NewGuid(), TimeSpan.FromMinutes(30)) }), };
+
+        var orderPolicy = new OrderPolicy();
+
+        var exception = Assert.Throws<OrderException>(() => orderPolicy.IsAllowed(order, allOrders, branch));
+
+        Assert.Equal(exception.Message, OrderExceptionResourceMessages.ORDER_TIME_ALREADY_ALOCATED);
     }
 
     [Theory]
