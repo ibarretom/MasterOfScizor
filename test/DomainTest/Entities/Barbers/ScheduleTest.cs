@@ -39,7 +39,7 @@ public class ScheduleTest
         var now = DateTime.UtcNow;
 
         var beforeMidnight = new DateTime(now.Year, now.Month, now.Day, 23, 0, 0);
-        var afterMidnight = new DateTime(now.Year, now.Month, now.AddDays(1).Day, 1, 0, 0);
+        var afterMidnight = new DateTime(now.Year, now.AddDays(1).Month, now.AddDays(1).Day, 1, 0, 0);
 
         var schedule = new Schedule(new TimeOnly(beforeMidnight.Hour, beforeMidnight.Minute), new TimeOnly(afterMidnight.AddHours(1).Hour, afterMidnight.Minute), beforeMidnight.DayOfWeek);
 

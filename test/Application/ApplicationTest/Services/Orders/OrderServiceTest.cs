@@ -11,7 +11,6 @@ using DomainTest.Entities.Barbers.Services;
 using DomainTest.Entities.Orders;
 using DomainTest.ValueObjects.DTO;
 using Infra.Repositories.Company;
-using Infra.Repositories.CompanyRepository;
 using Moq;
 
 namespace ApplicationTest.Services.Orders;
@@ -49,18 +48,12 @@ public class OrderServiceTest
         serviceRepository.Setup(repository => repository.Exists(It.IsAny<Guid>(), It.IsAny<Guid>()).Result)
             .Returns(true);
 
-        var branchRepository = new Mock<IBranchRepository>();
-        branchRepository.Setup(repository => repository.GetBy(It.IsAny<Guid>()).Result).Returns(branch);
-
         var orderPolicy = new Mock<IOrderPolicy>();
         orderPolicy.Setup(repository => repository.IsAllowed(It.IsAny<Order>(), It.IsAny<List<Order>>(), It.IsAny<Branch>())).Returns(true);
 
-        var orderTools = new Mock<IOrderTool>();
-        orderTools.Setup(repository => repository.RelocateTime(It.IsAny<Order>(), It.IsAny<List<Order>>(), It.IsAny<Branch>())).Returns(order.ScheduleTime);
+        var orderService = new OrderService(orderRepository.Object, serviceRepository.Object, orderPolicy.Object);
 
-        var orderService = new OrderService(orderRepository.Object, serviceRepository.Object, branchRepository.Object, orderPolicy.Object, orderTools.Object);
-
-        await orderService.Create(order);
+        await orderService.Create(order, branch);
 
         emptyOrder.Services.ForEach(service =>
         {
@@ -87,15 +80,13 @@ public class OrderServiceTest
         serviceRepository.Setup(serviceRepository => serviceRepository.Exists(It.IsAny<Guid>(), It.IsAny<Guid>()).Result)
             .Returns(false);
 
-        var branchRepository = new Mock<IBranchRepository>();
-
         var orderPolicy = new Mock<IOrderPolicy>();
 
-        var orderTool = new Mock<IOrderTool>();
+        var orderService = new OrderService(orderRepository.Object, serviceRepository.Object, orderPolicy.Object);
 
-        var orderService = new OrderService(orderRepository.Object, serviceRepository.Object, branchRepository.Object, orderPolicy.Object, orderTool.Object);
+        var branch = BranchBuilder.Build(ConfigurationBuilder.BuildWithQueueLimit());
 
-        var exception = await Assert.ThrowsAsync<ServiceException>(async () => await orderService.Create(order));
+        var exception = await Assert.ThrowsAsync<ServiceException>(async () => await orderService.Create(order, branch));
 
         Assert.True(exception.Message.Equals(string.Format(ServiceExceptionMessagesResource.SERVICE_DOES_NOT_EXISTS, orderDTO.Services.First().Id)), "Mensagens de erro não conferem.");
     }

@@ -9,6 +9,7 @@ using DomainTest.Entities;
 using DomainTest.Entities.Barbers;
 using DomainTest.Entities.Barbers.Services;
 using DomainTest.Entities.Orders;
+using System;
 
 namespace ApplicationTest.Services.Orders;
 
@@ -353,7 +354,7 @@ public class OrderPolicyTest
 
         var services = new List<Service>() { ServiceBuilder.Build(branch.Id, TimeSpan.FromMinutes(120)) };
 
-        var order = OrderBuilder.Build(new DateTime(now.Year, now.Month, now.AddDays(1).Day, 1, 0, 0), branch, employee, services);
+        var order = OrderBuilder.Build(new DateTime(now.Year, now.AddDays(1).Month, now.AddDays(1).Day, 1, 0, 0), branch, employee, services);
 
         var orderPolicy = new OrderPolicy();
 
