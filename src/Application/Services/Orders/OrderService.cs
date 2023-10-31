@@ -2,10 +2,8 @@
 using Domain.Entities.Orders;
 using Domain.Exceptions;
 using Domain.Exceptions.Messages;
-using Domain.ValueObjects.DTO.Orders;
 using Domain.ValueObjects.Enums;
 using Infra.Repositories.Company;
-using Infra.Repositories.CompanyRepository;
 
 namespace Application.Services.Orders;
 
