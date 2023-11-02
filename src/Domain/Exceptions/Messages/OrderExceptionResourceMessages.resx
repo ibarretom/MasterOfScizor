@@ -123,6 +123,9 @@
   <data name="INVALID_ORDER" xml:space="preserve">
     <value>It was not possible to register the order due order Policy. The order doesn't match the policies for the required worker.</value>
   </data>
+  <data name="ORDER_QUEUE_IS_FULL" xml:space="preserve">
+    <value>The queue is full.</value>
+  </data>
   <data name="ORDER_TIME_ALREADY_ALOCATED" xml:space="preserve">
     <value>The desired order time is already alocated.</value>
   </data>

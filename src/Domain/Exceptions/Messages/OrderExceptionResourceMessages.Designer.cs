@@ -79,6 +79,15 @@ namespace Domain.Exceptions.Messages {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The queue is full..
+        /// </summary>
+        internal static string ORDER_QUEUE_IS_FULL {
+            get {
+                return ResourceManager.GetString("ORDER_QUEUE_IS_FULL", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The desired order time is already alocated..
         /// </summary>
         internal static string ORDER_TIME_ALREADY_ALOCATED {

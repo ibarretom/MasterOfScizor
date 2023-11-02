@@ -38,8 +38,8 @@ internal class OrderService
 
         var createdOrder = new Order(order.Branch, order.Worker, order.Services, order.User, OrderStatus.Accepted, order.ScheduleTime);
 
-        if (!_orderPolicy.IsAllowed(createdOrder, allOrders, branch))
-            throw new OrderException(OrderExceptionResourceMessages.INVALID_ORDER);
+        if (!_orderPolicy.IsAllowed(createdOrder, allOrders, branch, out var reason))
+            throw new OrderException(reason);
 
         await _orderRepository.Create(createdOrder);
     }
@@ -57,8 +57,8 @@ internal class OrderService
 
         var allOrders = await _orderRepository.GetBy(order.Branch.Id, order.Worker.Id);
 
-        if(!_orderPolicy.IsAllowed(order, allOrders, branch))
-            throw new OrderException(OrderExceptionResourceMessages.INVALID_ORDER);
+        if(!_orderPolicy.IsAllowed(order, allOrders, branch, out var reason))
+            throw new OrderException(reason);
 
         await _orderRepository.Update(order);
     }

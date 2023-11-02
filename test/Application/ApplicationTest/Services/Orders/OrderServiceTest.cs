@@ -49,7 +49,10 @@ public class OrderServiceTest
             .Returns(true);
 
         var orderPolicy = new Mock<IOrderPolicy>();
-        orderPolicy.Setup(repository => repository.IsAllowed(It.IsAny<Order>(), It.IsAny<List<Order>>(), It.IsAny<Branch>())).Returns(true);
+        
+        string? reason = null;
+
+        orderPolicy.Setup(repository => repository.IsAllowed(It.IsAny<Order>(), It.IsAny<List<Order>>(), It.IsAny<Branch>(), out reason)).Returns(true);
 
         var orderService = new OrderService(orderRepository.Object, serviceRepository.Object, orderPolicy.Object);
 
@@ -133,7 +136,9 @@ public class OrderServiceTest
         var serviceRepository = new Mock<IServiceRepository>();
 
         var orderPolicy = new Mock<IOrderPolicy>();
-        orderPolicy.Setup(repository => repository.IsAllowed(It.IsAny<Order>(), It.IsAny<List<Order>>(), It.IsAny<Branch>())).Returns(true);
+
+        string? reason = null;
+        orderPolicy.Setup(repository => repository.IsAllowed(It.IsAny<Order>(), It.IsAny<List<Order>>(), It.IsAny<Branch>(), out reason)).Returns(true);
         
         var orderService = new OrderService(orderRepository.Object, serviceRepository.Object, orderPolicy.Object);
 
@@ -162,14 +167,15 @@ public class OrderServiceTest
         var serviceRepository = new Mock<IServiceRepository>();
 
         var orderPolicy = new Mock<IOrderPolicy>();
-        orderPolicy.Setup(repository => repository.IsAllowed(It.IsAny<Order>(), It.IsAny<List<Order>>(), It.IsAny<Branch>())).Returns(false);
+        
+        string? reason = null;
+        orderPolicy.Setup(repository => repository.IsAllowed(It.IsAny<Order>(), It.IsAny<List<Order>>(), It.IsAny<Branch>(), out reason))
+            .Returns(false);
 
         var orderService = new OrderService(orderRepository.Object, serviceRepository.Object, orderPolicy.Object);
 
         var now = DateTime.UtcNow.AddMinutes(30);
 
-        var exception = await Assert.ThrowsAsync<OrderException>(async () => await orderService.Update(order, BranchBuilder.Build(ConfigurationBuilder.BuildWithQueueLimit()), now));
-
-        Assert.True(exception.Message.Equals(OrderExceptionResourceMessages.INVALID_ORDER), "Order status is not Accepted");
+        await Assert.ThrowsAsync<OrderException>(async () => await orderService.Update(order, BranchBuilder.Build(ConfigurationBuilder.BuildWithQueueLimit()), now));
     }
 }
