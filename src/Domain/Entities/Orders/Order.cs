@@ -1,6 +1,7 @@
 ﻿using Domain.Entities.Barbers;
 using Domain.Entities.Barbers.Service;
 using Domain.ValueObjects.Enums;
+using System.Data;
 
 namespace Domain.Entities.Orders;
 
@@ -11,7 +12,7 @@ internal class Order
     public Employee Worker { get; }
     public List<Service> Services { get; }
     public User User { get; }
-    public OrderStatus Status { get; }
+    public OrderStatus Status { get; private set; }
     public DateTime ScheduleTime { get; }
     public DateTime RelocatedSchedule { get; set; }
 
@@ -25,5 +26,10 @@ internal class Order
         Status = orderStatus;
         ScheduleTime = scheduleTime;
         RelocatedSchedule = scheduleTime;
+    }
+
+    public void UpdateStatus(OrderStatus orderStatus)
+    {
+        Status = orderStatus;
     }
 }

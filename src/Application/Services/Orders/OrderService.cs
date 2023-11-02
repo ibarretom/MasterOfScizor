@@ -43,4 +43,23 @@ internal class OrderService
 
         await _orderRepository.Create(createdOrder);
     }
+
+    public async Task Update(Order order, OrderStatus orderStatus)
+    {
+        order.UpdateStatus(orderStatus);
+
+        await _orderRepository.Update(order);
+    }
+
+    public async Task Update(Order order, Branch branch, DateTime scheduleTime)
+    {
+        order.RelocatedSchedule = scheduleTime;
+
+        var allOrders = await _orderRepository.GetBy(order.Branch.Id, order.Worker.Id);
+
+        if(!_orderPolicy.IsAllowed(order, allOrders, branch))
+            throw new OrderException(OrderExceptionResourceMessages.INVALID_ORDER);
+
+        await _orderRepository.Update(order);
+    }
 }

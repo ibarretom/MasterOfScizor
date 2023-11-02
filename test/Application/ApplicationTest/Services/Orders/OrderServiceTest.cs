@@ -90,4 +90,86 @@ public class OrderServiceTest
 
         Assert.True(exception.Message.Equals(string.Format(ServiceExceptionMessagesResource.SERVICE_DOES_NOT_EXISTS, orderDTO.Services.First().Id)), "Mensagens de erro não conferem.");
     }
+
+    [Fact]
+    public async Task ShouldBeAbleToChangeTheOrderStatus()
+    {
+        var order = OrderBuilder.Build();
+        Order? orderUpdated = null;
+
+        var orderRepository = new Mock<IOrderRepository>();
+        orderRepository.Setup(repository => repository.Update(It.IsAny<Order>()))
+            .Callback<Order>(order =>
+            {
+                orderUpdated = order;
+            })
+            .Returns(Task.CompletedTask);
+
+        var serviceRepository = new Mock<IServiceRepository>();
+
+        var orderPolicy = new Mock<IOrderPolicy>();
+
+        var orderService = new OrderService(orderRepository.Object, serviceRepository.Object, orderPolicy.Object);
+
+        await orderService.Update(order, OrderStatus.Accepted);
+
+        Assert.True(orderUpdated?.Status.Equals(OrderStatus.Accepted), "Order status is not Accepted");
+    }
+
+    [Fact]
+    public async Task ShouldBeAbleToUpdateTheRescheduleOrderTime()
+    {
+        var order = OrderBuilder.Build();
+        Order? orderUpdated = null;
+
+        var orderRepository = new Mock<IOrderRepository>();
+        orderRepository.Setup(repository => repository.Update(It.IsAny<Order>()))
+            .Callback<Order>(order =>
+            {
+                orderUpdated = order;
+            })
+            .Returns(Task.CompletedTask);
+
+        var serviceRepository = new Mock<IServiceRepository>();
+
+        var orderPolicy = new Mock<IOrderPolicy>();
+        orderPolicy.Setup(repository => repository.IsAllowed(It.IsAny<Order>(), It.IsAny<List<Order>>(), It.IsAny<Branch>())).Returns(true);
+        
+        var orderService = new OrderService(orderRepository.Object, serviceRepository.Object, orderPolicy.Object);
+
+        var now = DateTime.UtcNow.AddMinutes(30);
+
+        await orderService.Update(order, BranchBuilder.Build(ConfigurationBuilder.BuildWithQueueLimit()), now);
+
+        Assert.True(orderUpdated?.RelocatedSchedule.Equals(now), "Order status is not Accepted");
+        Assert.True(orderUpdated?.ScheduleTime.Equals(order.ScheduleTime), "Order status is not Accepted");
+    }
+
+    [Fact]
+    public async Task ShouldRejectAOrderUpdateWhenThePolicyIsNotMatched()
+    {
+        var order = OrderBuilder.Build();
+        Order? orderUpdated = null;
+
+        var orderRepository = new Mock<IOrderRepository>();
+        orderRepository.Setup(repository => repository.Update(It.IsAny<Order>()))
+            .Callback<Order>(order =>
+            {
+                orderUpdated = order;
+            })
+            .Returns(Task.CompletedTask);
+
+        var serviceRepository = new Mock<IServiceRepository>();
+
+        var orderPolicy = new Mock<IOrderPolicy>();
+        orderPolicy.Setup(repository => repository.IsAllowed(It.IsAny<Order>(), It.IsAny<List<Order>>(), It.IsAny<Branch>())).Returns(false);
+
+        var orderService = new OrderService(orderRepository.Object, serviceRepository.Object, orderPolicy.Object);
+
+        var now = DateTime.UtcNow.AddMinutes(30);
+
+        var exception = await Assert.ThrowsAsync<OrderException>(async () => await orderService.Update(order, BranchBuilder.Build(ConfigurationBuilder.BuildWithQueueLimit()), now));
+
+        Assert.True(exception.Message.Equals(OrderExceptionResourceMessages.INVALID_ORDER), "Order status is not Accepted");
+    }
 }
