@@ -1,7 +1,6 @@
 ﻿using Domain.Exceptions;
 using Domain.Exceptions.Messages;
 using Domain.Services.Encription;
-using System.Security.Cryptography;
 using System.Text.Json;
 
 namespace Domain.Entities.Barbers.Service;
@@ -17,7 +16,6 @@ internal class Service
     public decimal PromotionalPrice { get; private set; }
     public bool IsPromotionActive { get; set; }
     public bool Active { get; set; }
-    //public string Worker { get; set; }
     public TimeSpan Duration { get; set; }
 
     public Service(Guid branchId, Category? category, string name, string description, decimal price, decimal promotionalPrice, bool isPromotionActive, bool active, TimeSpan duration)

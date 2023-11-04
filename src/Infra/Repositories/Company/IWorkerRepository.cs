@@ -6,4 +6,5 @@ internal interface IWorkerRepository
 {
     Task<bool> Exists(Guid branchId, string document, string phone, string email);
     Task Add(Employee worker);
+    Task Update(Employee worker);
 }

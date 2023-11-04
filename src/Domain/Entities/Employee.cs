@@ -1,4 +1,5 @@
 ﻿using Domain.Entities.Barbers;
+using Domain.Entities.Barbers.Service;
 using Domain.Exceptions;
 using Domain.Exceptions.Messages;
 using Domain.Services.Encription;
@@ -13,6 +14,8 @@ internal class Employee : User
     public string Avatar { get; set; }
     public string Document { get; set; }
     public Schedule? LunchInterval { get; set; }
+    public HashSet<Service> Services { get; private set; } = new HashSet<Service>();
+    
     public Employee(Guid branchId, bool active, string avatar, string document, string name, string email, string phone) : base(name, email, phone)
     {
         SetBranchId(branchId);
@@ -38,6 +41,10 @@ internal class Employee : User
         BranchId = branchId;
     }
 
+    public void AddServices(List<Service> services)
+    {
+        Services = Services.Concat(services).ToHashSet();
+    }
     public override int GetHashCode()
     {
         return Id.GetHashCode();

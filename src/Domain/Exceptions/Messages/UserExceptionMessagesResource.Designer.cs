@@ -61,6 +61,15 @@ namespace Domain.Exceptions.Messages {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The Company admin can not receive services..
+        /// </summary>
+        internal static string COMPANY_ADMIN_IS_NOT_ABLE_TO_HAVE_SERVICES {
+            get {
+                return ResourceManager.GetString("COMPANY_ADMIN_IS_NOT_ABLE_TO_HAVE_SERVICES", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The employee does not have lunch time..
         /// </summary>
         internal static string EMPLOYEE_DOES_NOT_HAVE_LUNCH_INTERVAL {

@@ -419,7 +419,7 @@ public class OrderPolicyTest
         branch.AddEmployee(employee);
 
         var order = OrderBuilder.Build(new DateTime(now.Year, now.Month, now.Day, now.Hour, 0, 0), branch, employee,
-                                      new List<Service> { ServiceBuilder.Build(Guid.NewGuid()) });
+                                      new List<Service> { ServiceBuilder.Build(Guid.NewGuid(), TimeSpan.FromMinutes(0)) });
 
         var allOrders = new List<Order>() { OrderBuilder.Build(new DateTime(now.Year, now.Month, now.Day, now.Hour, 0, 0), branch, employee, new List<Service> { ServiceBuilder.Build(Guid.NewGuid(), TimeSpan.FromMinutes(30)) }), };
 

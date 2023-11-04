@@ -89,7 +89,7 @@ public class ScheduleTest
         var beforeMidnight = new DateTime(now.Year, now.Month, now.Day, 23, 0, 0);
         var afterMidnight = new DateTime(now.Year, now.Month, now.AddDays(1).Day, 2, 0, 0);
 
-        var schedule = new Schedule(new TimeOnly(beforeMidnight.Hour, beforeMidnight.Minute), new TimeOnly(afterMidnight.Hour, afterMidnight.Minute), DayOfWeek.Saturday);
+        var schedule = new Schedule(new TimeOnly(beforeMidnight.Hour, beforeMidnight.Minute), new TimeOnly(afterMidnight.Hour, afterMidnight.Minute), afterMidnight.DayOfWeek);
 
         var dayToCompare = new DateTime(now.Year, now.Month, now.AddDays(1).Day, 23, 30, 0);
 
