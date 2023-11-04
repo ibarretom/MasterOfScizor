@@ -375,9 +375,7 @@ public class BranchServiceTest
 
         await branchService.Add(lunchInterval);
 
-        Assert.True(employee.LunchInterval?.StartTime.Equals(lunchInterval.StartTime));
-        Assert.True(employee.LunchInterval?.EndTime.Equals(lunchInterval.EndTime));
-        Assert.True(employee.LunchInterval?.WeekDay.Equals(lunchInterval.WeekDay));
+        Assert.Contains(new Schedule(lunchInterval.StartTime, lunchInterval.EndTime, lunchInterval.WeekDay), employee.LunchInterval);
     }
 
     [Fact]

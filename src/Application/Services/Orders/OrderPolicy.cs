@@ -207,10 +207,14 @@ internal class OrderPolicy : IOrderPolicy
     {
         var employee = branch.Barber.FirstOrDefault(barber => barber.Id == order.Worker.Id) ?? throw new OrderException(OrderExceptionResourceMessages.EMPLOYEE_DOES_NOT_EXISTS);
 
-        if (employee.LunchInterval is null)
+        var scheduleForScheduleOrderDate = branch.GetScheduleFor(order.RelocatedSchedule) ?? throw new CompanyException(CompanyExceptionMessagesResource.BRANCH_IS_NOT_OPENNED_THIS_DAY);
+
+        var employeeLunchInterval = employee.LunchInterval.FirstOrDefault(interval => scheduleForScheduleOrderDate.Includes(interval));
+
+        if (employeeLunchInterval is null)
             return false;
 
-        var (StartTime, EndTime) = Schedule.GetScheduleDateTime(employee.LunchInterval, order.RelocatedSchedule);
+        var (StartTime, EndTime) = Schedule.GetScheduleDateTime(employeeLunchInterval, order.RelocatedSchedule);
 
         var desiredTimePlusServiceDuration = desiredTime.Add(order.Services.Aggregate(new TimeSpan(0), (acc, current) => acc + current.Duration));
 

@@ -22,7 +22,11 @@ internal class OrderTool : IOrderTool
 
         var orderTimePlusServiceDuration = order.RelocatedSchedule.Add(servicesTotalDuration - branch.Configuration.ScheduleDelayTime);
 
-        if (orderEmployee.LunchInterval is not null && orderEmployee.LunchInterval.Includes(orderTimePlusServiceDuration))
+        var scheduleForTheOrderDay = branch.GetScheduleFor(relocatedOrder.RelocatedSchedule) ?? throw new CompanyException(CompanyExceptionMessagesResource.BRANCH_IS_NOT_OPENNED_THIS_DAY);
+
+        var employeeLunchInterval = orderEmployee.LunchInterval.FirstOrDefault(interval => scheduleForTheOrderDay.Includes(interval));
+
+        if (employeeLunchInterval is not null && employeeLunchInterval.Includes(orderTimePlusServiceDuration))
             relocatedOrder = SkipLunchInterval(order, orderEmployee);
 
         if (!allOrders.Any())
@@ -49,12 +53,12 @@ internal class OrderTool : IOrderTool
 
     private static Order SkipLunchInterval(Order order, Employee employee)
     {
-        var lunchInterval = employee.LunchInterval ?? throw new OrderException(UserExceptionMessagesResource.EMPLOYEE_DOES_NOT_HAVE_LUNCH_INTERVAL);
+        var lunchInterval = employee.LunchInterval.FirstOrDefault(interval => interval.Includes(order.RelocatedSchedule)) 
+                            ?? throw new OrderException(UserExceptionMessagesResource.EMPLOYEE_DOES_NOT_HAVE_LUNCH_INTERVAL);
 
         var orderRelocated = new Order(order.Branch, order.Worker, order.Services, order.User, order.Status, order.ScheduleTime)
         {
-            RelocatedSchedule = new DateTime(order.ScheduleTime.Year, order.ScheduleTime.Month, order.ScheduleTime.Day,
-                                            lunchInterval.EndTime.Hour, lunchInterval.EndTime.Minute, 0, order.ScheduleTime.Kind)
+            RelocatedSchedule = Schedule.GetScheduleDateTime(lunchInterval, order.RelocatedSchedule).EndTime
         };
 
         return orderRelocated;

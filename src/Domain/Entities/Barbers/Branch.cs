@@ -41,14 +41,17 @@ internal class Branch
 
         var employee = Barber.FirstOrDefault(barber => barber.Id == employeeId) ?? throw new CompanyException(CompanyExceptionMessagesResource.EMPLOYEE_NOT_FOUND);
 
-        employee.LunchInterval = lunchInterval;
+        employee.AddLunchInterval(lunchInterval);
     }
 
     private bool IsValidLunchTime(Schedule lunchInterval)
     {
-        var validForAllWorkingDays = Schedule.All(schedule => schedule.Includes(lunchInterval));
+        var scheduleForThisTime = Schedule.FirstOrDefault(schedule => schedule.Includes(lunchInterval));
 
-        return validForAllWorkingDays;
+        if (scheduleForThisTime == default)
+            return false;
+
+        return true;
     }
 
     public void AddSchedule(Schedule schedule)

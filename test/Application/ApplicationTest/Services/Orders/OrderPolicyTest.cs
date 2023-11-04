@@ -238,8 +238,9 @@ public class OrderPolicyTest
         AddScheduleWithBoundarySchedules(now, branch);
 
         var employee = EmployeeBuilder.Build();
-        employee.LunchInterval = new Schedule(new TimeOnly(now.Hour, now.Minute), new TimeOnly(now.Hour, now.Minute).AddHours(1), now.DayOfWeek);
         branch.AddEmployee(employee);
+
+        branch.AddEmployeeLunchInterval(new Schedule(new TimeOnly(now.Hour, now.Minute), new TimeOnly(now.Hour, now.Minute).AddHours(1), now.DayOfWeek), employee.Id);
 
         var order = OrderBuilder.Build(now.AddMinutes(-30), branch, employee, new List<Service>() { ServiceBuilder.Build(branch.Id, TimeSpan.FromMinutes(32)) });
 
@@ -262,9 +263,9 @@ public class OrderPolicyTest
         AddScheduleWithBoundarySchedules(now, branch);
 
         var employee = EmployeeBuilder.Build();
-        employee.LunchInterval = new Schedule(new TimeOnly(now.Hour, now.Minute), new TimeOnly(now.Hour, now.Minute).AddHours(1), now.DayOfWeek);
-
         branch.AddEmployee(employee);
+
+        branch.AddEmployeeLunchInterval(new Schedule(new TimeOnly(now.Hour, now.Minute), new TimeOnly(now.Hour, now.Minute).AddHours(1), now.DayOfWeek), employee.Id);
 
         var order = OrderBuilder.Build(now.AddMinutes(-30), branch, employee, new List<Service>() { ServiceBuilder.Build(branch.Id, TimeSpan.FromMinutes(40)) });
 
@@ -435,8 +436,6 @@ public class OrderPolicyTest
     [MemberData(nameof(BuildObjects))]
     private void ShouldAcceptThisOrders(OrderPolicyTestData testOrders)
     {
-        AddScheduleWithBoundarySchedules(Now, testOrders.Branch);
-
         var orderPolicy = new OrderPolicy();
         var isAllowed = orderPolicy.IsAllowed(testOrders.Order, testOrders.Orders, testOrders.Branch, out _);
 
@@ -506,6 +505,8 @@ public class OrderPolicyTest
 
         var branch = BranchBuilder.Build(configuration, true);
 
+        AddScheduleWithBoundarySchedules(Now, branch);
+        
         var employee = EmployeeBuilder.Build();
         branch.AddEmployee(employee);
 
@@ -524,6 +525,7 @@ public class OrderPolicyTest
         var configuration = ConfigurationBuilder.BuildQueueWithVirtualQueue();
 
         var branch = BranchBuilder.Build(configuration, true);
+        AddScheduleWithBoundarySchedules(Now, branch);
 
         var employee = EmployeeBuilder.Build();
         branch.AddEmployee(employee);
@@ -540,6 +542,7 @@ public class OrderPolicyTest
         var configuration = ConfigurationBuilder.BuildWithQueueLimit(2);
 
         var branch = BranchBuilder.Build(configuration, true);
+        AddScheduleWithBoundarySchedules(Now, branch);
 
         var employee = EmployeeBuilder.Build();
         branch.AddEmployee(employee);
@@ -556,6 +559,7 @@ public class OrderPolicyTest
         var configuration = ConfigurationBuilder.BuildWithScheduleWithNoDelay();
 
         var branch = BranchBuilder.Build(configuration, true);
+        AddScheduleWithBoundarySchedules(Now, branch);
 
         var employee = EmployeeBuilder.Build();
         branch.AddEmployee(employee);
@@ -576,6 +580,7 @@ public class OrderPolicyTest
         var configuration = ConfigurationBuilder.BuildWithScheduleWithNoDelay();
 
         var branch = BranchBuilder.Build(configuration, true);
+        AddScheduleWithBoundarySchedules(Now, branch);
 
         var employee = EmployeeBuilder.Build();
         branch.AddEmployee(employee);
@@ -593,6 +598,7 @@ public class OrderPolicyTest
         var configuration = ConfigurationBuilder.BuildWithScheduleWithNoDelay();
 
         var branch = BranchBuilder.Build(configuration, true);
+        AddScheduleWithBoundarySchedules(Now, branch);
 
         var employee = EmployeeBuilder.Build();
         branch.AddEmployee(employee);
@@ -609,6 +615,7 @@ public class OrderPolicyTest
         var configuration = ConfigurationBuilder.BuildWithScheduleWithNoDelay();
 
         var branch = BranchBuilder.Build(configuration, true);
+        AddScheduleWithBoundarySchedules(Now, branch);
 
         var employee = EmployeeBuilder.Build();
         branch.AddEmployee(employee);
@@ -628,6 +635,7 @@ public class OrderPolicyTest
         var configuration = ConfigurationBuilder.BuildWithScheduleWithNoDelay();
 
         var branch = BranchBuilder.Build(configuration, true);
+        AddScheduleWithBoundarySchedules(Now, branch);
 
         var employee = EmployeeBuilder.Build();
         branch.AddEmployee(employee);
@@ -650,6 +658,7 @@ public class OrderPolicyTest
     {
         var configuration = ConfigurationBuilder.BuildWithScheduleWithNoDelay();
         var branch = BranchBuilder.Build(configuration, true);
+        AddScheduleWithBoundarySchedules(Now, branch);
 
         var employee = EmployeeBuilder.Build();
         branch.AddEmployee(employee);
@@ -670,6 +679,7 @@ public class OrderPolicyTest
     {
         var configuration = ConfigurationBuilder.BuildWithScheduleWithNoDelay();
         var branch = BranchBuilder.Build(configuration, true);
+        AddScheduleWithBoundarySchedules(Now, branch);
 
         var employee = EmployeeBuilder.Build();
         branch.AddEmployee(employee);

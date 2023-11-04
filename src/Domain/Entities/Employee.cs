@@ -13,7 +13,7 @@ internal class Employee : User
     public bool Active { get; set; }
     public string Avatar { get; set; }
     public string Document { get; set; }
-    public Schedule? LunchInterval { get; set; }
+    public HashSet<Schedule> LunchInterval { get; private set; } = new HashSet<Schedule>();
     public HashSet<Service> Services { get; private set; } = new HashSet<Service>();
     
     public Employee(Guid branchId, bool active, string avatar, string document, string name, string email, string phone) : base(name, email, phone)
@@ -23,14 +23,15 @@ internal class Employee : User
         Avatar = avatar;
         Document = document;
     } 
-    
-    public Employee(Guid branchId, bool active, string avatar, string document, string name, string email, string phone, Schedule lunchInterval) : base(name, email, phone)
+
+    public void AddLunchInterval(Schedule schedule)
     {
-        SetBranchId(branchId);
-        Active = active;
-        Avatar = avatar;
-        Document = document;
-        LunchInterval = lunchInterval;
+        LunchInterval.Add(schedule);
+    }
+    
+    public void AddLunchInterval(HashSet<Schedule> schedules)
+    {
+        LunchInterval.UnionWith(schedules);
     }
 
     private void SetBranchId(Guid branchId)

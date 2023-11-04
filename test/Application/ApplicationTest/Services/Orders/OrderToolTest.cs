@@ -45,7 +45,6 @@ public class OrderToolTest
         var employee = EmployeeBuilder.Build();
         branch.AddEmployee(employee);
 
-
         var lunchTime = new Schedule(new TimeOnly(now.Hour, now.Minute), new TimeOnly(now.AddHours(1).Hour, now.Minute), now.DayOfWeek);
 
         branch.AddEmployeeLunchInterval(lunchTime, employee.Id);
@@ -56,7 +55,7 @@ public class OrderToolTest
 
         var relocatedTime = orderTool.RelocateTime(order, new List<Order>(), branch);
 
-        Assert.Equal(relocatedTime, new DateTime(now.Year, now.Month, now.Day, now.AddHours(1).Hour, now.Minute, 0, now.Kind));
+        Assert.Equal(relocatedTime, new DateTime(now.AddHours(1).Year, now.AddHours(1).Month, now.AddHours(1).Day, now.AddHours(1).Hour, now.AddHours(1).Minute, 0, now.AddHours(1).Kind));
     }
 
     [Fact]
@@ -64,9 +63,11 @@ public class OrderToolTest
     {
         var configuration = ConfigurationBuilder.BuildQueueWithVirtualQueue();
 
-        var branch = BranchBuilder.Build(configuration);
-
         var now = DateTime.UtcNow;
+
+        var branch = BranchBuilder.Build(configuration);
+        branch.AddSchedule(new Schedule(new TimeOnly(now.AddHours(-2).Hour, now.AddHours(-2).Minute), new TimeOnly(now.AddHours(2).Hour, now.AddHours(2).Minute), now.AddHours(-2).DayOfWeek));
+
 
         var employee = EmployeeBuilder.Build();
         branch.AddEmployee(employee);
@@ -94,6 +95,8 @@ public class OrderToolTest
         var employee = EmployeeBuilder.Build();
         branch.AddEmployee(employee);
 
+        branch.AddSchedule(new Schedule(new TimeOnly(now.AddHours(-2).Hour, now.AddHours(-2).Minute), new TimeOnly(now.AddHours(2).Hour, now.AddHours(2).Minute), now.AddHours(-2).DayOfWeek));
+        
         var order = OrderBuilder.Build(now.AddHours(1), branch, employee);
 
         var orders = new List<Order>
@@ -105,7 +108,7 @@ public class OrderToolTest
 
         var relocatedTime = orderTool.RelocateTime(order, orders, branch);
 
-        Assert.Equal(relocatedTime, new DateTime(now.Year, now.Month, now.Day, now.AddHours(1).Hour, now.Minute, 0, now.Kind));
+        Assert.Equal(relocatedTime, new DateTime(now.AddHours(1).Year, now.AddHours(1).Month, now.AddHours(1).Day, now.AddHours(1).Hour, now.AddHours(1).Minute, 0, now.AddHours(1).Kind));
     }
 
     [Fact]
@@ -113,14 +116,16 @@ public class OrderToolTest
     {
         var configuration = ConfigurationBuilder.BuildQueueWithVirtualQueue();
 
-        var branch = BranchBuilder.Build(configuration);
-
         var now = DateTime.UtcNow;
 
+        var branch = BranchBuilder.Build(configuration);
+        
         var employee = EmployeeBuilder.Build();
 
         branch.AddEmployee(employee);
 
+        branch.AddSchedule(new Schedule(new TimeOnly(now.AddHours(-2).Hour, now.AddHours(-2).Minute), new TimeOnly(now.AddHours(2).Hour, now.AddHours(2).Minute), now.AddHours(-2).DayOfWeek));
+        
         var order = OrderBuilder.Build(now.AddHours(1), branch, employee);
 
         var orders = new List<Order>
@@ -132,7 +137,7 @@ public class OrderToolTest
 
         var relocatedTime = orderTool.RelocateTime(order, orders, branch);
 
-        Assert.Equal(relocatedTime, new DateTime(now.Year, now.Month, now.Day, now.AddHours(2).Hour, now.Minute, 0, now.Kind));
+        Assert.Equal(relocatedTime, new DateTime(now.AddHours(2).Year, now.AddHours(2).Month, now.AddHours(2).Day, now.AddHours(2).Hour, now.AddHours(1).Minute, 0, now.AddHours(1).Kind));
     }
     
 
