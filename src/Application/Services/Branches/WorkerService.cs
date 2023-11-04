@@ -1,4 +1,5 @@
 ﻿using Domain.Entities;
+using Domain.Entities.Barbers;
 using Domain.Entities.Barbers.Service;
 using Domain.Exceptions;
 using Domain.Exceptions.Messages;

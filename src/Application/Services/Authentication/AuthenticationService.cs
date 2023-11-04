@@ -12,12 +12,12 @@ namespace Application.Services.Authentication;
 internal class AuthenticationService : IAuthenticationService
 {
     private readonly IUserRepository _userRepository;
-    private readonly IEncriptService _encriptService;
+    private readonly IEncriptService _encryptService;
     private readonly IMapper _mapper;
 
-    public AuthenticationService(IUserRepository userRepository, IEncriptService encriptService, IMapper mapper)
+    public AuthenticationService(IUserRepository userRepository, IEncriptService encryptService, IMapper mapper)
     {
-        _encriptService = encriptService;
+        _encryptService = encryptService;
         _userRepository = userRepository;
         _mapper = mapper;
     }
@@ -26,7 +26,7 @@ internal class AuthenticationService : IAuthenticationService
     {   
         var created_user = _mapper.Map<User>(user);
         created_user.AddRoles(UserRole.Customer);
-        created_user.SetPassword(user.Password, _encriptService);
+        created_user.SetPassword(user.Password, _encryptService);
 
         await _userRepository.Create(created_user);
     }

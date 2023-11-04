@@ -1,7 +1,11 @@
 ﻿using Application.Services.Branches;
+using Domain.Entities.Barbers;
 using Domain.Entities.Barbers.Service;
 using Domain.Exceptions;
 using Domain.Exceptions.Messages;
+using Domain.ValueObjects.DTO.Barber;
+using DomainTest.Entities;
+using DomainTest.Entities.Barbers;
 using DomainTest.Entities.Barbers.Services;
 using DomainTest.ValueObjects.DTO;
 using Infra.Repositories.Company;
@@ -134,7 +138,7 @@ public class BranchServiceTest
     }
 
     [Fact]
-    public async void ShoudlNotBeAbleToCreateAServiceWithTheSameNameWithCategoryNull()
+    public async void ShouldNotBeAbleToCreateAServiceWithTheSameNameWithCategoryNull()
     {
         var serviceRepository = new Mock<IServiceRepository>();
         serviceRepository.Setup(repository => repository.Exists(It.IsAny<Guid>(), It.IsAny<string>(), Guid.Empty).Result).Returns(true);
@@ -190,7 +194,7 @@ public class BranchServiceTest
     }
 
     [Fact]
-    public async void ShoulNotBeAbleToUpdateAServiceThatDoesntExists()
+    public async void ShouldNotBeAbleToUpdateAServiceThatDoesNotExists()
     {
         var serviceRepository = new Mock<IServiceRepository>();
         serviceRepository.Setup(repository => repository.GetById(It.IsAny<Guid>(), It.IsAny<Guid>()).Result)
@@ -254,7 +258,7 @@ public class BranchServiceTest
     }
 
     [Fact]
-    public async void ShouldNotBeAbleToDisableAServiceThatDoesntExists()
+    public async void ShouldNotBeAbleToDisableAServiceThatDoesNotExists()
     {
         var branchId = Guid.NewGuid();
         var serviceId = Guid.NewGuid();
@@ -316,7 +320,7 @@ public class BranchServiceTest
     }
 
     [Fact]
-    public async void ShouldBeAbleToRetrieveAllServicesRegistred()
+    public async void ShouldBeAbleToRetrieveAllServicesRegistered()
     {
         var branchId = Guid.NewGuid();
         var services = new List<Service>() { 
@@ -346,5 +350,58 @@ public class BranchServiceTest
         {
             Assert.Contains(service, services);
         }
+    }
+
+    [Fact]
+    public async Task ShouldBeAbleToAddALunchScheduleForAWorker()
+    {
+        var configuration = ConfigurationBuilder.BuildWithScheduleWithNoDelay();
+        var branch = BranchBuilder.Build(configuration, true);
+        branch.AddSchedule(new Schedule(new TimeOnly(9, 0), new TimeOnly(18, 0), DayOfWeek.Monday));
+
+        var employee = EmployeeBuilder.Build();
+        branch.AddEmployee(employee);
+
+        var branchRepository = new Mock<IBranchRepository>();
+        branchRepository.Setup(repository => repository.GetBy(branch.Id).Result).Returns(branch);
+
+        var serviceRepository = new Mock<IServiceRepository>();
+
+        var categoryRepository = new Mock<ICategoryRepository>();
+
+        var branchService = new BranchService(serviceRepository.Object, branchRepository.Object, categoryRepository.Object);
+
+        var lunchInterval = new LunchIntervalDTO(new TimeOnly(12, 0), new TimeOnly(13, 0), DayOfWeek.Monday, branch.Id, employee.Id);
+
+        await branchService.Add(lunchInterval);
+
+        Assert.True(employee.LunchInterval?.StartTime.Equals(lunchInterval.StartTime));
+        Assert.True(employee.LunchInterval?.EndTime.Equals(lunchInterval.EndTime));
+        Assert.True(employee.LunchInterval?.WeekDay.Equals(lunchInterval.WeekDay));
+    }
+
+    [Fact]
+    public async Task ShouldThrowsWhenBranchIsNotFound()
+    {
+        var configuration = ConfigurationBuilder.BuildWithScheduleWithNoDelay();
+        var branch = BranchBuilder.Build(configuration, true);
+        branch.AddSchedule(new Schedule(new TimeOnly(9, 0), new TimeOnly(18, 0), DayOfWeek.Monday));
+
+        var employee = EmployeeBuilder.Build();
+        branch.AddEmployee(employee);
+
+        var branchRepository = new Mock<IBranchRepository>();
+
+        var serviceRepository = new Mock<IServiceRepository>();
+
+        var categoryRepository = new Mock<ICategoryRepository>();
+
+        var branchService = new BranchService(serviceRepository.Object, branchRepository.Object, categoryRepository.Object);
+
+        var lunchInterval = new LunchIntervalDTO(new TimeOnly(12, 0), new TimeOnly(13, 0), DayOfWeek.Monday, branch.Id, employee.Id);
+
+        var exception = await Assert.ThrowsAsync<CompanyException>(() => branchService.Add(lunchInterval));
+
+        Assert.True(exception.Message.Equals(CompanyExceptionMessagesResource.BRANCH_NOT_FOUND));
     }
 }

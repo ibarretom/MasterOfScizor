@@ -1,4 +1,6 @@
-﻿using Domain.Entities.Barbers.Service;
+﻿using Domain.Entities;
+using Domain.Entities.Barbers;
+using Domain.Entities.Barbers.Service;
 using Domain.Exceptions;
 using Domain.Exceptions.Messages;
 using Domain.ValueObjects.DTO.Barber;
@@ -82,5 +84,14 @@ internal class BranchService
         var services = await _serviceRepository.GetAll(branchId);
 
         return new ServiceGetResponseDTO(services);
+    }
+
+    public async Task Add(LunchIntervalDTO lunchIntervalDTO)
+    {
+        var branch = await _branchRepository.GetBy(lunchIntervalDTO.BranchId) ?? throw new CompanyException(CompanyExceptionMessagesResource.BRANCH_NOT_FOUND);
+
+        branch.AddEmployeeLunchInterval(new Schedule(lunchIntervalDTO.StartTime, lunchIntervalDTO.EndTime, lunchIntervalDTO.WeekDay), lunchIntervalDTO.EmployeeId);
+
+        await _branchRepository.Update(branch);
     }
 }
