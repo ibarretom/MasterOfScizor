@@ -16,6 +16,11 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>AddressExceptionMessagesResource.resx</DependentUpon>
     </Compile>
+    <Compile Update="Exceptions\Messages\AuthenticationExceptionMessagesResource.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>AuthenticationExceptionMessagesResource.resx</DependentUpon>
+    </Compile>
     <Compile Update="Exceptions\Messages\CompanyExceptionMessagesResource.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -52,6 +57,10 @@
     <EmbeddedResource Update="Exceptions\Messages\AddressExceptionMessagesResource.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>AddressExceptionMessagesResource.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Exceptions\Messages\AuthenticationExceptionMessagesResource.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>AuthenticationExceptionMessagesResource.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <EmbeddedResource Update="Exceptions\Messages\CompanyExceptionMessagesResource.resx">
       <Generator>ResXFileCodeGenerator</Generator>

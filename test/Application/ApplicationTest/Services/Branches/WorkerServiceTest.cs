@@ -29,7 +29,7 @@ public class WorkerServiceTest
                 createdWorker = employee;
             }).Returns(Task.CompletedTask);
 
-        var encriptService = new Mock<IEncriptService>();
+        var encriptService = new Mock<IEncryptService>();
         encriptService.Setup(service => service.Hash(worker.Email + worker.Password)).Returns("hash");
 
 
@@ -57,7 +57,7 @@ public class WorkerServiceTest
         var workerRepository = new Mock<IWorkerRepository>();
         workerRepository.Setup(repository => repository.Exists(worker.BranchId, worker.Document, worker.Phone, worker.Email).Result).Returns(true);
 
-        var encriptService = new Mock<IEncriptService>();
+        var encriptService = new Mock<IEncryptService>();
 
         var workerService = new WorkerService(workerRepository.Object, encriptService.Object);
 
@@ -79,7 +79,7 @@ public class WorkerServiceTest
                 employee = worker;
             }).Returns(Task.CompletedTask);
 
-        var workerService = new WorkerService(workerRepository.Object, new Mock<IEncriptService>().Object);
+        var workerService = new WorkerService(workerRepository.Object, new Mock<IEncryptService>().Object);
         await workerService.Add(services, employee);
 
         Assert.True(employee.Services.Count.Equals(services.Count));
@@ -99,7 +99,7 @@ public class WorkerServiceTest
                 employee = worker;
             }).Returns(Task.CompletedTask);
 
-        var workerService = new WorkerService(workerRepository.Object, new Mock<IEncriptService>().Object);
+        var workerService = new WorkerService(workerRepository.Object, new Mock<IEncryptService>().Object);
 
         var servicesToAdd = services.Concat(new List<Service> { ServiceBuilder.Build() }).ToList();
         await workerService.Add(servicesToAdd, employee);

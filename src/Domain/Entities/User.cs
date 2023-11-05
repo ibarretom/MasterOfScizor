@@ -33,8 +33,13 @@ public class User
         Roles.UnionWith(roles);
     }
 
-    public void SetPassword(string password, IEncriptService encryptService)
+    public void SetPassword(string password, IEncryptService encryptService)
     {
-        Password = encryptService.Hash($"{Email}{password}");
+        Password = encryptService.Hash(GetPasswordToBeHashed(this, password));
+    }
+
+    public static string GetPasswordToBeHashed(User user, string password)
+    {
+        return $"{user.Email}{password}";
     }
 }

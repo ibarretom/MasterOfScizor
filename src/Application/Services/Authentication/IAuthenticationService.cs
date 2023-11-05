@@ -1,4 +1,5 @@
-﻿using Domain.ValueObjects.DTO;
+﻿using Domain.ValueObjects.Authentication;
+using Domain.ValueObjects.DTO;
 using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
@@ -7,5 +8,6 @@ namespace Application.Services.Authentication;
 
 internal interface IAuthenticationService
 {
-    void SignUp(UserRequestDTO user);
+    Task SignUp(UserRequestDTO user);
+    Task<TokenResponse> SignIn(SignInRequestDTO user);
 }

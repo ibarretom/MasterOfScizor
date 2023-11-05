@@ -13,9 +13,9 @@ namespace Application.Services.Branches;
 internal class WorkerService
 {
     private readonly IWorkerRepository _workerRepository;
-    private readonly IEncriptService _encryptService;
+    private readonly IEncryptService _encryptService;
 
-    public WorkerService(IWorkerRepository workerRepository, IEncriptService encryptService)
+    public WorkerService(IWorkerRepository workerRepository, IEncryptService encryptService)
     {
         _workerRepository = workerRepository;
         _encryptService = encryptService;
