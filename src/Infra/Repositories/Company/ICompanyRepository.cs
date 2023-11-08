@@ -1,4 +1,5 @@
-﻿using Domain.Entities.Barbers;
+﻿using Domain.Entities;
+using Domain.Entities.Barbers;
 using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("Application")]
@@ -12,4 +13,5 @@ internal interface ICompanyRepository
     Task Update(Barber barber);
     Task<Barber> GetById(Guid companyId);
     Task<Barber> GetByCompanyIdentifier(string companyIdentifier);
+    Task<Employee> FindEmployee(string credential);
 }
