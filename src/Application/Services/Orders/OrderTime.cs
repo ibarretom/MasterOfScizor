@@ -11,7 +11,7 @@ internal class OrderTime : IOrderTime
     public HashSet<DateTime> GetAvailable(DateTime day, Employee employee, List<Order> orders, Branch branch)
     {
         var schedules = branch.GetScheduleFor(day.DayOfWeek) ?? throw new CompanyException(CompanyExceptionMessagesResource.BRANCH_IS_NOT_OPENNED_THIS_DAY);
-        var test = (new DateTime(2023, 2, 3, 23, 59, 59) - new DateTime(2023, 2, 3, 22, 23, 0)).TotalMinutes;
+
         HashSet<DateTime> allPossibleTimes = GenerateTimes(day, schedules, branch.Configuration);
 
         if (allPossibleTimes.FirstOrDefault() == default)
