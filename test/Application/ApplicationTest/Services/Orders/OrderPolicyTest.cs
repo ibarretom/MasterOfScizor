@@ -31,7 +31,7 @@ public class OrderPolicyTest
 
         var orderPolicy = new OrderPolicy();
 
-        var isAllowed = orderPolicy.IsAllowed(order, new List<Order>(), branch, out string reason);
+        var isAllowed = orderPolicy.IsAllowed(order, new List<Order>(), out string reason);
 
         Assert.False(isAllowed);
         Assert.True(reason.Equals(OrderExceptionResourceMessages.ORDER_TIME_IS_NOT_IN_COMMERCIAL_TIME));
@@ -63,14 +63,14 @@ public class OrderPolicyTest
 
         var orderPolicy = new OrderPolicy();
 
-        var isAllowed1 = orderPolicy.IsAllowed(order, new List<Order>(), branch, out var reason);
+        var isAllowed1 = orderPolicy.IsAllowed(order, new List<Order>(), out var reason);
 
         Assert.False(isAllowed1);
         Assert.True(reason.Equals(OrderExceptionResourceMessages.ORDER_TIME_IS_NOT_IN_COMMERCIAL_TIME), "Mensagem divergente. Message: " + isAllowed1);
 
         order = OrderBuilder.Build(now.AddHours(-2), branch);
 
-        var isAllowed = orderPolicy.IsAllowed(order, new List<Order>(), branch, out reason);
+        var isAllowed = orderPolicy.IsAllowed(order, new List<Order>(), out reason);
 
         Assert.True(!isAllowed);
         Assert.True(reason.Equals(OrderExceptionResourceMessages.ORDER_TIME_IS_NOT_IN_COMMERCIAL_TIME));
@@ -93,7 +93,7 @@ public class OrderPolicyTest
 
         var orderPolicy = new OrderPolicy();
 
-        var exception = Assert.Throws<CompanyException>(() => orderPolicy.IsAllowed(order, new List<Order>(), branch, out var reason));
+        var exception = Assert.Throws<CompanyException>(() => orderPolicy.IsAllowed(order, new List<Order>(), out var reason));
 
         Assert.True(exception.Message.Equals(CompanyExceptionMessagesResource.BRANCH_IS_NOT_OPENNED_THIS_DAY));
     }
@@ -115,7 +115,7 @@ public class OrderPolicyTest
 
         var orderPolicy = new OrderPolicy();
 
-        var isAllowed = orderPolicy.IsAllowed(order, new List<Order>(), branch, out var reason);
+        var isAllowed = orderPolicy.IsAllowed(order, new List<Order>(), out var reason);
 
         Assert.True(!isAllowed);
         Assert.True(reason.Equals(OrderExceptionResourceMessages.ORDER_TIME_IS_GREATER_THEN_COMMERCIAL_TIME));
@@ -127,7 +127,7 @@ public class OrderPolicyTest
             )
         };
 
-        isAllowed = orderPolicy.IsAllowed(order, orders, branch, out reason);
+        isAllowed = orderPolicy.IsAllowed(order, orders, out reason);
 
         Assert.True(!isAllowed);
         Assert.True(reason.Equals(OrderExceptionResourceMessages.ORDER_TIME_IS_GREATER_THEN_COMMERCIAL_TIME));
@@ -151,8 +151,8 @@ public class OrderPolicyTest
 
         var orderPolicy = new OrderPolicy();
 
-        var isAllowed = orderPolicy.IsAllowed(order, new List<Order>(), branch, out var reason);
-        
+        var isAllowed = orderPolicy.IsAllowed(order, new List<Order>(), out var reason);
+
         Assert.False(isAllowed);
         Assert.True(reason.Equals(OrderExceptionResourceMessages.ORDER_TIME_IS_BEFORE_DATE_NOW));
     }
@@ -174,7 +174,7 @@ public class OrderPolicyTest
         var order = OrderBuilder.Build(now, branch, employee);
 
         var orderPolicy = new OrderPolicy();
-        var isAllowed = orderPolicy.IsAllowed(order, new List<Order>() { OrderBuilder.Build(now, branch) }, branch, out var reason);
+        var isAllowed = orderPolicy.IsAllowed(order, new List<Order>() { OrderBuilder.Build(now, branch) }, out var reason);
 
         Assert.True(!isAllowed);
         Assert.True(reason.Equals(OrderExceptionResourceMessages.ORDER_QUEUE_IS_FULL));
@@ -198,7 +198,7 @@ public class OrderPolicyTest
         var order = OrderBuilder.Build(now, branch, employee);
 
         var orderPolicy = new OrderPolicy();
-        var isAllowed = orderPolicy.IsAllowed(order, new List<Order>() { OrderBuilder.Build() }, branch, out _);
+        var isAllowed = orderPolicy.IsAllowed(order, new List<Order>() { OrderBuilder.Build() }, out _);
 
         Assert.True(isAllowed);
     }
@@ -221,7 +221,7 @@ public class OrderPolicyTest
 
         var orderPolicy = new OrderPolicy();
 
-        var isAllowed = orderPolicy.IsAllowed(order, new List<Order>(), branch, out var reason);
+        var isAllowed = orderPolicy.IsAllowed(order, new List<Order>(), out var reason);
 
         Assert.False(isAllowed);
         Assert.True(reason.Equals(OrderExceptionResourceMessages.ORDER_TIME_NOT_ALLOWED));
@@ -247,7 +247,7 @@ public class OrderPolicyTest
 
         var orderPolicy = new OrderPolicy();
 
-        var isAllowed = orderPolicy.IsAllowed(order, new List<Order>(), branch, out var reason);
+        var isAllowed = orderPolicy.IsAllowed(order, new List<Order>(), out var reason);
 
         Assert.False(isAllowed);
         Assert.True(reason.Equals(OrderExceptionResourceMessages.ORDER_TIME_IS_IN_LUNCH_INTERVAL));
@@ -273,7 +273,7 @@ public class OrderPolicyTest
 
         var orderPolicy = new OrderPolicy();
 
-        var isAllowed = orderPolicy.IsAllowed(order, new List<Order>(), branch, out var reason);
+        var isAllowed = orderPolicy.IsAllowed(order, new List<Order>(), out var reason);
 
         Assert.False(isAllowed);
         Assert.True(reason.Equals(OrderExceptionResourceMessages.ORDER_TIME_IS_IN_LUNCH_INTERVAL));
@@ -297,7 +297,7 @@ public class OrderPolicyTest
 
         var orderPolicy = new OrderPolicy();
 
-        var isAllowed = orderPolicy.IsAllowed(order, new List<Order>(), branch, out var reason);
+        var isAllowed = orderPolicy.IsAllowed(order, new List<Order>(), out var reason);
 
         Assert.False(isAllowed);
         Assert.True(reason.Equals(OrderExceptionResourceMessages.ORDER_TIME_IS_GREATER_THEN_COMMERCIAL_TIME));
@@ -321,7 +321,7 @@ public class OrderPolicyTest
 
         var orderPolicy = new OrderPolicy();
 
-        var isAllowed = orderPolicy.IsAllowed(order, new List<Order>() { OrderBuilder.Build(now.AddHours(0.5), branch, employee) }, branch, out var reason);
+        var isAllowed = orderPolicy.IsAllowed(order, new List<Order>() { OrderBuilder.Build(now.AddHours(0.5), branch, employee) }, out var reason);
 
         Assert.True(!isAllowed);
         Assert.True(reason.Equals(OrderExceptionResourceMessages.ORDER_TIME_ALREADY_ALOCATED));
@@ -345,7 +345,12 @@ public class OrderPolicyTest
 
         var orderPolicy = new OrderPolicy();
 
-        var isAllowed = orderPolicy.IsAllowed(order, new List<Order>() { OrderBuilder.Build(now.AddHours(-0.5), branch, employee, new List<Service>() { ServiceBuilder.Build(branch.Id, TimeSpan.FromMinutes(40)) }) }, branch, out var reason);
+        var orders = new List<Order>() {
+                                OrderBuilder.Build(now.AddHours(-0.5),
+                                branch, employee,
+                                new List<Service>() { ServiceBuilder.Build(branch.Id, TimeSpan.FromMinutes(40)) })
+                                };
+        var isAllowed = orderPolicy.IsAllowed(order, orders, out var reason);
 
         Assert.True(!isAllowed);
         Assert.True(reason.Equals(OrderExceptionResourceMessages.ORDER_TIME_ALREADY_ALOCATED));
@@ -370,7 +375,7 @@ public class OrderPolicyTest
         var order = OrderBuilder.Build(new DateTime(now.Year, now.AddDays(1).Month, now.AddDays(1).Day, 1, 0, 0), branch, employee, services);
 
         var orderPolicy = new OrderPolicy();
-        var isAllowed = orderPolicy.IsAllowed(order, new List<Order>(), branch, out _);
+        var isAllowed = orderPolicy.IsAllowed(order, new List<Order>(), out _);
 
         Assert.True(isAllowed);
     }
@@ -400,7 +405,7 @@ public class OrderPolicyTest
         };
 
         var orderPolicy = new OrderPolicy();
-        var isAllowed = orderPolicy.IsAllowed(order, allOrders, branch, out _);
+        var isAllowed = orderPolicy.IsAllowed(order, allOrders, out _);
 
         Assert.False(isAllowed);
     }
@@ -428,7 +433,7 @@ public class OrderPolicyTest
 
         var orderPolicy = new OrderPolicy();
 
-        var isAllowed = orderPolicy.IsAllowed(order, allOrders, branch, out var reason);
+        var isAllowed = orderPolicy.IsAllowed(order, allOrders, out var reason);
 
         Assert.False(isAllowed);
         Assert.Equal(reason, OrderExceptionResourceMessages.ORDER_TIME_ALREADY_ALOCATED);
@@ -439,7 +444,7 @@ public class OrderPolicyTest
     private void ShouldAcceptThisOrders(OrderPolicyTestData testOrders)
     {
         var orderPolicy = new OrderPolicy();
-        var isAllowed = orderPolicy.IsAllowed(testOrders.Order, testOrders.Orders, testOrders.Branch, out var reason);
+        var isAllowed = orderPolicy.IsAllowed(testOrders.Order, testOrders.Orders, out var reason);
 
         Assert.True(isAllowed, $"{testOrders.TestId}-{reason}");
     }
@@ -508,7 +513,7 @@ public class OrderPolicyTest
         var branch = BranchBuilder.Build(configuration, true);
 
         AddScheduleWithBoundarySchedules(Now, branch);
-        
+
         var employee = EmployeeBuilder.Build();
         branch.AddEmployee(employee);
 
@@ -519,7 +524,7 @@ public class OrderPolicyTest
                 OrderBuilder.Build(Now, branch, employee, new List<Service> { ServiceBuilder.Build(Guid.NewGuid(), TimeSpan.FromMinutes(60)) })
             };
 
-        return new OrderPolicyTestData(order, allOrders, branch, "QueueOrderWithPreviousOrderAlmostClosing");
+        return new OrderPolicyTestData(order, allOrders, "QueueOrderWithPreviousOrderAlmostClosing");
     }
 
     private static OrderPolicyTestData QueueOrderWithNoPreviousOrderAlmostClosing()
@@ -536,7 +541,7 @@ public class OrderPolicyTest
 
         var allOrders = new List<Order>();
 
-        return new OrderPolicyTestData(order, allOrders, branch, "QueueOrderWithNoPreviousOrderAlmostClosing");
+        return new OrderPolicyTestData(order, allOrders, "QueueOrderWithNoPreviousOrderAlmostClosing");
     }
 
     private static OrderPolicyTestData QueueLimitOrderWithFreeSpace()
@@ -553,7 +558,7 @@ public class OrderPolicyTest
 
         var allOrders = new List<Order>();
 
-        return new OrderPolicyTestData(order, allOrders, branch, "QueueLimitOrderWithFreeSpace");
+        return new OrderPolicyTestData(order, allOrders, "QueueLimitOrderWithFreeSpace");
     }
 
     private static OrderPolicyTestData QueueScheduleCloseToLunchInterval()
@@ -573,8 +578,7 @@ public class OrderPolicyTest
 
         var allOrders = new List<Order>();
 
-        return new OrderPolicyTestData(order, allOrders, branch,
-            "QueueScheduleCloseToLunchInterval");
+        return new OrderPolicyTestData(order, allOrders, "QueueScheduleCloseToLunchInterval");
     }
 
     private static OrderPolicyTestData QueueScheduleCloseToEndTime()
@@ -592,7 +596,7 @@ public class OrderPolicyTest
         var allOrders = new List<Order>();
 
 
-        return new OrderPolicyTestData(order, allOrders, branch, "QueueScheduleCloseToEndTime");
+        return new OrderPolicyTestData(order, allOrders, "QueueScheduleCloseToEndTime");
     }
 
     private static OrderPolicyTestData QueueScheduleCloseToNextOrder()
@@ -609,7 +613,7 @@ public class OrderPolicyTest
 
         var allOrders = new List<Order>() { OrderBuilder.Build(Now.AddMinutes(30), branch, employee) };
 
-        return new OrderPolicyTestData(order, allOrders, branch, "QueueScheduleCloseToNextOrder");
+        return new OrderPolicyTestData(order, allOrders, "QueueScheduleCloseToNextOrder");
     }
 
     private static OrderPolicyTestData QueueScheduleCloseToPreviousOrder()
@@ -629,7 +633,7 @@ public class OrderPolicyTest
                 OrderBuilder.Build(Now.AddMinutes(-30), branch, employee, new List<Service>() { ServiceBuilder.Build(Guid.NewGuid(), TimeSpan.FromMinutes(30))})
             };
 
-        return new OrderPolicyTestData(order, allOrders, branch, "QueueScheduleCloseToPreviousOrder");
+        return new OrderPolicyTestData(order, allOrders, "QueueScheduleCloseToPreviousOrder");
     }
 
     private static OrderPolicyTestData QueueScheduleWithUpperAndBellowBoundary()
@@ -653,7 +657,7 @@ public class OrderPolicyTest
                 OrderBuilder.Build(Now.AddMinutes(30), branch)
             };
 
-        return new OrderPolicyTestData(order, allOrders, branch, "QueueScheduleWithUpperAndBellowBoundary");
+        return new OrderPolicyTestData(order, allOrders, "QueueScheduleWithUpperAndBellowBoundary");
     }
 
     private static OrderPolicyTestData QueueScheduleWithFullScheduleTodayButFreeAWeekAfter()
@@ -674,7 +678,7 @@ public class OrderPolicyTest
                            new List<Service>() { ServiceBuilder.Build(Guid.NewGuid(), TimeSpan.FromMinutes(3*60)) }),
         };
 
-        return new OrderPolicyTestData(order, allOrders, branch, "QueueScheduleWithFullScheduleTodayButFreeAWeekAfter");
+        return new OrderPolicyTestData(order, allOrders, "QueueScheduleWithFullScheduleTodayButFreeAWeekAfter");
     }
 
     private static OrderPolicyTestData QueueScheduleWithOrderForTomorrow()
@@ -694,20 +698,18 @@ public class OrderPolicyTest
         };
 
 
-        return new OrderPolicyTestData(order, allOrders, branch, "QueueScheduleWithOrderForTomorrow");
+        return new OrderPolicyTestData(order, allOrders, "QueueScheduleWithOrderForTomorrow");
     }
     private class OrderPolicyTestData
     {
         public Order Order { get; set; }
         public List<Order> Orders { get; set; }
-        public Branch Branch { get; set; }
         public string TestId { get; set; }
 
-        public OrderPolicyTestData(Order order, List<Order> orders, Branch branch, string testId)
+        public OrderPolicyTestData(Order order, List<Order> orders, string testId)
         {
             Order = order;
             Orders = orders;
-            Branch = branch;
             TestId = testId;
         }
     }

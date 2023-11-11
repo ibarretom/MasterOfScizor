@@ -52,7 +52,7 @@ public class OrderServiceTest
         
         string? reason = null;
 
-        orderPolicy.Setup(repository => repository.IsAllowed(It.IsAny<Order>(), It.IsAny<List<Order>>(), It.IsAny<Branch>(), out reason)).Returns(true);
+        orderPolicy.Setup(repository => repository.IsAllowed(It.IsAny<Order>(), It.IsAny<List<Order>>(), out reason)).Returns(true);
 
         var orderTime = new Mock<IOrderTime>();
 
@@ -142,7 +142,7 @@ public class OrderServiceTest
         var orderPolicy = new Mock<IOrderPolicy>();
 
         string? reason = null;
-        orderPolicy.Setup(repository => repository.IsAllowed(It.IsAny<Order>(), It.IsAny<List<Order>>(), It.IsAny<Branch>(), out reason)).Returns(true);
+        orderPolicy.Setup(repository => repository.IsAllowed(It.IsAny<Order>(), It.IsAny<List<Order>>(), out reason)).Returns(true);
         
         var orderTime = new Mock<IOrderTime>();
 
@@ -175,7 +175,7 @@ public class OrderServiceTest
         var orderPolicy = new Mock<IOrderPolicy>();
         
         string? reason = null;
-        orderPolicy.Setup(repository => repository.IsAllowed(It.IsAny<Order>(), It.IsAny<List<Order>>(), It.IsAny<Branch>(), out reason))
+        orderPolicy.Setup(repository => repository.IsAllowed(It.IsAny<Order>(), It.IsAny<List<Order>>(), out reason))
             .Returns(false);
 
         var orderTime = new Mock<IOrderTime>();

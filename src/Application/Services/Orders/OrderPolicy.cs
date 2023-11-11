@@ -10,10 +10,10 @@ namespace Application.Services.Orders;
 
 internal class OrderPolicy : IOrderPolicy
 {
-    public bool IsAllowed(Order order, List<Order> allOrders, Branch branch, out string reason)
+    public bool IsAllowed(Order order, List<Order> allOrders, out string reason)
     {
 
-        var isWorkingInThisDay = branch.GetScheduleFor(order.RelocatedSchedule) is not null;
+        var isWorkingInThisDay = order.Branch.GetScheduleFor(order.RelocatedSchedule) is not null;
 
         if (!isWorkingInThisDay)
         {
@@ -21,10 +21,10 @@ internal class OrderPolicy : IOrderPolicy
             return false;
         }
 
-        if (branch.Configuration.OrderQueueType.Equals(OrderQueueType.Queue))
-            return HandleOrderQueue(order, allOrders, branch, out reason);
+        if (order.Branch.Configuration.OrderQueueType.Equals(OrderQueueType.Queue))
+            return HandleOrderQueue(order, allOrders, order.Branch, out reason);
 
-        return HandleOrderSchedule(order, allOrders, branch, out reason);
+        return HandleOrderSchedule(order, allOrders, order.Branch, out reason);
     }
 
     private static bool HandleOrderQueue(Order order, List<Order> allOrders, Branch branch, out string reason)

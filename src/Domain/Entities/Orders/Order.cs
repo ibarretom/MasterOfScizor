@@ -5,23 +5,16 @@ using System.Data;
 
 namespace Domain.Entities.Orders;
 
-internal class Order
+internal class Order : OrderBase
 {
-    public Guid Id { get; }
-    public Branch Branch { get; }
-    public Employee Worker { get; }
-    public List<Service> Services { get; }
     public User User { get; }
     public OrderStatus Status { get; private set; }
     public DateTime ScheduleTime { get; }
     public DateTime RelocatedSchedule { get; set; }
 
     public Order(Branch branch, Employee worker, List<Service> services, User user, OrderStatus orderStatus, DateTime scheduleTime)
+          : base(branch, worker, services)
     {
-        Id = Guid.NewGuid();
-        Branch = branch;
-        Worker = worker;
-        Services = services;
         User = user;
         Status = orderStatus;
         ScheduleTime = scheduleTime;

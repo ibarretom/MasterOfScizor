@@ -5,5 +5,5 @@ namespace Application.Services.Orders;
 
 internal interface IOrderPolicy
 {
-    bool IsAllowed(Order order, List<Order> allOrders, Branch branch, out string reason);
+    bool IsAllowed(Order order, List<Order> allOrders, out string reason);
 }
