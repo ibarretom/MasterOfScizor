@@ -108,7 +108,7 @@ internal class Schedule
         return WeekDaysMatches(dayOfWeek);
     }
 
-    public bool WeekDaysMatches(DayOfWeek dayOfWeek)
+    private bool WeekDaysMatches(DayOfWeek dayOfWeek)
     {
         if (OverflowingDay.HasValue)
             return WeekDay == dayOfWeek || OverflowingDay == dayOfWeek;

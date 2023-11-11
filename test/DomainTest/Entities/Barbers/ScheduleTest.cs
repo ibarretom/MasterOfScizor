@@ -27,7 +27,7 @@ public class ScheduleTest
 
         var schedule = new Schedule(new TimeOnly(beforeMidnight.Hour, beforeMidnight.Minute), new TimeOnly(afterMidnight.Hour + 1, afterMidnight.Minute), beforeMidnight.DayOfWeek);
 
-        var scheduleToCompare = new Schedule(new TimeOnly(afterMidnight.AddHours(2).Hour, afterMidnight.Minute), 
+        var scheduleToCompare = new Schedule(new TimeOnly(afterMidnight.AddHours(2).Hour, afterMidnight.Minute),
                                             new TimeOnly(afterMidnight.AddHours(3).Hour, afterMidnight.Minute), afterMidnight.DayOfWeek);
 
         Assert.False(schedule.Includes(scheduleToCompare));
@@ -48,12 +48,12 @@ public class ScheduleTest
 
         Assert.True(schedule.Includes(scheduleToCompare));
     }
-    
+
     [Fact]
     public void ShouldIncludeInSaturdayToSunday()
     {
         var now = DateTime.UtcNow;
-        now = now.AddDays((DayOfWeek.Saturday - now.DayOfWeek - + 7) % 7);
+        now = now.AddDays((DayOfWeek.Saturday - now.DayOfWeek - +7) % 7);
 
         var beforeMidnight = new DateTime(now.Year, now.Month, now.Day, 23, 0, 0);
         var afterMidnight = new DateTime(now.Year, now.Month, now.AddDays(1).Day, 1, 0, 0);
@@ -113,7 +113,7 @@ public class ScheduleTest
     [Fact]
     public void ShouldReturnFalseWhenSchedulesWithOverflowingIsNotMatching()
     {
-          var now = DateTime.UtcNow;
+        var now = DateTime.UtcNow;
 
         var schedule = new Schedule(new TimeOnly(20, now.Minute), new TimeOnly(2, now.Minute), DayOfWeek.Saturday);
 
@@ -125,7 +125,7 @@ public class ScheduleTest
     [Fact]
     public void ShouldReturnFalseWhenScheduleWithOverflowingIsNotMatching()
     {
-          var now = DateTime.UtcNow;
+        var now = DateTime.UtcNow;
 
         var schedule = new Schedule(new TimeOnly(20, now.Minute), new TimeOnly(2, now.Minute), DayOfWeek.Saturday);
 
@@ -134,4 +134,43 @@ public class ScheduleTest
         Assert.False(schedule.Includes(scheduleToCompare));
     }
 
+    [Fact]
+    public void ShouldIncludeADayThatDayOfWeekendMatches()
+    {
+        var now = DateTime.UtcNow;
+
+        var schedule = new Schedule(new TimeOnly(now.Hour, now.Minute), new TimeOnly(now.AddHours(2).Hour, now.AddHours(2).Minute), now.DayOfWeek);
+
+        var date = now.AddHours(1);
+
+        Assert.True(schedule.Includes(date.DayOfWeek));
+    }
+
+    [Fact]
+    public void ShouldIncludeWhenOverflowingDayMatches()
+    {
+        var now = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, DateTime.UtcNow.Day, 23, 0, 0);
+
+        var schedule = new Schedule(new TimeOnly(now.Hour, now.Minute), new TimeOnly(now.AddHours(2).Hour, now.AddHours(2).Minute), now.DayOfWeek);
+
+        var date = now.AddHours(1);
+
+        Assert.True(schedule.Includes(date.DayOfWeek));
+    }
+
+    [Fact]
+    public void ShouldGiveADayToBeReferenceBasedOnTheStartingTimeOfTheSchedule()
+    {
+        var now = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, DateTime.UtcNow.Day, 23, 0, 0);
+
+        var scheduleWithOverflow = new Schedule(new TimeOnly(now.Hour, now.Minute), new TimeOnly(now.AddHours(2).Hour, now.AddHours(2).Minute), now.DayOfWeek);
+
+        var dateMatchingStartTime = scheduleWithOverflow.GetDateToBeReference(now);
+
+        Assert.Equal(dateMatchingStartTime, now);
+
+        var dateMatchingOverflowingDay = scheduleWithOverflow.GetDateToBeReference(now.AddDays(1));
+
+        Assert.Equal(dateMatchingOverflowingDay, now);
+    }
 }
