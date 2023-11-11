@@ -35,8 +35,11 @@ internal class ConfigurationBuilder
         return configuration;
     }
 
-    public static Configuration BuildWithScheduleWithDelay()
+    public static Configuration BuildWithScheduleWithDelay(int delay = 20, int defaultInterval = 30)
     {
-        return new Configuration(OrderQueueType.Schedule, false, null, TimeSpan.FromMinutes(20), false);
+        return new Configuration(OrderQueueType.Schedule, false, null, TimeSpan.FromMinutes(delay), false)
+        {
+            ScheduleDefaultInterval = TimeSpan.FromMinutes(defaultInterval)
+        };
     }
 }

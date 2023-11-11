@@ -1,4 +1,5 @@
-﻿using Domain.Entities.Barbers;
+﻿using Domain.Entities;
+using Domain.Entities.Barbers;
 using Domain.Entities.Orders;
 using Domain.Exceptions;
 using Domain.Exceptions.Messages;
@@ -12,12 +13,14 @@ internal class OrderService
     private readonly IOrderRepository _orderRepository;
     private readonly IServiceRepository _serviceRepository;
     private readonly IOrderPolicy _orderPolicy;
+    private readonly IOrderTime _orderTime;
 
-    public OrderService(IOrderRepository orderRepository, IServiceRepository serviceRepository, IOrderPolicy orderPolicy)
+    public OrderService(IOrderRepository orderRepository, IServiceRepository serviceRepository, IOrderPolicy orderPolicy, IOrderTime orderTime)
     {
         _orderRepository = orderRepository;
         _serviceRepository = serviceRepository;
         _orderPolicy = orderPolicy;
+        _orderTime = orderTime;
     }
 
     public async Task Create(Order order, Branch branch)
@@ -61,5 +64,12 @@ internal class OrderService
             throw new OrderException(reason);
 
         await _orderRepository.Update(order);
+    }
+
+    public async Task<IEnumerable<DateTime>> GetAvailableTimes(DateTime day, Employee employee, Branch branch)
+    {
+        var ordersForThisWorker = await _orderRepository.GetBy(employee.BranchId, employee.Id);
+
+        return _orderTime.GetAvailable(day, employee, ordersForThisWorker, branch);
     }
 }

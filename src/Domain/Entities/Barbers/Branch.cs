@@ -98,4 +98,9 @@ internal class Branch
     {
         return Schedule.FirstOrDefault(schedule => schedule.Includes(day));
     }
+
+    public HashSet<Schedule> GetScheduleFor(DayOfWeek dayOfWeek)
+    {
+        return Schedule.Where(schedule => schedule.Includes(dayOfWeek)).ToHashSet();
+    }
 }

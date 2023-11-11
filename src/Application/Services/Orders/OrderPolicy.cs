@@ -214,7 +214,8 @@ internal class OrderPolicy : IOrderPolicy
         if (employeeLunchInterval is null)
             return false;
 
-        var (StartTime, EndTime) = Schedule.GetScheduleDateTime(employeeLunchInterval, order.RelocatedSchedule);
+        var (StartTime, EndTime) = Schedule.GetScheduleDateTime(employeeLunchInterval, 
+                                                                employeeLunchInterval.GetDateToBeReference(order.RelocatedSchedule));
 
         var desiredTimePlusServiceDuration = desiredTime.Add(order.Services.Aggregate(new TimeSpan(0), (acc, current) => acc + current.Duration));
 

@@ -67,16 +67,16 @@ public class ScheduleTest
     }
 
     [Fact]
-    public void ShouldNotIncludeWhenScheduleHasOverflowingDayAndTheDesiredDayIsInPreviousDayStartTime()
+    public void ShouldNotIncludeWhenScheduleHasOverflowingDayAndTheDesiredDayIsScheduleForTheNextDayInTimeOfPreviousDayStartTime()
     {
         var now = DateTime.UtcNow;
 
         var beforeMidnight = new DateTime(now.Year, now.Month, now.Day, 23, 0, 0);
-        var afterMidnight = new DateTime(now.Year, now.Month, now.AddDays(1).Day, 2, 0, 0);
+        var afterMidnight = new DateTime(now.AddDays(1).Year, now.AddDays(1).Month, now.AddDays(1).Day, 2, 0, 0);
 
-        var schedule = new Schedule(new TimeOnly(beforeMidnight.Hour, beforeMidnight.Minute), new TimeOnly(afterMidnight.Hour, afterMidnight.Minute), DayOfWeek.Saturday);
+        var schedule = new Schedule(new TimeOnly(beforeMidnight.Hour, beforeMidnight.Minute), new TimeOnly(afterMidnight.Hour, afterMidnight.Minute), beforeMidnight.DayOfWeek);
 
-        var dayToCompare = new DateTime(now.Year, now.Month, now.AddDays(1).Day, 23, 30, 0);
+        var dayToCompare = new DateTime(now.AddDays(1).Year, now.AddDays(1).Month, now.AddDays(1).Day, 23, 30, 0);
 
         Assert.False(schedule.Includes(dayToCompare));
     }

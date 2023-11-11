@@ -42,10 +42,10 @@ public class OrderPolicyTest
         var schedule = new Schedule(new TimeOnly(time.Hour, time.Minute).AddHours(-1), new TimeOnly(time.Hour, time.Minute).AddHours(2), time.AddHours(-1).DayOfWeek);
         branch.AddSchedule(schedule);
 
-        var scheduleDayBefore = new Schedule(new TimeOnly(time.AddDays(-1).Hour, time.AddDays(-1).Minute), new TimeOnly(time.AddDays(-1).Hour, time.AddDays(-1).Minute).AddHours(2), time.AddDays(-1).AddHours(-1).DayOfWeek);
+        var scheduleDayBefore = new Schedule(new TimeOnly(time.AddDays(-1).Hour, time.AddDays(-1).Minute), new TimeOnly(time.AddDays(-1).Hour, time.AddDays(-1).Minute).AddHours(2), time.AddDays(-1).DayOfWeek);
         branch.AddSchedule(scheduleDayBefore);
 
-        var scheduleDayAfter = new Schedule(new TimeOnly(time.AddDays(1).Hour, time.AddDays(1).Minute), new TimeOnly(time.AddDays(1).Hour, time.AddDays(1).Minute).AddHours(2), time.AddDays(1).AddHours(-1).DayOfWeek);
+        var scheduleDayAfter = new Schedule(new TimeOnly(time.AddDays(1).Hour, time.AddDays(1).Minute), new TimeOnly(time.AddDays(1).Hour, time.AddDays(1).Minute).AddHours(2), time.AddDays(1).DayOfWeek);
         branch.AddSchedule(scheduleDayAfter);
     }
 
@@ -233,7 +233,8 @@ public class OrderPolicyTest
         var configuration = ConfigurationBuilder.BuildWithScheduleWithDelay();
         var branch = BranchBuilder.Build(configuration, true);
 
-        var now = DateTime.UtcNow;
+        var now = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, DateTime.UtcNow.Day,
+                               23, 23, 32, DateTimeKind.Utc); ;
 
         AddScheduleWithBoundarySchedules(now, branch);
 
@@ -258,7 +259,8 @@ public class OrderPolicyTest
         var configuration = ConfigurationBuilder.BuildWithScheduleWithDelay();
         var branch = BranchBuilder.Build(configuration);
 
-        var now = DateTime.UtcNow;
+        var now = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, DateTime.UtcNow.Day,
+                               23, 23, 32, DateTimeKind.Utc);
 
         AddScheduleWithBoundarySchedules(now, branch);
 
@@ -437,9 +439,9 @@ public class OrderPolicyTest
     private void ShouldAcceptThisOrders(OrderPolicyTestData testOrders)
     {
         var orderPolicy = new OrderPolicy();
-        var isAllowed = orderPolicy.IsAllowed(testOrders.Order, testOrders.Orders, testOrders.Branch, out _);
+        var isAllowed = orderPolicy.IsAllowed(testOrders.Order, testOrders.Orders, testOrders.Branch, out var reason);
 
-        Assert.True(isAllowed, testOrders.TestId);
+        Assert.True(isAllowed, $"{testOrders.TestId}-{reason}");
     }
 
 
@@ -692,7 +694,7 @@ public class OrderPolicyTest
         };
 
 
-        return new OrderPolicyTestData(order, allOrders, branch, "QueueScheduleWithFullScheduleTodayButFreeAWeekAfter");
+        return new OrderPolicyTestData(order, allOrders, branch, "QueueScheduleWithOrderForTomorrow");
     }
     private class OrderPolicyTestData
     {

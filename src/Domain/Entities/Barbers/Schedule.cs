@@ -1,8 +1,5 @@
 ﻿using Domain.Exceptions;
 using Domain.Exceptions.Messages;
-using Domain.Services.Encription;
-using Domain.ValueObjects.Enums;
-using System.Text.Json;
 
 namespace Domain.Entities.Barbers;
 
@@ -19,7 +16,7 @@ internal class Schedule
         SetScheduleTime(startTime, endTime);
     }
 
-    public void SetScheduleTime(TimeOnly startTime, TimeOnly endTime)
+    private void SetScheduleTime(TimeOnly startTime, TimeOnly endTime)
     {
         if (startTime == endTime)
             throw new ScheduleException(ScheduleExceptionMessagesResource.START_TIME_AND_END_TIME_MUST_BE_DIFFERENT);
@@ -86,6 +83,11 @@ internal class Schedule
         return WeekDay == day.DayOfWeek;
     }
 
+    public DateTime GetDateToBeReference(DateTime day)
+    {
+        return day.DayOfWeek == OverflowingDay ? day.AddDays(-1) : day;
+    }
+
     public static (DateTime StartTime, DateTime EndTime) GetScheduleDateTime(Schedule desiredTimes, DateTime aDateToGetDaysForReference)
     {
         if(aDateToGetDaysForReference.DayOfWeek != desiredTimes.WeekDay)
@@ -101,14 +103,22 @@ internal class Schedule
         return (startTime, endTime);
     }
 
-    public DateTime GetDateToBeReference(DateTime day)
+    public bool Includes(DayOfWeek dayOfWeek)
     {
-        return day.DayOfWeek == OverflowingDay ? day.AddDays(-1) : day;
+        return WeekDaysMatches(dayOfWeek);
+    }
+
+    public bool WeekDaysMatches(DayOfWeek dayOfWeek)
+    {
+        if (OverflowingDay.HasValue)
+            return WeekDay == dayOfWeek || OverflowingDay == dayOfWeek;
+
+        return WeekDay == dayOfWeek;
     }
 
     public override int GetHashCode()
     {
-        return WeekDay.GetHashCode();
+        return WeekDay.GetHashCode() + OverflowingDay.GetHashCode();
     }
 
     public override bool Equals(object? obj)

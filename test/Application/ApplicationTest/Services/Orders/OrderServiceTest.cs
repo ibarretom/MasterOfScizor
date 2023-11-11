@@ -54,7 +54,9 @@ public class OrderServiceTest
 
         orderPolicy.Setup(repository => repository.IsAllowed(It.IsAny<Order>(), It.IsAny<List<Order>>(), It.IsAny<Branch>(), out reason)).Returns(true);
 
-        var orderService = new OrderService(orderRepository.Object, serviceRepository.Object, orderPolicy.Object);
+        var orderTime = new Mock<IOrderTime>();
+
+        var orderService = new OrderService(orderRepository.Object, serviceRepository.Object, orderPolicy.Object, orderTime.Object);
 
         await orderService.Create(order, branch);
 
@@ -85,7 +87,8 @@ public class OrderServiceTest
 
         var orderPolicy = new Mock<IOrderPolicy>();
 
-        var orderService = new OrderService(orderRepository.Object, serviceRepository.Object, orderPolicy.Object);
+        var orderTime = new Mock<IOrderTime>();
+        var orderService = new OrderService(orderRepository.Object, serviceRepository.Object, orderPolicy.Object, orderTime.Object);
 
         var branch = BranchBuilder.Build(ConfigurationBuilder.BuildWithQueueLimit());
 
@@ -112,7 +115,8 @@ public class OrderServiceTest
 
         var orderPolicy = new Mock<IOrderPolicy>();
 
-        var orderService = new OrderService(orderRepository.Object, serviceRepository.Object, orderPolicy.Object);
+        var orderTime = new Mock<IOrderTime>();
+        var orderService = new OrderService(orderRepository.Object, serviceRepository.Object, orderPolicy.Object, orderTime.Object);
 
         await orderService.Update(order, OrderStatus.Accepted);
 
@@ -140,7 +144,9 @@ public class OrderServiceTest
         string? reason = null;
         orderPolicy.Setup(repository => repository.IsAllowed(It.IsAny<Order>(), It.IsAny<List<Order>>(), It.IsAny<Branch>(), out reason)).Returns(true);
         
-        var orderService = new OrderService(orderRepository.Object, serviceRepository.Object, orderPolicy.Object);
+        var orderTime = new Mock<IOrderTime>();
+
+        var orderService = new OrderService(orderRepository.Object, serviceRepository.Object, orderPolicy.Object, orderTime.Object);
 
         var now = DateTime.UtcNow.AddMinutes(30);
 
@@ -172,7 +178,9 @@ public class OrderServiceTest
         orderPolicy.Setup(repository => repository.IsAllowed(It.IsAny<Order>(), It.IsAny<List<Order>>(), It.IsAny<Branch>(), out reason))
             .Returns(false);
 
-        var orderService = new OrderService(orderRepository.Object, serviceRepository.Object, orderPolicy.Object);
+        var orderTime = new Mock<IOrderTime>();
+
+        var orderService = new OrderService(orderRepository.Object, serviceRepository.Object, orderPolicy.Object, orderTime.Object);
 
         var now = DateTime.UtcNow.AddMinutes(30);
 
