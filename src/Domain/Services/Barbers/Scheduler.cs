@@ -4,24 +4,24 @@ using Domain.Entities.Orders;
 using Domain.Exceptions;
 using Domain.Exceptions.Messages;
 
-namespace Application.Services.Orders;
+namespace Domain.Services.Barbers;
 
-internal class OrderTime : IOrderTime
+internal class Scheduler : IScheduler
 {
-    public HashSet<DateTime> GetAvailable(DateTime day, Employee employee, List<Order> orders, Branch branch)
+    public HashSet<DateTime> GetAvailable(DateTime day, OrderBase order, List<Order> orders)
     {
-        var schedules = branch.GetScheduleFor(day.DayOfWeek) ?? throw new CompanyException(CompanyExceptionMessagesResource.BRANCH_IS_NOT_OPENNED_THIS_DAY);
+        var schedules = order.Branch.GetScheduleFor(day.DayOfWeek) ?? throw new CompanyException(CompanyExceptionMessagesResource.BRANCH_IS_NOT_OPENNED_THIS_DAY);
 
-        HashSet<DateTime> allPossibleTimes = GenerateTimes(day, schedules, branch.Configuration);
+        HashSet<DateTime> allPossibleTimes = GenerateTimes(day, schedules, order.Branch.Configuration);
 
         if (allPossibleTimes.FirstOrDefault() == default)
             return new HashSet<DateTime>();
 
-        var lunchIntervalForThisDay = employee.LunchInterval.Where(lunch => schedules.Any(schedule => schedule.Includes(lunch.WeekDay))).ToHashSet();
+        var lunchIntervalForThisDay = order.Worker.LunchInterval.Where(lunch => schedules.Any(schedule => schedule.Includes(lunch.WeekDay))).ToHashSet();
 
-        allPossibleTimes = RemoveLunchInterval(day, allPossibleTimes, lunchIntervalForThisDay, branch.Configuration).ToHashSet();
+        allPossibleTimes = RemoveLunchInterval(day, allPossibleTimes, lunchIntervalForThisDay, order.Branch.Configuration).ToHashSet();
 
-        return RemoveDateWithOrdersConflict(day, orders, allPossibleTimes, branch.Configuration).ToHashSet();
+        return RemoveDateWithOrdersConflict(day, orders, allPossibleTimes, order.Branch.Configuration).ToHashSet();
     }
 
     private static HashSet<DateTime> GenerateTimes(DateTime day, HashSet<Schedule> schedule, Configuration configuration)

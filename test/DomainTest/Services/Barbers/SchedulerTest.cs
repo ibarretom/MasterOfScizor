@@ -1,7 +1,7 @@
-﻿using Application.Services.Orders;
-using Domain.Entities.Barbers;
+﻿using Domain.Entities.Barbers;
 using Domain.Entities.Barbers.Service;
 using Domain.Entities.Orders;
+using Domain.Services.Barbers;
 using DomainTest.Entities;
 using DomainTest.Entities.Barbers;
 using DomainTest.Entities.Barbers.Services;
@@ -9,7 +9,7 @@ using DomainTest.Entities.Orders;
 
 namespace ApplicationTest.Services.Orders;
 
-public class OrderTimeTest
+public class SchedulerTest
 {
     [Fact]
     public void ShouldReturnAllAvailableTimesForNoLunchIntervalOrOrders()
@@ -31,9 +31,11 @@ public class OrderTimeTest
 
         branch.AddEmployee(employee);
 
-        var orderTime = new OrderTime();
+        var scheduler = new Scheduler();
 
-        var availableTimes = orderTime.GetAvailable(now.AddHours(-4), employee, new List<Order>(), branch);
+        var order = OrderBaseBuilder.Build(branch, employee);
+
+        var availableTimes = scheduler.GetAvailable(now.AddHours(-4), order, new List<Order>());
 
         Assert.Equal(4, availableTimes.Count);
         Assert.Contains(new DateTime(nowMinusOneHour.Year, nowMinusOneHour.Month, nowMinusOneHour.Day,
@@ -70,9 +72,11 @@ public class OrderTimeTest
         branch.AddEmployeeLunchInterval(new Schedule(new TimeOnly(nowMinusOneHour.Hour, nowMinusOneHour.Minute),
                                                      new TimeOnly(now.Hour, now.Minute), nowMinusOneHour.DayOfWeek), employee.Id);
 
-        var orderTime = new OrderTime();
+        var scheduler = new Scheduler();
 
-        var availableTimes = orderTime.GetAvailable(nowMinusTwoHour, employee, new List<Order>(), branch);
+        var order = OrderBaseBuilder.Build(branch, employee);
+
+        var availableTimes = scheduler.GetAvailable(nowMinusTwoHour, order, new List<Order>());
 
         Assert.Equal(2, availableTimes.Count);
         Assert.DoesNotContain(new DateTime(nowMinusOneHour.Year, nowMinusOneHour.Month, nowMinusOneHour.Day,
@@ -105,9 +109,11 @@ public class OrderTimeTest
         branch.AddEmployeeLunchInterval(new Schedule(new TimeOnly(23, 30),
                                                      new TimeOnly(0, 30), nowElevenOClock.DayOfWeek), employee.Id);
 
-        var orderTime = new OrderTime();
+        var scheduler = new Scheduler();
+        
+        var order = OrderBaseBuilder.Build(branch, employee);
 
-        var availableTimes = orderTime.GetAvailable(nowNextDayTwoAm, employee, new List<Order>(), branch);
+        var availableTimes = scheduler.GetAvailable(nowNextDayTwoAm, order, new List<Order>());
 
         var defaultInterval = 30;
         Assert.Equal(3, availableTimes.Count);
@@ -139,9 +145,11 @@ public class OrderTimeTest
 
         branch.AddEmployee(employee);
 
-        var orderTime = new OrderTime();
+        var scheduler = new Scheduler();
 
-        var availableTimes = orderTime.GetAvailable(now, employee, new List<Order>(), branch);
+        var order = OrderBaseBuilder.Build(branch, employee);
+
+        var availableTimes = scheduler.GetAvailable(now, order, new List<Order>());
 
         Assert.Equal(2, availableTimes.Count);
         Assert.DoesNotContain(new DateTime(nowMinusOneHour.Year, nowMinusOneHour.Month, nowMinusOneHour.Day,
@@ -173,9 +181,11 @@ public class OrderTimeTest
 
         branch.AddEmployee(employee);
 
-        var orderTime = new OrderTime();
+        var scheduler = new Scheduler();
 
-        var availableTimes = orderTime.GetAvailable(now.AddHours(-2), employee, new List<Order>(), branch);
+        var order = OrderBaseBuilder.Build(branch, employee);
+
+        var availableTimes = scheduler.GetAvailable(now.AddHours(-2), order, new List<Order>());
 
         Assert.Equal(4, availableTimes.Count);
         Assert.Contains(new DateTime(nowMinusOneHour.Year, nowMinusOneHour.Month, nowMinusOneHour.Day,
@@ -212,9 +222,11 @@ public class OrderTimeTest
         var employee = EmployeeBuilder.Build();
         branch.AddEmployee(employee);
 
-        var orderTime = new OrderTime();
+        var scheduler = new Scheduler();
 
-        var availableTimes = orderTime.GetAvailable(testNow.AddHours(4), employee, new List<Order>(), branch);
+        var order = OrderBaseBuilder.Build(branch, employee);
+
+        var availableTimes = scheduler.GetAvailable(testNow.AddHours(4), order, new List<Order>());
 
         Assert.Equal(4, availableTimes.Count);
         Assert.Contains(new DateTime(testNow.Year, testNow.Month, testNow.Day,
@@ -250,14 +262,15 @@ public class OrderTimeTest
 
         branch.AddEmployee(employee);
 
-        var orderTime = new OrderTime();
+        var scheduler = new Scheduler();
 
         var orderSchedule = now.AddHours(-1);
 
         var service = new List<Service>() { ServiceBuilder.Build(branch.Id, TimeSpan.FromMinutes(30)) };
         var order = OrderBuilder.Build(orderSchedule, branch, employee, service);
 
-        var availableTimes = orderTime.GetAvailable(orderSchedule, employee, new List<Order>() { order }, branch);
+        var requestedOrder = OrderBaseBuilder.Build(branch, employee);
+        var availableTimes = scheduler.GetAvailable(orderSchedule, requestedOrder, new List<Order>() { order });
 
         Assert.Equal(3, availableTimes.Count);
         Assert.DoesNotContain(new DateTime(orderSchedule.Year, orderSchedule.Month, orderSchedule.Day,
@@ -290,14 +303,16 @@ public class OrderTimeTest
 
         branch.AddEmployee(employee);
 
-        var orderTime = new OrderTime();
+        var scheduler = new Scheduler();
 
         var nowMinusOneHour = now.AddHours(-1);
 
         var service = new List<Service>() { ServiceBuilder.Build(branch.Id, TimeSpan.FromMinutes(40)) };
         var order = OrderBuilder.Build(nowMinusOneHour, branch, employee, service);
 
-        var availableTimes = orderTime.GetAvailable(nowMinusTwoHour, employee, new List<Order>() { order }, branch);
+        var requestedOrder = OrderBaseBuilder.Build(branch, employee);
+
+        var availableTimes = scheduler.GetAvailable(nowMinusTwoHour, requestedOrder, new List<Order>() { order });
 
         Assert.Equal(2, availableTimes.Count);
         Assert.DoesNotContain(new DateTime(nowMinusOneHour.Year, nowMinusOneHour.Month, nowMinusOneHour.Day,
@@ -328,9 +343,10 @@ public class OrderTimeTest
 
         branch.AddEmployee(employee);
 
-        var orderTime = new OrderTime();
+        var scheduler = new Scheduler();
 
-        var availableTimes = orderTime.GetAvailable(now.AddHours(-2), employee, new List<Order>(), branch);
+        var order = OrderBaseBuilder.Build(branch, employee);
+        var availableTimes = scheduler.GetAvailable(now.AddHours(-2), order, new List<Order>());
 
         Assert.Equal(3, availableTimes.Count);
         Assert.Contains(new DateTime(nowMinusOneHour.Year, nowMinusOneHour.Month, nowMinusOneHour.Day,
@@ -361,9 +377,11 @@ public class OrderTimeTest
 
         branch.AddEmployee(employee);
 
-        var orderTime = new OrderTime();
+        var scheduler = new Scheduler();
 
-        var availableTimes = orderTime.GetAvailable(now.AddHours(-2), employee, new List<Order>(), branch);
+        var requestedOrder = OrderBaseBuilder.Build(branch, employee);
+
+        var availableTimes = scheduler.GetAvailable(now.AddHours(-2), requestedOrder, new List<Order>());
 
         Assert.True(availableTimes.Any());
         Assert.DoesNotContain(availableTimes, time => time < new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, 0, now.Kind));
@@ -390,9 +408,11 @@ public class OrderTimeTest
 
         branch.AddEmployee(employee);
 
-        var orderTime = new OrderTime();
+        var scheduler = new Scheduler();
 
-        var availableTimes = orderTime.GetAvailable(now.AddHours(-2), employee, new List<Order>(), branch);
+        var requestedOrder = OrderBaseBuilder.Build(branch, employee);
+
+        var availableTimes = scheduler.GetAvailable(now.AddHours(-2), requestedOrder, new List<Order>());
 
         Assert.True(availableTimes.Any());
         Assert.DoesNotContain(availableTimes, time => time.AddMinutes(delay) < new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, 0, now.Kind));

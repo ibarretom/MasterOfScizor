@@ -15,7 +15,7 @@ internal class Branch
     public Address Address { get; set; }
     public string Phone { get; set; }
     public string Email { get; }
-    public HashSet<Schedule> Schedule { get; } = new HashSet<Schedule>();
+    private readonly HashSet<Schedule> Schedule = new();
     public HashSet<Category> Category { get; } = new HashSet<Category>();
     public HashSet<Service.Service> Service { get; } = new HashSet<Service.Service>();
     public HashSet<Employee> Barber { get; } = new HashSet<Employee>();

@@ -3,6 +3,7 @@ using Domain.Entities.Barbers;
 using Domain.Entities.Orders;
 using Domain.Exceptions;
 using Domain.Exceptions.Messages;
+using Domain.Services.Barbers;
 using Domain.ValueObjects.Enums;
 using Infra.Repositories.Company;
 
@@ -13,9 +14,9 @@ internal class OrderService
     private readonly IOrderRepository _orderRepository;
     private readonly IServiceRepository _serviceRepository;
     private readonly IOrderPolicy _orderPolicy;
-    private readonly IOrderTime _orderTime;
+    private readonly IScheduler _orderTime;
 
-    public OrderService(IOrderRepository orderRepository, IServiceRepository serviceRepository, IOrderPolicy orderPolicy, IOrderTime orderTime)
+    public OrderService(IOrderRepository orderRepository, IServiceRepository serviceRepository, IOrderPolicy orderPolicy, IScheduler orderTime)
     {
         _orderRepository = orderRepository;
         _serviceRepository = serviceRepository;
@@ -23,7 +24,7 @@ internal class OrderService
         _orderTime = orderTime;
     }
 
-    public async Task Create(Order order, Branch branch)
+    public async Task Create(Order order)
      {
         var servicesTask = order.Services.Select(service => Task.Run(async () =>
         {
@@ -54,7 +55,7 @@ internal class OrderService
         await _orderRepository.Update(order);
     }
 
-    public async Task Update(Order order, Branch branch, DateTime scheduleTime)
+    public async Task Update(Order order, DateTime scheduleTime)
     {
         order.RelocatedSchedule = scheduleTime;
 
@@ -66,10 +67,10 @@ internal class OrderService
         await _orderRepository.Update(order);
     }
 
-    public async Task<IEnumerable<DateTime>> GetAvailableTimes(DateTime day, Employee employee, Branch branch)
+    public async Task<IEnumerable<DateTime>> GetAvailableTimes(DateTime day, OrderBase order)
     {
-        var ordersForThisWorker = await _orderRepository.GetBy(employee.BranchId, employee.Id);
+        var ordersForThisWorker = await _orderRepository.GetBy(order.Branch.Id, order.Worker.Id);
 
-        return _orderTime.GetAvailable(day, employee, ordersForThisWorker, branch);
+        return _orderTime.GetAvailable(day, order, ordersForThisWorker);
     }
 }
