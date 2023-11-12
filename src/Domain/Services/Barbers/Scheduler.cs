@@ -18,11 +18,14 @@ internal class Scheduler : IScheduler
         if (allPossibleTimes.FirstOrDefault() == default)
             return new HashSet<DateTime>();
 
+        allPossibleTimes = HandleOrdersConflict(day, orders, allPossibleTimes, order.Branch.Configuration, order.Worker.Services).ToHashSet();
+
         var lunchIntervalForThisDay = order.Worker.LunchInterval.Where(lunch => schedules.Any(schedule => schedule.Includes(lunch.WeekDay))).ToHashSet();
 
-        allPossibleTimes = RemoveLunchInterval(day, allPossibleTimes, lunchIntervalForThisDay, order.Branch.Configuration).ToHashSet();
+        if (!lunchIntervalForThisDay.Any())
+            return allPossibleTimes;
 
-        return HandleOrdersConflict(day, orders, allPossibleTimes, order.Branch.Configuration, order.Worker.Services).ToHashSet();
+        return RemoveLunchInterval(day, allPossibleTimes, lunchIntervalForThisDay, order.Branch.Configuration);
     }
 
     private static HashSet<DateTime> GenerateTimes(DateTime day, HashSet<Schedule> schedule, Configuration configuration)
