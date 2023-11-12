@@ -319,7 +319,6 @@ public class SchedulerTest
         branch.AddSchedule(schedule);
 
         var employee = EmployeeBuilder.Build();
-
         branch.AddEmployee(employee);
 
         var scheduler = new Scheduler();
@@ -557,9 +556,9 @@ public class SchedulerTest
         var service = ServiceBuilder.Build(branch.Id, TimeSpan.FromMinutes(defaultInterval + 15));
         branch.AddService(service);
         branch.AddService(service.Id, employee.Id);
-        var remainingTimeSerice = ServiceBuilder.Build(branch.Id, TimeSpan.FromMinutes(15));
-        branch.AddService(remainingTimeSerice);
-        branch.AddService(remainingTimeSerice.Id, employee.Id);
+        var remainingTimeService = ServiceBuilder.Build(branch.Id, TimeSpan.FromMinutes(15));
+        branch.AddService(remainingTimeService);
+        branch.AddService(remainingTimeService.Id, employee.Id);
 
         var order = OrderBuilder.Build(nowMinusTwoHour.AddMinutes(3 * defaultInterval), branch, employee, new List<Service>() { service });
 
@@ -576,4 +575,47 @@ public class SchedulerTest
         Assert.Contains(GetDate(nowMinusTwoHour, (4 * defaultInterval) + 15), availableTimes);
         Assert.Contains(GetDate(nowMinusTwoHour, 5 * defaultInterval), availableTimes);
     }
+
+    //[Fact]
+    //public void ShouldConsiderTheServicesInTheOrderToBringTheAvailableTimes()
+    //{
+    //    var defaultInterval = 45;
+
+    //    var branch = BranchBuilder.Build(ConfigurationBuilder.BuildWithScheduleWithNoDelay(defaultInterval));
+        
+    //    var utcNow = DateTime.UtcNow.AddDays(2);
+
+    //    var now = new DateTime(utcNow.Year, utcNow.Month, utcNow.Day,
+    //                                      0, 23, 32, DateTimeKind.Utc);
+    //    var nowMinusSomeHour = now.AddHours(-3);
+    //    var nowPlusTwoHour = now.AddHours(2);
+
+    //    var schedule = new Schedule(new TimeOnly(nowMinusSomeHour.Hour, nowMinusSomeHour.Minute),
+    //                                new TimeOnly(nowPlusTwoHour.Hour, nowPlusTwoHour.Minute), nowMinusSomeHour.DayOfWeek);
+    //    branch.AddSchedule(schedule);
+
+    //    var employee = EmployeeBuilder.Build();
+    //    branch.AddEmployee(employee);
+
+    //    var serviceForRequesteOrder = ServiceBuilder.Build(branch.Id, TimeSpan.FromMinutes(defaultInterval + 15));
+    //    branch.AddService(serviceForRequesteOrder);
+    //    branch.AddService(serviceForRequesteOrder.Id, employee.Id);
+    //    var service = ServiceBuilder.Build(branch.Id, TimeSpan.FromMinutes(defaultInterval));
+    //    branch.AddService(serviceForRequesteOrder);
+
+    //    var orderStatingAtFirstTime = OrderBuilder.Build(nowMinusSomeHour, branch, employee, new List<Service>() { service });
+    //    var orderForRemoveTheLasTime = OrderBuilder.Build(nowMinusSomeHour.AddMinutes(3 * defaultInterval), branch, employee, new List<Service>() { service });
+
+    //    var requestedOrder = OrderBaseBuilder.Build(branch, employee, new List<Service>() { serviceForRequesteOrder });
+
+    //    var scheduler = new Scheduler();
+
+    //    var orders = new List<Order>() { orderStatingAtFirstTime, orderForRemoveTheLasTime };
+
+    //    var availableTimes = scheduler.GetAvailable(nowMinusSomeHour, requestedOrder, orders);
+
+    //    Assert.Single(availableTimes);
+    //    Assert.Contains(GetDate(nowMinusSomeHour, defaultInterval), availableTimes);
+
+    //}
 }

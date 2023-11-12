@@ -1,9 +1,9 @@
-﻿using Domain.Entities;
-using Domain.Entities.Barbers;
+﻿using Domain.Entities.Barbers;
 using Domain.Entities.Barbers.Service;
 using Domain.Entities.Orders;
 using Domain.Exceptions;
 using Domain.Exceptions.Messages;
+using Domain.ValueObjects.Barbers;
 
 namespace Domain.Services.Barbers;
 
@@ -11,12 +11,21 @@ internal class Scheduler : IScheduler
 {
     public HashSet<DateTime> GetAvailable(DateTime day, OrderBase order, List<Order> orders)
     {
+        var scheduleTimesWithStatus = ProcessSchedule(day, order, orders);
+
+        return scheduleTimesWithStatus
+                .Where(scheduleTime => scheduleTime.IsAvailable)
+                .Select(scheduleTime => scheduleTime.Time).ToHashSet();
+    }
+
+    public static HashSet<ScheduleTimeStatus> ProcessSchedule(DateTime day, OrderBase order, List<Order> orders)
+    {
         var schedules = order.Branch.GetScheduleFor(day.DayOfWeek) ?? throw new CompanyException(CompanyExceptionMessagesResource.BRANCH_IS_NOT_OPENNED_THIS_DAY);
 
-        HashSet<DateTime> allPossibleTimes = GenerateTimes(day, schedules, order.Branch.Configuration);
+        HashSet<ScheduleTimeStatus> allPossibleTimes = GenerateTimes(day, schedules, order.Branch.Configuration);
 
-        if (allPossibleTimes.FirstOrDefault() == default)
-            return new HashSet<DateTime>();
+        if (!allPossibleTimes.Any())
+            return new HashSet<ScheduleTimeStatus>();
 
         allPossibleTimes = HandleOrdersConflict(day, orders, allPossibleTimes, order.Branch.Configuration, order.Worker.Services).ToHashSet();
 
@@ -27,15 +36,14 @@ internal class Scheduler : IScheduler
 
         return RemoveLunchInterval(day, allPossibleTimes, lunchIntervalForThisDay, order.Branch.Configuration);
     }
-
-    private static HashSet<DateTime> GenerateTimes(DateTime day, HashSet<Schedule> schedule, Configuration configuration)
+    private static HashSet<ScheduleTimeStatus> GenerateTimes(DateTime day, HashSet<Schedule> schedule, Configuration configuration)
     {
         return MergeTimes(day, schedule, configuration);
     }
 
-    private static HashSet<DateTime> MergeTimes(DateTime day, HashSet<Schedule> schedules, Configuration configuration)
+    private static HashSet<ScheduleTimeStatus> MergeTimes(DateTime day, HashSet<Schedule> schedules, Configuration configuration, bool markAsAvailable = true)
     {
-        var possiblesTimes = new HashSet<DateTime>();
+        var possiblesTimes = new HashSet<ScheduleTimeStatus>();
 
         var scheduleTimesQueue = new Queue<DateTime>();
 
@@ -54,7 +62,7 @@ internal class Scheduler : IScheduler
             return possiblesTimes;
 
         if (IsValidTime(startTime, configuration.ScheduleDelayTime, day))
-            possiblesTimes.Add(startTime);
+            possiblesTimes.Add(new ScheduleTimeStatus(startTime, markAsAvailable));
 
         do
         {
@@ -64,7 +72,7 @@ internal class Scheduler : IScheduler
             if (!endTimeHasBeenReached)
             {
                 if (IsValidTime(nextTime, configuration.ScheduleDelayTime, day))
-                    possiblesTimes.Add(nextTime);
+                    possiblesTimes.Add(new ScheduleTimeStatus(nextTime, markAsAvailable));
 
                 startTime = nextTime;
                 continue;
@@ -77,7 +85,7 @@ internal class Scheduler : IScheduler
                 break;
 
             if (IsValidTime(startTime, configuration.ScheduleDelayTime, day))
-                possiblesTimes.Add(startTime);
+                possiblesTimes.Add(new ScheduleTimeStatus(startTime, markAsAvailable));
 
         } while (startTime != default);
 
@@ -86,7 +94,7 @@ internal class Scheduler : IScheduler
 
     private static bool IsValidTime(DateTime generatedTime, TimeSpan delay, DateTime requestedDay)
     {
-        
+
         var dDay = generatedTime.AddMinutes(delay.TotalMinutes);
         dDay = new DateTime(dDay.Year, dDay.Month, dDay.Day, dDay.Hour, dDay.Minute, 0, dDay.Kind);
 
@@ -109,16 +117,9 @@ internal class Scheduler : IScheduler
         return schedule.Includes(generatedTime);
     }
 
-    private static HashSet<DateTime> RemoveLunchInterval(DateTime day, HashSet<DateTime> times, HashSet<Schedule> lunchIntervals, Configuration configuration)
+    private static HashSet<ScheduleTimeStatus> HandleOrdersConflict(DateTime requestedDay, List<Order> orders, HashSet<ScheduleTimeStatus> times, Configuration configuration, HashSet<Service> services)
     {
-        var possibleTimesInLunchInterval = MergeTimes(day, lunchIntervals, configuration);
-
-        return times.Except(possibleTimesInLunchInterval).ToHashSet();
-    }
-
-    private static HashSet<DateTime> HandleOrdersConflict(DateTime requestedDay, List<Order> orders, HashSet<DateTime> times, Configuration configuration, HashSet<Service> services)
-    {
-        var timesToRemove = new HashSet<DateTime>();
+        var timesToRemove = new HashSet<ScheduleTimeStatus>();
 
         var (TimesOfOrders, TimesOfOrderPlusServices) = GetTimesOfOrderAndOrderPlusServices(requestedDay, orders, configuration);
 
@@ -131,11 +132,11 @@ internal class Scheduler : IScheduler
         return times.Except(timesToRemove).Union(servicesTimesToAdd).ToHashSet();
     }
 
-    private static (HashSet<DateTime> TimesOfOrders, HashSet<DateTime> TimesOfOrderPlusServices) GetTimesOfOrderAndOrderPlusServices(DateTime requestedDay, List<Order> orders, Configuration configuration)
+    private static (HashSet<ScheduleTimeStatus> TimesOfOrders, HashSet<ScheduleTimeStatus> TimesOfOrderPlusServices) GetTimesOfOrderAndOrderPlusServices(DateTime requestedDay, List<Order> orders, Configuration configuration)
     {
-        var timesOfOrder = new HashSet<DateTime>();
+        var timesOfOrder = new HashSet<ScheduleTimeStatus>();
 
-        var timesOfOrderPlusServices = new HashSet<DateTime>();
+        var timesOfOrderPlusServices = new HashSet<ScheduleTimeStatus>();
 
         foreach (var order in orders)
         {
@@ -143,27 +144,30 @@ internal class Scheduler : IScheduler
                                          order.RelocatedSchedule.Hour, order.RelocatedSchedule.Minute, 0, order.RelocatedSchedule.Kind);
 
             if (IsValidTime(orderDate, configuration.ScheduleDelayTime, requestedDay))
-                timesOfOrder.Add(orderDate);
+                timesOfOrder.Add(new ScheduleTimeStatus(orderDate, false));
 
 
             var servicesTotal = order.Services.Sum(service => service.Duration.TotalMinutes);
             var orderPlusServicesTime = orderDate.AddMinutes(servicesTotal);
 
             if (IsValidTime(orderPlusServicesTime, configuration.ScheduleDelayTime, requestedDay))
-                timesOfOrderPlusServices.Add(orderPlusServicesTime);
+                timesOfOrderPlusServices.Add(new ScheduleTimeStatus(orderPlusServicesTime, true));
         }
 
         return (timesOfOrder, timesOfOrderPlusServices);
     }
-    private static HashSet<DateTime> GetTimesBasedOnTheLastSmallerTime(DateTime requestedDay, HashSet<DateTime> timesToBeRemoved, HashSet<DateTime> referenceTimes, Configuration configuration)
+    private static HashSet<ScheduleTimeStatus> GetTimesBasedOnTheLastSmallerTime(DateTime requestedDay, HashSet<ScheduleTimeStatus> timesToBeRemoved, HashSet<ScheduleTimeStatus> referenceTimes, Configuration configuration)
     {
-        var desiredTimes = new HashSet<DateTime>();
+        var desiredTimes = new HashSet<ScheduleTimeStatus>();
 
         foreach (var discardTime in timesToBeRemoved)
         {
-            var timeToRemove = referenceTimes.LastOrDefault(time => time < discardTime);
+            var timeToRemove = referenceTimes.LastOrDefault(time => time.Time < discardTime.Time);
 
-            if (timeToRemove == default && !IsValidTime(timeToRemove, configuration.ScheduleDelayTime, requestedDay))
+            if (timeToRemove == default)
+                continue;
+
+            if (!IsValidTime(timeToRemove.Time, configuration.ScheduleDelayTime, requestedDay))
                 continue;
 
             desiredTimes.Add(timeToRemove);
@@ -172,9 +176,9 @@ internal class Scheduler : IScheduler
         return desiredTimes;
     }
 
-    private static HashSet<DateTime> GetOrderTimesBasedOnTheOverflowingTime(HashSet<DateTime> timesOfServices, HashSet<DateTime> referenceTimes, HashSet<Service> services)
+    private static HashSet<ScheduleTimeStatus> GetOrderTimesBasedOnTheOverflowingTime(HashSet<ScheduleTimeStatus> timesOfServices, HashSet<ScheduleTimeStatus> referenceTimes, HashSet<Service> services)
     {
-        var timesToAdd = new HashSet<DateTime>();
+        var timesToAdd = new HashSet<ScheduleTimeStatus>();
         if (!services.Any())
             throw new ScheduleException(ScheduleExceptionMessagesResource.WORKER_HAS_NO_SERVICES);
 
@@ -182,9 +186,12 @@ internal class Scheduler : IScheduler
 
         foreach (var timeOfServices in timesOfServices)
         {
-            var nextTimeAfterTimeServices = referenceTimes.FirstOrDefault(time => time > timeOfServices);
+            var nextTimeAfterTimeServices = referenceTimes.FirstOrDefault(time => time.Time > timeOfServices.Time);
 
-            var timeOfServicesMinuesNextTime = (nextTimeAfterTimeServices - timeOfServices).TotalMinutes;
+            if (nextTimeAfterTimeServices == default)
+                continue;
+
+            var timeOfServicesMinuesNextTime = (nextTimeAfterTimeServices.Time - timeOfServices.Time).TotalMinutes;
 
             if (timeOfServicesMinuesNextTime < minimumServiceTime.TotalMinutes)
                 continue;
@@ -193,5 +200,12 @@ internal class Scheduler : IScheduler
         }
 
         return timesToAdd;
+    }
+
+    private static HashSet<ScheduleTimeStatus> RemoveLunchInterval(DateTime day, HashSet<ScheduleTimeStatus> times, HashSet<Schedule> lunchIntervals, Configuration configuration)
+    {
+        var possibleTimesInLunchInterval = MergeTimes(day, lunchIntervals, configuration);
+
+        return times.Except(possibleTimesInLunchInterval).ToHashSet();
     }
 }
