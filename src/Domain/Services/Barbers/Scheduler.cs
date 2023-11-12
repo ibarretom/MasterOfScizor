@@ -1,5 +1,6 @@
 ﻿using Domain.Entities;
 using Domain.Entities.Barbers;
+using Domain.Entities.Barbers.Service;
 using Domain.Entities.Orders;
 using Domain.Exceptions;
 using Domain.Exceptions.Messages;
@@ -21,7 +22,7 @@ internal class Scheduler : IScheduler
 
         allPossibleTimes = RemoveLunchInterval(day, allPossibleTimes, lunchIntervalForThisDay, order.Branch.Configuration).ToHashSet();
 
-        return RemoveDateWithOrdersConflict(day, orders, allPossibleTimes, order.Branch.Configuration).ToHashSet();
+        return HandleOrdersConflict(day, orders, allPossibleTimes, order.Branch.Configuration, order.Worker.Services).ToHashSet();
     }
 
     private static HashSet<DateTime> GenerateTimes(DateTime day, HashSet<Schedule> schedule, Configuration configuration)
@@ -84,7 +85,7 @@ internal class Scheduler : IScheduler
     {
         
         var dDay = generatedTime.AddMinutes(delay.TotalMinutes);
-        dDay = new DateTime(dDay.Year, dDay.Month, dDay.Day, dDay.Hour, dDay.Minute, 0, DateTimeKind.Utc);
+        dDay = new DateTime(dDay.Year, dDay.Month, dDay.Day, dDay.Hour, dDay.Minute, 0, dDay.Kind);
 
         var grather = IsGratherThenNow(dDay);
         var included = IsIncludedInRequestedDay(generatedTime, requestedDay);
@@ -95,7 +96,7 @@ internal class Scheduler : IScheduler
     {
         var now = DateTime.UtcNow;
 
-        return desiredDay >= new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, 0, DateTimeKind.Utc);
+        return desiredDay >= new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, 0, now.Kind);
     }
 
     private static bool IsIncludedInRequestedDay(DateTime generatedTime, DateTime requestedTime)
@@ -112,39 +113,82 @@ internal class Scheduler : IScheduler
         return times.Except(possibleTimesInLunchInterval).ToHashSet();
     }
 
-    private static HashSet<DateTime> RemoveDateWithOrdersConflict(DateTime requestedDay, List<Order> orders, HashSet<DateTime> times, Configuration configuration)
+    private static HashSet<DateTime> HandleOrdersConflict(DateTime requestedDay, List<Order> orders, HashSet<DateTime> times, Configuration configuration, HashSet<Service> services)
     {
         var timesToRemove = new HashSet<DateTime>();
 
+        var (TimesOfOrders, TimesOfOrderPlusServices) = GetTimesOfOrderAndOrderPlusServices(requestedDay, orders, configuration);
+
+        timesToRemove.UnionWith(TimesOfOrders);
+
+        timesToRemove.UnionWith(GetTimesBasedOnTheLastSmallerTime(requestedDay, TimesOfOrderPlusServices, times, configuration));
+
+        var servicesTimesToAdd = GetOrderTimesBasedOnTheOverflowingTime(TimesOfOrderPlusServices, times, services);
+
+        return times.Except(timesToRemove).Union(servicesTimesToAdd).ToHashSet();
+    }
+
+    private static (HashSet<DateTime> TimesOfOrders, HashSet<DateTime> TimesOfOrderPlusServices) GetTimesOfOrderAndOrderPlusServices(DateTime requestedDay, List<Order> orders, Configuration configuration)
+    {
         var timesOfOrder = new HashSet<DateTime>();
+
         var timesOfOrderPlusServices = new HashSet<DateTime>();
 
         foreach (var order in orders)
         {
             var orderDate = new DateTime(order.RelocatedSchedule.Year, order.RelocatedSchedule.Month, order.RelocatedSchedule.Day,
-                                         order.RelocatedSchedule.Hour, order.RelocatedSchedule.Minute, 0, DateTimeKind.Utc);
+                                         order.RelocatedSchedule.Hour, order.RelocatedSchedule.Minute, 0, order.RelocatedSchedule.Kind);
 
-            if (!IsValidTime(orderDate, configuration.ScheduleDelayTime, requestedDay))
-                continue;
+            if (IsValidTime(orderDate, configuration.ScheduleDelayTime, requestedDay))
+                timesOfOrder.Add(orderDate);
 
-            timesOfOrder.Add(orderDate);
 
             var servicesTotal = order.Services.Sum(service => service.Duration.TotalMinutes);
-            timesOfOrderPlusServices.Add(orderDate.AddMinutes(servicesTotal));
+            var orderPlusServicesTime = orderDate.AddMinutes(servicesTotal);
+
+            if (IsValidTime(orderPlusServicesTime, configuration.ScheduleDelayTime, requestedDay))
+                timesOfOrderPlusServices.Add(orderPlusServicesTime);
         }
 
-        timesToRemove.UnionWith(timesOfOrder);
+        return (timesOfOrder, timesOfOrderPlusServices);
+    }
+    private static HashSet<DateTime> GetTimesBasedOnTheLastSmallerTime(DateTime requestedDay, HashSet<DateTime> timesToBeRemoved, HashSet<DateTime> referenceTimes, Configuration configuration)
+    {
+        var desiredTimes = new HashSet<DateTime>();
 
-        foreach (var timeOfOrder in timesOfOrderPlusServices)
+        foreach (var discardTime in timesToBeRemoved)
         {
-            var timeToRemove = times.LastOrDefault(time => time < timeOfOrder);
+            var timeToRemove = referenceTimes.LastOrDefault(time => time < discardTime);
 
             if (timeToRemove == default && !IsValidTime(timeToRemove, configuration.ScheduleDelayTime, requestedDay))
                 continue;
 
-            timesToRemove.Add(timeToRemove);
+            desiredTimes.Add(timeToRemove);
         }
 
-        return times.Except(timesToRemove).ToHashSet();
+        return desiredTimes;
+    }
+
+    private static HashSet<DateTime> GetOrderTimesBasedOnTheOverflowingTime(HashSet<DateTime> timesOfServices, HashSet<DateTime> referenceTimes, HashSet<Service> services)
+    {
+        var timesToAdd = new HashSet<DateTime>();
+        if (!services.Any())
+            throw new ScheduleException(ScheduleExceptionMessagesResource.WORKER_HAS_NO_SERVICES);
+
+        var minimumServiceTime = services.Min(service => service.Duration);
+
+        foreach (var timeOfServices in timesOfServices)
+        {
+            var nextTimeAfterTimeServices = referenceTimes.FirstOrDefault(time => time > timeOfServices);
+
+            var timeOfServicesMinuesNextTime = (nextTimeAfterTimeServices - timeOfServices).TotalMinutes;
+
+            if (timeOfServicesMinuesNextTime < minimumServiceTime.TotalMinutes)
+                continue;
+
+            timesToAdd.Add(timeOfServices);
+        }
+
+        return timesToAdd;
     }
 }

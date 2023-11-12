@@ -95,5 +95,14 @@ namespace Domain.Exceptions.Messages {
                 return ResourceManager.GetString("START_TIME_MUST_BE_GREATER_THEN_END_TIME", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The desired worker has no services..
+        /// </summary>
+        internal static string WORKER_HAS_NO_SERVICES {
+            get {
+                return ResourceManager.GetString("WORKER_HAS_NO_SERVICES", resourceCulture);
+            }
+        }
     }
 }

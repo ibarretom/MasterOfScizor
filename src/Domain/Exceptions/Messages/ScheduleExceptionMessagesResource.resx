@@ -129,4 +129,7 @@
   <data name="START_TIME_MUST_BE_GREATER_THEN_END_TIME" xml:space="preserve">
     <value>The Start time must be grater then the End time.</value>
   </data>
+  <data name="WORKER_HAS_NO_SERVICES" xml:space="preserve">
+    <value>The desired worker has no services.</value>
+  </data>
 </root>

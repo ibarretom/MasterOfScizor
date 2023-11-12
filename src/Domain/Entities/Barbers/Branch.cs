@@ -94,6 +94,17 @@ internal class Branch
         Barber.RemoveWhere(existentBarber => employee.Id == existentBarber.Id);
     }
 
+    public void AddService(Guid serviceId, Guid employeeId)
+    {
+        var employee = Barber.FirstOrDefault(employee => employeeId.Equals(employee.Id)) 
+                        ?? throw new CompanyException(CompanyExceptionMessagesResource.EMPLOYEE_NOT_FOUND);
+
+        var service = Service.FirstOrDefault(service => serviceId.Equals(service.Id)) 
+                        ?? throw new CompanyException(CompanyExceptionMessagesResource.SERVICE_NOT_FOUND);
+
+        employee.AddServices(new List<Service.Service>() { service });
+    }
+
     public Schedule? GetScheduleFor(DateTime day)
     {
         return Schedule.FirstOrDefault(schedule => schedule.Includes(day));
