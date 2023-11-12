@@ -13,9 +13,7 @@ internal class Scheduler : IScheduler
     {
         var scheduleTimesWithStatus = ProcessSchedule(day, order, orders);
 
-        return scheduleTimesWithStatus
-                .Where(scheduleTime => scheduleTime.IsAvailable)
-                .Select(scheduleTime => scheduleTime.Time).ToHashSet();
+        return GetTimesThatFitInTheRequestedOrder(order, scheduleTimesWithStatus);
     }
 
     public static HashSet<ScheduleTimeStatus> ProcessSchedule(DateTime day, OrderBase order, List<Order> orders)
@@ -129,7 +127,7 @@ internal class Scheduler : IScheduler
 
         var servicesTimesToAdd = GetOrderTimesBasedOnTheOverflowingTime(TimesOfOrderPlusServices, times, services);
 
-        return times.Except(timesToRemove).Union(servicesTimesToAdd).ToHashSet();
+        return timesToRemove.Union(servicesTimesToAdd).Union(times).ToHashSet();
     }
 
     private static (HashSet<ScheduleTimeStatus> TimesOfOrders, HashSet<ScheduleTimeStatus> TimesOfOrderPlusServices) GetTimesOfOrderAndOrderPlusServices(DateTime requestedDay, List<Order> orders, Configuration configuration)
@@ -170,7 +168,7 @@ internal class Scheduler : IScheduler
             if (!IsValidTime(timeToRemove.Time, configuration.ScheduleDelayTime, requestedDay))
                 continue;
 
-            desiredTimes.Add(timeToRemove);
+            desiredTimes.Add(new ScheduleTimeStatus(timeToRemove.Time, false));
         }
 
         return desiredTimes;
@@ -207,5 +205,34 @@ internal class Scheduler : IScheduler
         var possibleTimesInLunchInterval = MergeTimes(day, lunchIntervals, configuration);
 
         return times.Except(possibleTimesInLunchInterval).ToHashSet();
+    }
+
+    private static HashSet<DateTime> GetTimesThatFitInTheRequestedOrder(OrderBase order, HashSet<ScheduleTimeStatus> times)
+    {
+        var timesThatTheServicesRequested = new HashSet<DateTime>();
+
+        var servicesTotal = order.Services.Sum(service => service.Duration.TotalMinutes);
+
+        var orderedTimes = times.OrderBy(time => time.Time).ToHashSet();
+
+        foreach (var time in orderedTimes)
+        {
+            if (!time.IsAvailable)
+                continue;
+
+            var timePlusServices = time.Time.AddMinutes(servicesTotal);
+
+            var timeThatFitThisSum = orderedTimes.LastOrDefault(time => time.Time <= timePlusServices);
+
+            var isEqualAndIsAvailable = timePlusServices == timeThatFitThisSum?.Time && timeThatFitThisSum.IsAvailable;
+            var isGratherAndIsAvailable = timePlusServices > timeThatFitThisSum?.Time && timeThatFitThisSum.IsAvailable;
+
+            if (!isEqualAndIsAvailable && !isGratherAndIsAvailable)
+                continue;
+
+            timesThatTheServicesRequested.Add(time.Time);
+        }
+
+        return timesThatTheServicesRequested;
     }
 }
