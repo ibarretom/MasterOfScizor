@@ -516,6 +516,7 @@ public class SchedulerTest
         var service = ServiceBuilder.Build(branch.Id, TimeSpan.FromMinutes(defaultInterval));
         branch.AddService(service);
         branch.AddService(service.Id, employee.Id);
+        service = ServiceBuilder.Build(branch.Id, TimeSpan.FromMinutes(10));
 
         var order = OrderBuilder.Build(nowMinusTwoHour.AddMinutes(defaultInterval), branch, employee, new List<Service>() { service });
 
