@@ -123,6 +123,9 @@
   <data name="INVALID_DATE_FOR_THIS_SCHEDULE" xml:space="preserve">
     <value>The date reference DayOfWeek must be equals to the Schedule DayOfWeek</value>
   </data>
+  <data name="NO_LAST_TIME_FOUND" xml:space="preserve">
+    <value>No time that fits in the desired time was found.</value>
+  </data>
   <data name="START_TIME_AND_END_TIME_MUST_BE_DIFFERENT" xml:space="preserve">
     <value>Start time and end time must be differents.</value>
   </data>

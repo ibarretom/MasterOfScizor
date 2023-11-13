@@ -79,6 +79,15 @@ namespace Domain.Exceptions.Messages {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to No time that fits in the desired time was found..
+        /// </summary>
+        internal static string NO_LAST_TIME_FOUND {
+            get {
+                return ResourceManager.GetString("NO_LAST_TIME_FOUND", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Start time and end time must be differents..
         /// </summary>
         internal static string START_TIME_AND_END_TIME_MUST_BE_DIFFERENT {
