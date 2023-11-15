@@ -42,7 +42,7 @@ internal class Scheduler : IScheduler
 
     private static HashSet<ScheduleTimeStatus> MergeTimes(DateTime day, HashSet<Schedule> schedules, Configuration configuration, bool markAsAvailable = true, bool lastIsAvailable = false)
     {
-        var possiblesTimes = new HashSet<ScheduleTimeStatus>();
+        var possibleTimes = new HashSet<ScheduleTimeStatus>();
 
         var scheduleTimesQueue = new Queue<DateTime>();
 
@@ -55,12 +55,12 @@ internal class Scheduler : IScheduler
         }
 
         if (!scheduleTimesQueue.TryDequeue(out var startTime))
-            return possiblesTimes;
+            return possibleTimes;
 
         if (!scheduleTimesQueue.TryDequeue(out var endTime))
-            return possiblesTimes;
+            return possibleTimes;
 
-        possiblesTimes.Add(new ScheduleTimeStatus(startTime, markAsAvailable));
+        possibleTimes.Add(new ScheduleTimeStatus(startTime, markAsAvailable));
 
         do
         {
@@ -69,14 +69,14 @@ internal class Scheduler : IScheduler
             var endTimeHasBeenReached = nextTime >= endTime;
             if (!endTimeHasBeenReached)
             {
-                possiblesTimes.Add(new ScheduleTimeStatus(nextTime, markAsAvailable));
+                possibleTimes.Add(new ScheduleTimeStatus(nextTime, markAsAvailable));
 
                 startTime = nextTime;
 
                 continue;
             }
 
-            possiblesTimes.Add(new ScheduleTimeStatus(endTime, lastIsAvailable));
+            possibleTimes.Add(new ScheduleTimeStatus(endTime, lastIsAvailable));
 
             if (!scheduleTimesQueue.TryDequeue(out startTime))
                 break;
@@ -84,34 +84,35 @@ internal class Scheduler : IScheduler
             if (!scheduleTimesQueue.TryDequeue(out endTime))
                 break;
 
-            possiblesTimes.Add(new ScheduleTimeStatus(startTime, markAsAvailable));
+            possibleTimes.Add(new ScheduleTimeStatus(startTime, markAsAvailable));
 
         } while (startTime != default);
 
-        return possiblesTimes;
+        return possibleTimes;
     }
 
     private static HashSet<ScheduleTimeStatus> HandleOrdersConflict(List<Order> orders, HashSet<ScheduleTimeStatus> times, HashSet<Service> services)
     {
         var timesToRemove = new HashSet<ScheduleTimeStatus>();
 
-        var (TimesOfOrders, TimesOfOrderPlusServices) = GetTimesOfOrderAndOrderPlusServices(orders);
+        var (TimesOfOrders, TimesOfOrderPlusServices, OrderTimeSchedule) = GetTimesOfOrderAndOrderPlusServices(orders);
 
         timesToRemove.UnionWith(TimesOfOrders);
 
-        timesToRemove.UnionWith(GetTimesBasedOnTheLastSmallerTime(TimesOfOrderPlusServices, times));
+        timesToRemove.UnionWith(GetTimesBetweenOrders(OrderTimeSchedule, times));
 
         var servicesTimesToAdd = GetOrderTimesBasedOnTheOverflowingTime(TimesOfOrderPlusServices, times, services);
 
         return timesToRemove.Union(servicesTimesToAdd).Union(times).ToHashSet();
     }
 
-    private static (HashSet<ScheduleTimeStatus> TimesOfOrders, HashSet<ScheduleTimeStatus> TimesOfOrderPlusServices) GetTimesOfOrderAndOrderPlusServices(List<Order> orders)
+    private static (HashSet<ScheduleTimeStatus> TimesOfOrders, HashSet<ScheduleTimeStatus> TimesOfOrderPlusServices, List<(DateTime Start, DateTime End)> OrderTimeSchedule) GetTimesOfOrderAndOrderPlusServices(List<Order> orders)
     {
         var timesOfOrder = new HashSet<ScheduleTimeStatus>();
 
         var timesOfOrderPlusServices = new HashSet<ScheduleTimeStatus>();
 
+        var timeOfStartAndEndOfOrders = new List<(DateTime Start, DateTime End)>();
         foreach (var order in orders)
         {
             var orderDate = new DateTime(order.RelocatedSchedule.Year, order.RelocatedSchedule.Month, order.RelocatedSchedule.Day,
@@ -123,25 +124,27 @@ internal class Scheduler : IScheduler
             var orderPlusServicesTime = orderDate.AddMinutes(servicesTotal);
 
             timesOfOrderPlusServices.Add(new ScheduleTimeStatus(orderPlusServicesTime, true));
+
+            timeOfStartAndEndOfOrders.Add((orderDate, orderPlusServicesTime));
         }
 
-        return (timesOfOrder, timesOfOrderPlusServices);
+        return (timesOfOrder, timesOfOrderPlusServices, timeOfStartAndEndOfOrders);
     }
-    private static HashSet<ScheduleTimeStatus> GetTimesBasedOnTheLastSmallerTime(HashSet<ScheduleTimeStatus> timesToBeRemoved, HashSet<ScheduleTimeStatus> referenceTimes)
+    private static HashSet<ScheduleTimeStatus> GetTimesBetweenOrders(List<(DateTime Start, DateTime End)> orderSchedule, HashSet<ScheduleTimeStatus> referenceTimes)
     {
-        var desiredTimes = new HashSet<ScheduleTimeStatus>();
+        var timesToCanceled = new HashSet<ScheduleTimeStatus>();
 
-        foreach (var discardTime in timesToBeRemoved)
+        foreach (var referenceTime in referenceTimes)
         {
-            var timeToRemove = referenceTimes.LastOrDefault(time => time.Time < discardTime.Time);
+            var timeToRemove = orderSchedule.Any(schedule => schedule.Start < referenceTime.Time && referenceTime.Time < schedule.End );
 
             if (timeToRemove == default)
                 continue;
 
-            desiredTimes.Add(new ScheduleTimeStatus(timeToRemove.Time, false));
+            timesToCanceled.Add(new ScheduleTimeStatus(referenceTime.Time, false));
         }
 
-        return desiredTimes;
+        return timesToCanceled;
     }
 
     private static HashSet<ScheduleTimeStatus> GetOrderTimesBasedOnTheOverflowingTime(HashSet<ScheduleTimeStatus> timesOfServices, HashSet<ScheduleTimeStatus> referenceTimes, HashSet<Service> services)
@@ -159,9 +162,9 @@ internal class Scheduler : IScheduler
             if (nextTimeAfterTimeServices == default)
                 continue;
 
-            var timeOfServicesMinuesNextTime = (nextTimeAfterTimeServices.Time - timeOfServices.Time).TotalMinutes;
+            var timeOfServicesMinusNextTime = (nextTimeAfterTimeServices.Time - timeOfServices.Time).TotalMinutes;
 
-            if (timeOfServicesMinuesNextTime < minimumServiceTime.TotalMinutes)
+            if (timeOfServicesMinusNextTime < minimumServiceTime.TotalMinutes)
                 continue;
 
             timesToAdd.Add(timeOfServices);
@@ -199,10 +202,7 @@ internal class Scheduler : IScheduler
             var timeThatFitThisSum = orderedTimesToSearch.LastOrDefault(time => time.Time <= timePlusServices) 
                 ?? throw new ScheduleException(ScheduleExceptionMessagesResource.NO_LAST_TIME_FOUND);
 
-            var isEqualAndIsAvailable = timePlusServices == timeThatFitThisSum.Time && timeThatFitThisSum.IsAvailable;
-            var isGratherAndIsAvailable = timePlusServices > timeThatFitThisSum.Time && timeThatFitThisSum.IsAvailable;
-
-            if ((!isEqualAndIsAvailable && !isGratherAndIsAvailable) || HasOrderLockedInBetween(time, timeThatFitThisSum, orderedTimesToSearch))
+            if (HasOrderLockedInBetween(time, new ScheduleTimeStatus(timePlusServices, true), orderedTimesToSearch))
                 continue;
 
             timesThatTheServicesRequested.Add(time.Time);

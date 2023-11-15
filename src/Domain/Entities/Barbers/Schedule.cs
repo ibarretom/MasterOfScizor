@@ -34,14 +34,14 @@ internal class Schedule
             return false;
         
         var aDateToBeCompared = DateTime.UtcNow;
-        var daysUntilThisSchedeule = (WeekDay - aDateToBeCompared.DayOfWeek + 7) % 7;
-        aDateToBeCompared = aDateToBeCompared.AddDays(daysUntilThisSchedeule);
+        var daysUntilThisSchedule = (WeekDay - aDateToBeCompared.DayOfWeek + 7) % 7;
+        aDateToBeCompared = aDateToBeCompared.AddDays(daysUntilThisSchedule);
 
         var thisDate = GetScheduleDateTime(this, aDateToBeCompared);
 
-        var dayThatMatachDesiredSchedule = schedule.WeekDay == thisDate.StartTime.DayOfWeek ? thisDate.StartTime : thisDate.EndTime;
+        var dayThatMatchDesiredSchedule = schedule.WeekDay == thisDate.StartTime.DayOfWeek ? thisDate.StartTime : thisDate.EndTime;
 
-        var compareDate = GetScheduleDateTime(schedule, dayThatMatachDesiredSchedule);
+        var compareDate = GetScheduleDateTime(schedule, dayThatMatchDesiredSchedule);
 
         var startTimeIsIncluded = thisDate.StartTime <= compareDate.StartTime && compareDate.StartTime <= thisDate.EndTime;
         var endTimeIsIncluded = thisDate.StartTime <= compareDate.EndTime && compareDate.EndTime <= thisDate.EndTime;
