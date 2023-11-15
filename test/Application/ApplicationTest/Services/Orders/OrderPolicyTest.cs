@@ -11,6 +11,8 @@ using DomainTest.Entities.Barbers;
 using DomainTest.Entities.Barbers.Services;
 using DomainTest.Entities.Orders;
 using System;
+using Domain.Services.Barbers;
+using Moq;
 
 namespace ApplicationTest.Services.Orders;
 
@@ -29,7 +31,9 @@ public class OrderPolicyTest
 
         var order = OrderBuilder.Build(now.AddDays(2), branch);
 
-        var orderPolicy = new OrderPolicy();
+        var scheduler = new Mock<IScheduler>();
+
+        var orderPolicy = new OrderPolicy(scheduler.Object);
 
         var isAllowed = orderPolicy.IsAllowed(order, new List<Order>(), out string reason);
 
@@ -61,7 +65,9 @@ public class OrderPolicyTest
 
         var order = OrderBuilder.Build(now.AddHours(3), branch);
 
-        var orderPolicy = new OrderPolicy();
+        var scheduler = new Mock<IScheduler>();
+
+        var orderPolicy = new OrderPolicy(scheduler.Object);
 
         var isAllowed1 = orderPolicy.IsAllowed(order, new List<Order>(), out var reason);
 
@@ -91,7 +97,9 @@ public class OrderPolicyTest
 
         var order = OrderBuilder.Build(now, branch, employee);
 
-        var orderPolicy = new OrderPolicy();
+        var scheduler = new Mock<IScheduler>();
+
+        var orderPolicy = new OrderPolicy(scheduler.Object);
 
         var exception = Assert.Throws<CompanyException>(() => orderPolicy.IsAllowed(order, new List<Order>(), out var reason));
 
@@ -113,7 +121,9 @@ public class OrderPolicyTest
 
         var order = OrderBuilder.Build(now.AddHours(1.5), branch, employee, new List<Service>() { ServiceBuilder.Build(branch.Id, TimeSpan.FromMinutes(40)) });
 
-        var orderPolicy = new OrderPolicy();
+        var scheduler = new Mock<IScheduler>();
+
+        var orderPolicy = new OrderPolicy(scheduler.Object);
 
         var isAllowed = orderPolicy.IsAllowed(order, new List<Order>(), out var reason);
 
@@ -149,7 +159,9 @@ public class OrderPolicyTest
 
         var order = OrderBuilder.Build(now.AddHours(-1), branch, employee);
 
-        var orderPolicy = new OrderPolicy();
+        var scheduler = new Mock<IScheduler>();
+
+        var orderPolicy = new OrderPolicy(scheduler.Object);
 
         var isAllowed = orderPolicy.IsAllowed(order, new List<Order>(), out var reason);
 
@@ -173,7 +185,10 @@ public class OrderPolicyTest
 
         var order = OrderBuilder.Build(now, branch, employee);
 
-        var orderPolicy = new OrderPolicy();
+        var scheduler = new Mock<IScheduler>();
+
+        var orderPolicy = new OrderPolicy(scheduler.Object);
+
         var isAllowed = orderPolicy.IsAllowed(order, new List<Order>() { OrderBuilder.Build(now, branch) }, out var reason);
 
         Assert.True(!isAllowed);
@@ -197,7 +212,10 @@ public class OrderPolicyTest
 
         var order = OrderBuilder.Build(now, branch, employee);
 
-        var orderPolicy = new OrderPolicy();
+        var scheduler = new Mock<IScheduler>();
+
+        var orderPolicy = new OrderPolicy(scheduler.Object);
+
         var isAllowed = orderPolicy.IsAllowed(order, new List<Order>() { OrderBuilder.Build() }, out _);
 
         Assert.True(isAllowed);
@@ -219,7 +237,9 @@ public class OrderPolicyTest
 
         var order = OrderBuilder.Build(now.AddMinutes(40), branch, employee);
 
-        var orderPolicy = new OrderPolicy();
+        var scheduler = new Mock<IScheduler>();
+
+        var orderPolicy = new OrderPolicy(scheduler.Object);
 
         var isAllowed = orderPolicy.IsAllowed(order, new List<Order>(), out var reason);
 
@@ -245,7 +265,9 @@ public class OrderPolicyTest
 
         var order = OrderBuilder.Build(now.AddMinutes(-30), branch, employee, new List<Service>() { ServiceBuilder.Build(branch.Id, TimeSpan.FromMinutes(32)) });
 
-        var orderPolicy = new OrderPolicy();
+        var scheduler = new Mock<IScheduler>();
+
+        var orderPolicy = new OrderPolicy(scheduler.Object);
 
         var isAllowed = orderPolicy.IsAllowed(order, new List<Order>(), out var reason);
 
@@ -271,7 +293,9 @@ public class OrderPolicyTest
 
         var order = OrderBuilder.Build(now.AddMinutes(-30), branch, employee, new List<Service>() { ServiceBuilder.Build(branch.Id, TimeSpan.FromMinutes(40)) });
 
-        var orderPolicy = new OrderPolicy();
+        var scheduler = new Mock<IScheduler>();
+
+        var orderPolicy = new OrderPolicy(scheduler.Object);
 
         var isAllowed = orderPolicy.IsAllowed(order, new List<Order>(), out var reason);
 
@@ -295,7 +319,9 @@ public class OrderPolicyTest
 
         var order = OrderBuilder.Build(now.AddHours(1.5), branch, employee, new List<Service>() { ServiceBuilder.Build(branch.Id, TimeSpan.FromMinutes(40)) });
 
-        var orderPolicy = new OrderPolicy();
+        var scheduler = new Mock<IScheduler>();
+
+        var orderPolicy = new OrderPolicy(scheduler.Object);
 
         var isAllowed = orderPolicy.IsAllowed(order, new List<Order>(), out var reason);
 
@@ -319,7 +345,12 @@ public class OrderPolicyTest
 
         var order = OrderBuilder.Build(now, branch, employee, new List<Service>() { ServiceBuilder.Build(branch.Id, TimeSpan.FromMinutes(40)) });
 
-        var orderPolicy = new OrderPolicy();
+        var scheduler = new Mock<IScheduler>();
+        scheduler.Setup(scheduler =>
+                scheduler.GetAvailable(It.IsAny<DateTime>(), It.IsAny<OrderBase>(), It.IsAny<List<Order>>()))
+            .Returns(new HashSet<DateTime>());
+
+        var orderPolicy = new OrderPolicy(scheduler.Object);
 
         var isAllowed = orderPolicy.IsAllowed(order, new List<Order>() { OrderBuilder.Build(now.AddHours(0.5), branch, employee) }, out var reason);
 
@@ -343,7 +374,12 @@ public class OrderPolicyTest
 
         var order = OrderBuilder.Build(now, branch, employee);
 
-        var orderPolicy = new OrderPolicy();
+        var scheduler = new Mock<IScheduler>();
+        scheduler.Setup(scheduler =>
+                scheduler.GetAvailable(It.IsAny<DateTime>(), It.IsAny<OrderBase>(), It.IsAny<List<Order>>()))
+            .Returns(new HashSet<DateTime>());
+
+        var orderPolicy = new OrderPolicy(scheduler.Object);
 
         var orders = new List<Order>() {
                                 OrderBuilder.Build(now.AddHours(-0.5),
@@ -374,7 +410,13 @@ public class OrderPolicyTest
 
         var order = OrderBuilder.Build(new DateTime(now.Year, now.AddDays(1).Month, now.AddDays(1).Day, 1, 0, 0), branch, employee, services);
 
-        var orderPolicy = new OrderPolicy();
+        var scheduler = new Mock<IScheduler>();
+        scheduler.Setup(scheduler =>
+                scheduler.GetAvailable(It.IsAny<DateTime>(), It.IsAny<OrderBase>(), It.IsAny<List<Order>>()))
+            .Returns(new HashSet<DateTime>() { order.RelocatedSchedule });
+
+        var orderPolicy = new OrderPolicy(scheduler.Object);
+
         var isAllowed = orderPolicy.IsAllowed(order, new List<Order>(), out _);
 
         Assert.True(isAllowed);
@@ -404,7 +446,13 @@ public class OrderPolicyTest
                            new List<Service>() { ServiceBuilder.Build(Guid.NewGuid(), TimeSpan.FromMinutes(2*60)) }),
         };
 
-        var orderPolicy = new OrderPolicy();
+        var scheduler = new Mock<IScheduler>();
+        scheduler.Setup(scheduler =>
+                scheduler.GetAvailable(It.IsAny<DateTime>(), It.IsAny<OrderBase>(), It.IsAny<List<Order>>()))
+            .Returns(new HashSet<DateTime>());
+
+        var orderPolicy = new OrderPolicy(scheduler.Object);
+
         var isAllowed = orderPolicy.IsAllowed(order, allOrders, out _);
 
         Assert.False(isAllowed);
@@ -420,7 +468,6 @@ public class OrderPolicyTest
         var now = DateTime.UtcNow;
 
         var schedule = new Schedule(new TimeOnly(now.AddHours(-1).Hour, 0), new TimeOnly(now.AddHours(1).Hour, 0), now.AddHours(-1).DayOfWeek);
-
         branch.AddSchedule(schedule);
 
         var employee = EmployeeBuilder.Build();
@@ -431,7 +478,12 @@ public class OrderPolicyTest
 
         var allOrders = new List<Order>() { OrderBuilder.Build(new DateTime(now.Year, now.Month, now.Day, now.Hour, 0, 0), branch, employee, new List<Service> { ServiceBuilder.Build(Guid.NewGuid(), TimeSpan.FromMinutes(30)) }), };
 
-        var orderPolicy = new OrderPolicy();
+        var scheduler = new Mock<IScheduler>();
+        scheduler.Setup(scheduler =>
+                scheduler.GetAvailable(It.IsAny<DateTime>(), It.IsAny<OrderBase>(), It.IsAny<List<Order>>()))
+            .Returns(new HashSet<DateTime>());
+
+        var orderPolicy = new OrderPolicy(scheduler.Object);
 
         var isAllowed = orderPolicy.IsAllowed(order, allOrders, out var reason);
 
@@ -443,7 +495,13 @@ public class OrderPolicyTest
     [MemberData(nameof(BuildObjects))]
     private void ShouldAcceptThisOrders(OrderPolicyTestData testOrders)
     {
-        var orderPolicy = new OrderPolicy();
+        var scheduler = new Mock<IScheduler>();
+        scheduler.Setup(scheduler =>
+                scheduler.GetAvailable(It.IsAny<DateTime>(), It.IsAny<OrderBase>(), It.IsAny<List<Order>>()))
+            .Returns(new HashSet<DateTime>() { testOrders.Order.RelocatedSchedule });
+
+        var orderPolicy = new OrderPolicy(scheduler.Object);
+
         var isAllowed = orderPolicy.IsAllowed(testOrders.Order, testOrders.Orders, out var reason);
 
         Assert.True(isAllowed, $"{testOrders.TestId}-{reason}");

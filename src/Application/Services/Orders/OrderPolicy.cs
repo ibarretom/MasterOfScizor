@@ -5,11 +5,19 @@ using Domain.Exceptions;
 using Domain.Exceptions.Messages;
 using Domain.ValueObjects.Enums;
 using System.Diagnostics;
+using Domain.Services.Barbers;
 
 namespace Application.Services.Orders;
 
 internal class OrderPolicy : IOrderPolicy
 {
+    private readonly IScheduler _scheduler;
+
+    public OrderPolicy(IScheduler scheduler)
+    {
+        _scheduler = scheduler;
+    }
+
     public bool IsAllowed(Order order, List<Order> allOrders, out string reason)
     {
 
@@ -78,12 +86,12 @@ internal class OrderPolicy : IOrderPolicy
 
     private static bool HandleWithLastOrder(Order order, Order lastOrder, Schedule workingTime, out string reason)
     {
-        var lastOrderRealocatedTimeWithoutSeconds = new DateTime(lastOrder.RelocatedSchedule.Year, lastOrder.RelocatedSchedule.Month, lastOrder.RelocatedSchedule.Day,
+        var lastOrderRelocatedTimeWithoutSeconds = new DateTime(lastOrder.RelocatedSchedule.Year, lastOrder.RelocatedSchedule.Month, lastOrder.RelocatedSchedule.Day,
                                                         lastOrder.RelocatedSchedule.Hour, lastOrder.RelocatedSchedule.Minute, 0);
 
         var lastOrderTimeServicesTime = lastOrder.Services.Aggregate(new TimeSpan(0), (acc, current) => acc + current.Duration);
 
-        var lastOrderTimePlusServiceDuration = lastOrderRealocatedTimeWithoutSeconds.Add(lastOrderTimeServicesTime);
+        var lastOrderTimePlusServiceDuration = lastOrderRelocatedTimeWithoutSeconds.Add(lastOrderTimeServicesTime);
 
         var orderTimeServices = order.Services.Aggregate(new TimeSpan(0), (acc, current) => acc + current.Duration);
 
@@ -134,7 +142,7 @@ internal class OrderPolicy : IOrderPolicy
         return queueIsNotFull;
     }
 
-    private static bool HandleOrderSchedule(Order order, List<Order> allOrders, Branch branch, out string reason)
+    private bool HandleOrderSchedule(Order order, List<Order> allOrders, Branch branch, out string reason)
     {
         var allowedTimes = GetAllowedTimes(order, branch);
 
@@ -164,16 +172,9 @@ internal class OrderPolicy : IOrderPolicy
         var firstOrderBeforeRequestedOrder = allOrders.LastOrDefault(order => DateTime.Compare(new DateTime(order.RelocatedSchedule.Year, order.RelocatedSchedule.Month,
                         order.RelocatedSchedule.Day, order.RelocatedSchedule.Hour, order.RelocatedSchedule.Minute, 0), desiredTimeForThisOrder) <= 0);
 
-        if (HasConflictWithThePreviousOrder(desiredTimeForThisOrder, firstOrderBeforeRequestedOrder, GetAllowedTimes(order, branch, true)))
-        {
-            reason = OrderExceptionResourceMessages.ORDER_TIME_ALREADY_ALOCATED;
-            return false;
-        }
+        var availableTimes = _scheduler.GetAvailable(order.RelocatedSchedule, order, allOrders);
 
-        var firstOrderAfterRequestedOrder = allOrders.FirstOrDefault(order => DateTime.Compare(new DateTime(order.RelocatedSchedule.Year, order.RelocatedSchedule.Month,
-                        order.RelocatedSchedule.Day, order.RelocatedSchedule.Hour, order.RelocatedSchedule.Minute, 0), desiredTimeForThisOrder) >= 0);
-
-        if (HasConflictWithTheNextOrder(desiredTimeForThisOrder, order.Services, firstOrderAfterRequestedOrder, GetAllowedTimes(order,branch, true)))
+        if (!availableTimes.Contains(order.RelocatedSchedule))
         {
             reason = OrderExceptionResourceMessages.ORDER_TIME_ALREADY_ALOCATED;
             return false;
@@ -255,45 +256,5 @@ internal class OrderPolicy : IOrderPolicy
                                                      desiredTimeForThisOrder.Hour, desiredTimeForThisOrder.Minute, 0);
 
         return DateTime.Compare(desiredTimeWithoutSeconds.Add(totalTimeServices), EndTime) <= 0;
-    }
-
-    private static bool HasConflictWithThePreviousOrder(DateTime desiredTime, Order? previousOrder, List<DateTime> allowedTimes)
-    {
-        if (previousOrder is null)
-            return false;
-
-        var previousOrderTimeWithoutSeconds = new DateTime(previousOrder.RelocatedSchedule.Year, previousOrder.RelocatedSchedule.Month, previousOrder.RelocatedSchedule.Day,
-                                                           previousOrder.RelocatedSchedule.Hour, previousOrder.RelocatedSchedule.Minute, 0);
-
-        if (DateTime.Compare(desiredTime, previousOrderTimeWithoutSeconds) == 0)
-            return true;
-
-        var totalTimeService = previousOrder.Services.Aggregate(new TimeSpan(0), (acc, current) => acc + current.Duration);
-
-        var previousOrderTimePlusServiceDuration = previousOrderTimeWithoutSeconds.Add(totalTimeService);
-
-        var previousOrderEndTimeFittedOnAvailableTimes = allowedTimes.FirstOrDefault(time => DateTime.Compare(time, previousOrderTimePlusServiceDuration) >= 0);
-
-        return DateTime.Compare(desiredTime, previousOrderEndTimeFittedOnAvailableTimes) < 0;
-    }
-
-    private static bool HasConflictWithTheNextOrder(DateTime desiredTime, List<Service> desiredOrderServices, Order? nextOrder, List<DateTime> allowedTimes)
-    {
-        if (nextOrder is null)
-            return false;
-
-        if (DateTime.Compare(desiredTime, nextOrder.RelocatedSchedule) == 0)
-            return true;
-
-        var totalTimeService = desiredOrderServices.Aggregate(new TimeSpan(0), (acc, current) => acc + current.Duration);
-
-        var desiredTimePlusServiceDuration = desiredTime.Add(totalTimeService);
-
-        var desiredTimeEndFittedOnAvailableTimes = allowedTimes.FirstOrDefault(time => DateTime.Compare(time, desiredTimePlusServiceDuration) >= 0);
-
-        var nextOrderTimeWithoutSeconds = new DateTime(nextOrder.RelocatedSchedule.Year, nextOrder.RelocatedSchedule.Month, nextOrder.RelocatedSchedule.Day,
-                                                       nextOrder.RelocatedSchedule.Hour, nextOrder.RelocatedSchedule.Minute, 0);
-        
-        return DateTime.Compare(desiredTimeEndFittedOnAvailableTimes, nextOrderTimeWithoutSeconds) > 0;
     }
 }
