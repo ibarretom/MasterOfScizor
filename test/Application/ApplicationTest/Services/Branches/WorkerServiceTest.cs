@@ -34,13 +34,13 @@ public class WorkerServiceTest
                 createdWorker = employee;
             }).Returns(Task.CompletedTask);
 
-        var encriptService = new Mock<IEncryptService>();
-        encriptService.Setup(service => service.Hash(worker.Email + worker.Password)).Returns("hash");
+        var encryptService = new Mock<IEncryptService>();
+        encryptService.Setup(service => service.Hash(worker.Email + worker.Password)).Returns("hash");
 
         var scheduler = new Mock<IScheduler>();
         var orderRepository = new Mock<IOrderRepository>();
 
-        var workerService = new WorkerService(workerRepository.Object, encriptService.Object, orderRepository.Object, scheduler.Object);
+        var workerService = new WorkerService(workerRepository.Object, encryptService.Object, orderRepository.Object, scheduler.Object);
         await workerService.Add(worker);
 
         Assert.True(!createdWorker.Id.Equals(Guid.Empty));
@@ -64,12 +64,12 @@ public class WorkerServiceTest
         var workerRepository = new Mock<IWorkerRepository>();
         workerRepository.Setup(repository => repository.Exists(worker.BranchId, worker.Document, worker.Phone, worker.Email).Result).Returns(true);
 
-        var encriptService = new Mock<IEncryptService>();
+        var encryptService = new Mock<IEncryptService>();
 
         var scheduler = new Mock<IScheduler>();
         var orderRepository = new Mock<IOrderRepository>();
 
-        var workerService = new WorkerService(workerRepository.Object, encriptService.Object, orderRepository.Object, scheduler.Object);
+        var workerService = new WorkerService(workerRepository.Object, encryptService.Object, orderRepository.Object, scheduler.Object);
 
         var exception = await Assert.ThrowsAsync<CompanyException>(() => workerService.Add(worker));
         Assert.Equal(CompanyExceptionMessagesResource.WORKER_ALREADY_EXISTS, exception.Message);
@@ -180,7 +180,7 @@ public class WorkerServiceTest
         var branch = BranchBuilder.Build(ConfigurationBuilder.BuildWithScheduleWithNoDelay());
 
         var now = DateTime.UtcNow;
-        var timeForReference = new DateTime(now.Year, now.Month, now.Minute, 23, 0, 0, now.Kind);
+        var timeForReference = new DateTime(now.Year, now.Month, now.Day, 23, 0, 0, now.Kind);
 
         var TimeReferencePlusSomeHour = timeForReference.AddHours(2);
 
@@ -243,8 +243,8 @@ public class WorkerServiceTest
 
         var orderBase = new OrderBase(branch, worker, new List<Service>() { service });
 
-        var exception = Assert.ThrowsAsync<CompanyException>(async () => await workerService.GetAvailableTimes(DateTime.UtcNow, orderBase));
+        var exception = await Assert.ThrowsAsync<CompanyException>(async () => await workerService.GetAvailableTimes(DateTime.UtcNow, orderBase));
 
-        Assert.Equal(CompanyExceptionMessagesResource.BRANCH_IS_NOT_OPENNED_THIS_DAY, exception.Result.Message);
+        Assert.Equal(CompanyExceptionMessagesResource.BRANCH_IS_NOT_OPENNED_THIS_DAY, exception.Message);
     }
 }

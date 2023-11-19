@@ -1,18 +1,25 @@
-﻿using Domain.Entities.Barbers;
+﻿using Domain.Entities;
+using Domain.Entities.Barbers;
+using Domain.Exceptions;
+using Domain.Exceptions.Messages;
+using Domain.Services.Barbers;
 using Domain.ValueObjects.DTO.Barber;
 using Infra.Repositories.Company;
 using Infra.Repositories.CompanyRepository;
-using System.Reflection.Metadata.Ecma335;
 
 namespace Application.Services.Branches;
 
 internal class ScheduleService
 {
     private readonly IScheduleRepository _scheduleRepository;
+    private readonly IScheduler _scheduler;
+    private readonly IBranchRepository _branchRepository;
    
-    public ScheduleService(IScheduleRepository scheduleRepository)
+    public ScheduleService(IScheduleRepository scheduleRepository, IScheduler scheduler, IBranchRepository branchRepository)
     {
         _scheduleRepository = scheduleRepository;
+        _scheduler = scheduler;
+        _branchRepository = branchRepository;
     }
 
     public async Task<ScheduleCreateResponseDTO> Add(ScheduleCreateRequestDTO schedule)
@@ -63,5 +70,17 @@ internal class ScheduleService
         var schedule = await _scheduleRepository.GetAll(branchId);
 
         return new ScheduleGetResponseDTO(schedule);
+    }
+
+    public async Task<HashSet<TimeOnly>> GetAllAvailableTimes(DateTime day, Employee employee)
+    {
+        var schedule = await _scheduleRepository.GetByDay(employee.BranchId, day.DayOfWeek);
+
+        if (schedule is null)
+            return new HashSet<TimeOnly>();
+
+        var branch = await _branchRepository.GetBy(employee.BranchId) ?? throw new CompanyException(CompanyExceptionMessagesResource.BRANCH_NOT_FOUND);
+
+        return _scheduler.GetAllPossible(schedule, branch.Configuration);
     }
 }

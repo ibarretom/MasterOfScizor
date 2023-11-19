@@ -34,7 +34,9 @@ internal class Schedule
             return false;
         
         var aDateToBeCompared = DateTime.UtcNow;
-        var daysUntilThisSchedule = (WeekDay - aDateToBeCompared.DayOfWeek + 7) % 7;
+        
+        var daysUntilThisSchedule = CalculateDaysUntilScheduleDayOfWeek(aDateToBeCompared);
+
         aDateToBeCompared = aDateToBeCompared.AddDays(daysUntilThisSchedule);
 
         var thisDate = GetScheduleDateTime(this, aDateToBeCompared);
@@ -116,6 +118,10 @@ internal class Schedule
         return WeekDay == dayOfWeek;
     }
 
+    public int CalculateDaysUntilScheduleDayOfWeek(DateTime day)
+    {
+        return (WeekDay - day.DayOfWeek + 7) % 7;
+    }
     public override int GetHashCode()
     {
         return WeekDay.GetHashCode() + OverflowingDay.GetHashCode();

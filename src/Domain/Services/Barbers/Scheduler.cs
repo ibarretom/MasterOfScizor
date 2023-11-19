@@ -255,4 +255,23 @@ internal class Scheduler : IScheduler
         return false;
     }
 
+    public HashSet<TimeOnly> GetAllPossible(Schedule schedule, Configuration configuration)
+    {
+        var availableTimes = new HashSet<TimeOnly>();
+        
+        var aDateForCalculateTimes = DateTime.UtcNow;
+
+        var daysUntilTheScheduleStarts = schedule.CalculateDaysUntilScheduleDayOfWeek(aDateForCalculateTimes);
+
+        var aDateThatFitsTheScheduleDayOfWeek = aDateForCalculateTimes.AddDays(daysUntilTheScheduleStarts);
+        
+        var dateToBeReference = schedule.GetDateToBeReference(aDateThatFitsTheScheduleDayOfWeek);
+
+        var (StartTime, EndTime) = Schedule.GetScheduleDateTime(schedule, dateToBeReference);
+
+        for (var time = StartTime; time < EndTime; time = time.AddMinutes(configuration.ScheduleDefaultInterval.TotalMinutes))
+            availableTimes.Add(new TimeOnly(time.Hour, time.Minute));
+
+        return availableTimes;
+    }
 }

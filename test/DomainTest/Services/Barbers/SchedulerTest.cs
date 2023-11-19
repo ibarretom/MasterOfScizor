@@ -897,4 +897,49 @@ public class SchedulerTest
 
         Assert.Contains(GetDate(nowMinusSomeHour, 2 * defaultInterval), availableTimes);
     }
+
+    [Fact]
+    public void ShouldBeAbleToReturnAllPossibleTimesForASchedule()
+    {
+        var defaultInterval = 45;
+        var now = DateTime.UtcNow;
+
+        var schedule = new Schedule(new TimeOnly(now.Hour, now.Minute),
+                                               new TimeOnly(now.AddHours(2).Hour, now.AddHours(2).Minute), now.DayOfWeek);
+
+        var configuration = ConfigurationBuilder.BuildWithScheduleWithNoDelay(defaultInterval);
+
+        var scheduler = new Scheduler();
+
+        var availableTimes = scheduler.GetAllPossible(schedule, configuration);
+
+        Assert.Equal(3, availableTimes.Count);
+
+        Assert.Contains(new TimeOnly(now.Hour, now.Minute), availableTimes);
+        Assert.Contains(new TimeOnly(now.AddMinutes(defaultInterval).Hour, now.AddMinutes(defaultInterval).Minute), availableTimes);
+        Assert.Contains(new TimeOnly(now.AddMinutes(2 * defaultInterval).Hour, now.AddMinutes(2 * defaultInterval).Minute), availableTimes);
+    }
+
+    [Fact]
+    public void ShouldBeAbleToBringTheLasTimeInCaseItsFitted()
+    {
+        var defaultInterval = 30;
+        var now = DateTime.UtcNow;
+
+        var schedule = new Schedule(new TimeOnly(now.Hour, now.Minute),
+                                               new TimeOnly(now.AddHours(2).Hour, now.AddHours(2).Minute), now.DayOfWeek);
+
+        var configuration = ConfigurationBuilder.BuildWithScheduleWithNoDelay(defaultInterval);
+
+        var scheduler = new Scheduler();
+
+        var availableTimes = scheduler.GetAllPossible(schedule, configuration);
+
+        Assert.Equal(4, availableTimes.Count);
+
+        Assert.Contains(new TimeOnly(now.Hour, now.Minute), availableTimes);
+        Assert.Contains(new TimeOnly(now.AddMinutes(defaultInterval).Hour, now.AddMinutes(defaultInterval).Minute), availableTimes);
+        Assert.Contains(new TimeOnly(now.AddMinutes(2 * defaultInterval).Hour, now.AddMinutes(defaultInterval).Minute), availableTimes);
+        Assert.Contains(new TimeOnly(now.AddMinutes(3 * defaultInterval).Hour, now.AddMinutes(defaultInterval).Minute), availableTimes);
+    }
 }
