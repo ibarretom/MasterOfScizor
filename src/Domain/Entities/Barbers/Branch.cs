@@ -1,4 +1,5 @@
 ﻿using Domain.Entities.Barbers.Service;
+using Domain.Entities.Orders;
 using Domain.Exceptions;
 using Domain.Exceptions.Messages;
 using Domain.ValueObjects.Addresses;
@@ -10,7 +11,6 @@ namespace Domain.Entities.Barbers;
 internal class Branch
 {
     public Guid Id { get; }
-    public Guid BarberId { get; }
     public string Identifier { get; }
     public Address Address { get; set; }
     public string Phone { get; set; }
@@ -19,13 +19,13 @@ internal class Branch
     public HashSet<Category> Category { get; } = new HashSet<Category>();
     public HashSet<Service.Service> Service { get; } = new HashSet<Service.Service>();
     public HashSet<Employee> Barber { get; } = new HashSet<Employee>();
+    public List<Order> Orders { get; } = new List<Order>();
     public bool IsOpened { get; set; }
     public Configuration Configuration { get; private set; }
 
-    public Branch(Guid barberId, string identifier, Address address, string phone, string email, bool isOpened, Configuration configuration)
+    public Branch(string identifier, Address address, string phone, string email, bool isOpened, Configuration configuration)
     {
         Id = Guid.NewGuid();
-        BarberId = barberId;
         Identifier = identifier;
         Address = address;
         Phone = phone;

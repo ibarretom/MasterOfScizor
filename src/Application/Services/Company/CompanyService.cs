@@ -31,7 +31,7 @@ internal class CompanyService
 
         var branchConfig = new Configuration(OrderQueueType.Schedule, true, null, new TimeSpan(20), true);
 
-        companyCreated.AddBranch(new Branch(companyCreated.Id, company.Branch.Identifier, company.Branch.Address, company.Branch.Phone, company.Branch.Email, false, branchConfig));
+        companyCreated.AddBranch(new Branch(company.Branch.Identifier, company.Branch.Address, company.Branch.Phone, company.Branch.Email, false, branchConfig));
         
         await _companyRepository.Create(companyCreated);
     }
