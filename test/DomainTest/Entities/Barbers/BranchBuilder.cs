@@ -15,6 +15,6 @@ internal class BranchBuilder
         var addressIdentifier = new AddressIdentifier(faker.Address.BuildingNumber(), faker.Address.BuildingNumber());
         var address = new Address(Guid.NewGuid(), addressIdentifier);
   
-        return new Branch(Guid.NewGuid(), faker.Company.Cnpj(), address, faker.Phone.PhoneNumber(), faker.Internet.Email(), isOpened, configuration);
+        return new Branch(faker.Company.Cnpj(), address, faker.Phone.PhoneNumber(), faker.Internet.Email(), isOpened, configuration);
     }
 }

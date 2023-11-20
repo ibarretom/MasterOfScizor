@@ -13,7 +13,7 @@ internal class BarberBuilder
         
         var cnpj = faker.Company.Cnpj();
         var configuration = ConfigurationBuilder.BuildRandom();
-        var branch = new Branch(Guid.NewGuid(), cnpj, new Address(Guid.NewGuid(), new AddressIdentifier(faker.Random.Number(1, 300).ToString(), faker.Random.Number(0).ToString())),
+        var branch = new Branch(cnpj, new Address(Guid.NewGuid(), new AddressIdentifier(faker.Random.Number(1, 300).ToString(), faker.Random.Number(0).ToString())),
             faker.Phone.PhoneNumber(), faker.Internet.Email(), false, configuration);
 
         var barber = new Barber(Guid.NewGuid(), faker.Company.CompanyName(), cnpj, string.Empty);
