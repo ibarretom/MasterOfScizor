@@ -17,14 +17,14 @@ public class ServiceTest
     [InlineData("-1", "-1")]
     public void ShouldNotBeAbleToCreateAServiceWithNonPositivePrices(string price, string promotionalPrice)
     {
-        var exception = Assert.Throws<ServiceException>(() => new Service(Guid.NewGuid(), new Category("Any", Guid.NewGuid()), "Any", "Any", Decimal.Parse(price), Decimal.Parse(promotionalPrice), false, false, TimeSpan.FromMinutes(1)));
+        var exception = Assert.Throws<ServiceException>(() => new Service(new Category("Any"), "Any", "Any", Decimal.Parse(price), Decimal.Parse(promotionalPrice), false, false, TimeSpan.FromMinutes(1)));
         Assert.True(exception.Message.Equals(ServiceExceptionMessagesResource.PRICE_MUST_BE_GRATHER_THEN_ZERO));
     }
 
     [Fact]
     public void ShouldNotBeAbleToCreateAServiceWithPromotionalPriceGreaterThenRegularPrice()
     {
-        var exception = Assert.Throws<ServiceException>(() => new Service(Guid.NewGuid(), new Category("Any", Guid.NewGuid()), "Any", "Any", (decimal) 10, (decimal) 11, false, false, TimeSpan.FromMinutes(1)));
+        var exception = Assert.Throws<ServiceException>(() => new Service(new Category("Any"), "Any", "Any", (decimal) 10, (decimal) 11, false, false, TimeSpan.FromMinutes(1)));
         Assert.True(exception.Message.Equals(ServiceExceptionMessagesResource.PROMOTIONAL_PRICE_CANT_BE_GREATER_THEN_REGULAR_PRICE));
     }
 
@@ -53,12 +53,5 @@ public class ServiceTest
         
         var exception = Assert.Throws<ServiceException>(() => service.SetPrices((decimal) 10, (decimal) 11));
         Assert.True(exception.Message.Equals(ServiceExceptionMessagesResource.PROMOTIONAL_PRICE_CANT_BE_GREATER_THEN_REGULAR_PRICE));
-    }
-
-    [Fact]
-    public void ShouldNotBeAbleToCreateAServiceWithInvalidBranchId()
-    {
-        var exception = Assert.Throws<ServiceException>(() => new Service(Guid.Empty, new Category("Any", Guid.NewGuid()), "Any", "Any", (decimal) 10, (decimal) 11, false, false, TimeSpan.FromMinutes(1)));
-        Assert.True(exception.Message.Equals(ServiceExceptionMessagesResource.BRANCH_ID_MUST_BE_VALID));
     }
 }

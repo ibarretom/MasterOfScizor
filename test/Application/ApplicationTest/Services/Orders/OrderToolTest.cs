@@ -130,7 +130,7 @@ public class OrderToolTest
 
         var orders = new List<Order>
         {
-            OrderBuilder.Build(now, branch, employee, new List<Service>() { ServiceBuilder.Build(branch.Id, TimeSpan.FromMinutes(60)), ServiceBuilder.Build(branch.Id, TimeSpan.FromMinutes(60))})
+            OrderBuilder.Build(now, branch, employee, new List<Service>() { ServiceBuilder.Build(TimeSpan.FromMinutes(60)), ServiceBuilder.Build(TimeSpan.FromMinutes(60))})
         };
 
         var orderTool = new OrderTool();

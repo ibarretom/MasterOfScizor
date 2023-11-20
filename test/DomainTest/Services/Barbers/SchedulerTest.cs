@@ -31,7 +31,7 @@ public class SchedulerTest
         var employee = EmployeeBuilder.Build();
         branch.AddEmployee(employee);
 
-        var service = ServiceBuilder.Build(branch.Id, TimeSpan.FromMinutes(defaultInterval));
+        var service = ServiceBuilder.Build(TimeSpan.FromMinutes(defaultInterval));
         branch.AddService(service);
         branch.AddService(service.Id, employee.Id);
 
@@ -82,7 +82,7 @@ public class SchedulerTest
         branch.AddEmployeeLunchInterval(new Schedule(new TimeOnly(nowMinusOneHour.Hour, nowMinusOneHour.Minute),
                                                      new TimeOnly(now.Hour, now.Minute), nowMinusOneHour.DayOfWeek), employee.Id);
 
-        var service = ServiceBuilder.Build(branch.Id, TimeSpan.FromMinutes(defaultInterval));
+        var service = ServiceBuilder.Build(TimeSpan.FromMinutes(defaultInterval));
         branch.AddService(service);
         branch.AddService(service.Id, employee.Id);
 
@@ -121,7 +121,7 @@ public class SchedulerTest
         branch.AddEmployeeLunchInterval(new Schedule(new TimeOnly(23, 30),
                                                      new TimeOnly(0, 30), nowElevenOClock.DayOfWeek), employee.Id);
 
-        var service = ServiceBuilder.Build(branch.Id, TimeSpan.FromMinutes(defaultInterval));
+        var service = ServiceBuilder.Build(TimeSpan.FromMinutes(defaultInterval));
         branch.AddService(service);
         branch.AddService(service.Id, employee.Id);
 
@@ -158,7 +158,7 @@ public class SchedulerTest
         var employee = EmployeeBuilder.Build();
         branch.AddEmployee(employee);
 
-        var service = ServiceBuilder.Build(branch.Id, TimeSpan.FromMinutes(defaultInterval));
+        var service = ServiceBuilder.Build(TimeSpan.FromMinutes(defaultInterval));
         branch.AddService(service);
         branch.AddService(service.Id, employee.Id);
 
@@ -197,7 +197,7 @@ public class SchedulerTest
         var employee = EmployeeBuilder.Build();
         branch.AddEmployee(employee);
 
-        var service = ServiceBuilder.Build(branch.Id, TimeSpan.FromMinutes(defaultInterval));
+        var service = ServiceBuilder.Build(TimeSpan.FromMinutes(defaultInterval));
         branch.AddService(service);
         branch.AddService(service.Id, employee.Id);
 
@@ -239,7 +239,7 @@ public class SchedulerTest
         var employee = EmployeeBuilder.Build();
         branch.AddEmployee(employee);
 
-        var service = ServiceBuilder.Build(branch.Id, TimeSpan.FromMinutes(defaultInterval));
+        var service = ServiceBuilder.Build(TimeSpan.FromMinutes(defaultInterval));
         branch.AddService(service);
         branch.AddService(service.Id, employee.Id);
 
@@ -283,7 +283,7 @@ public class SchedulerTest
 
         var orderSchedule = now.AddHours(-1);
 
-        var services = new List<Service>() { ServiceBuilder.Build(branch.Id, TimeSpan.FromMinutes(defaultInterval)) };
+        var services = new List<Service>() { ServiceBuilder.Build(TimeSpan.FromMinutes(defaultInterval)) };
         branch.AddService(services.First());
         branch.AddService(services.First().Id, employee.Id);
 
@@ -325,7 +325,7 @@ public class SchedulerTest
 
         var nowMinusOneHour = now.AddHours(-1);
 
-        var services = new List<Service>() { ServiceBuilder.Build(branch.Id, TimeSpan.FromMinutes(defaultInterval + 10)) };
+        var services = new List<Service>() { ServiceBuilder.Build(TimeSpan.FromMinutes(defaultInterval + 10)) };
         branch.AddService(services.First());
         branch.AddService(services.First().Id, employee.Id);
 
@@ -362,7 +362,7 @@ public class SchedulerTest
         var employee = EmployeeBuilder.Build();
         branch.AddEmployee(employee);
 
-        var service = ServiceBuilder.Build(branch.Id, TimeSpan.FromMinutes(defaultInterval));
+        var service = ServiceBuilder.Build(TimeSpan.FromMinutes(defaultInterval));
         branch.AddService(service);
         branch.AddService(service.Id, employee.Id);
 
@@ -396,7 +396,7 @@ public class SchedulerTest
         var employee = EmployeeBuilder.Build();
         branch.AddEmployee(employee);
 
-        var service = ServiceBuilder.Build(branch.Id, TimeSpan.FromMinutes(defaultInterval));
+        var service = ServiceBuilder.Build(TimeSpan.FromMinutes(defaultInterval));
         branch.AddService(service);
         branch.AddService(service.Id, employee.Id);
 
@@ -404,7 +404,7 @@ public class SchedulerTest
 
         var requestedOrder = OrderBaseBuilder.Build(branch, employee);
 
-        var availableTimes = scheduler.GetAvailable(now, requestedOrder, new List<Order>());
+        var availableTimes = scheduler.GetAvailable(now.AddHours(1), requestedOrder, new List<Order>());
 
         Assert.True(availableTimes.Any());
 
@@ -431,7 +431,7 @@ public class SchedulerTest
         var employee = EmployeeBuilder.Build();
         branch.AddEmployee(employee);
 
-        var service = ServiceBuilder.Build(branch.Id, TimeSpan.FromMinutes(defaultInterval));
+        var service = ServiceBuilder.Build(TimeSpan.FromMinutes(defaultInterval));
         branch.AddService(service);
         branch.AddService(service.Id, employee.Id);
 
@@ -466,7 +466,7 @@ public class SchedulerTest
         var employee = EmployeeBuilder.Build();
         branch.AddEmployee(employee);
 
-        var service = ServiceBuilder.Build(branch.Id, TimeSpan.FromMinutes(60));
+        var service = ServiceBuilder.Build(TimeSpan.FromMinutes(60));
         branch.AddService(service);
         branch.AddService(service.Id, employee.Id);
 
@@ -512,10 +512,10 @@ public class SchedulerTest
                                          new TimeOnly(lunchIntervalEndsAt.Hour, lunchIntervalEndsAt.Minute), lunchIntervalStartsAt.DayOfWeek);
         branch.AddEmployeeLunchInterval(lunchInterval, employee.Id);
 
-        var service = ServiceBuilder.Build(branch.Id, TimeSpan.FromMinutes(defaultInterval));
+        var service = ServiceBuilder.Build(TimeSpan.FromMinutes(defaultInterval));
         branch.AddService(service);
         branch.AddService(service.Id, employee.Id);
-        service = ServiceBuilder.Build(branch.Id, TimeSpan.FromMinutes(10));
+        service = ServiceBuilder.Build(TimeSpan.FromMinutes(10));
 
         var order = OrderBuilder.Build(nowMinusTwoHour.AddMinutes(defaultInterval), branch, employee, new List<Service>() { service });
 
@@ -553,10 +553,10 @@ public class SchedulerTest
         var employee = EmployeeBuilder.Build();
         branch.AddEmployee(employee);
 
-        var service = ServiceBuilder.Build(branch.Id, TimeSpan.FromMinutes(defaultInterval + 15));
+        var service = ServiceBuilder.Build(TimeSpan.FromMinutes(defaultInterval + 15));
         branch.AddService(service);
         branch.AddService(service.Id, employee.Id);
-        var remainingTimeService = ServiceBuilder.Build(branch.Id, TimeSpan.FromMinutes(15));
+        var remainingTimeService = ServiceBuilder.Build(TimeSpan.FromMinutes(15));
         branch.AddService(remainingTimeService);
         branch.AddService(remainingTimeService.Id, employee.Id);
 
@@ -582,7 +582,7 @@ public class SchedulerTest
         var defaultInterval = 45;
 
         var branch = BranchBuilder.Build(ConfigurationBuilder.BuildWithScheduleWithNoDelay(defaultInterval));
-        
+
         var utcNow = DateTime.UtcNow.AddDays(2);
 
         var now = new DateTime(utcNow.Year, utcNow.Month, utcNow.Day,
@@ -597,10 +597,10 @@ public class SchedulerTest
         var employee = EmployeeBuilder.Build();
         branch.AddEmployee(employee);
 
-        var serviceForRequesteOrder = ServiceBuilder.Build(branch.Id, TimeSpan.FromMinutes(defaultInterval + 15));
+        var serviceForRequesteOrder = ServiceBuilder.Build(TimeSpan.FromMinutes(defaultInterval + 15));
         branch.AddService(serviceForRequesteOrder);
         branch.AddService(serviceForRequesteOrder.Id, employee.Id);
-        var service = ServiceBuilder.Build(branch.Id, TimeSpan.FromMinutes(defaultInterval));
+        var service = ServiceBuilder.Build(TimeSpan.FromMinutes(defaultInterval));
         branch.AddService(serviceForRequesteOrder);
 
         var orderStatingAtFirstTime = OrderBuilder.Build(nowMinusSomeHour, branch, employee, new List<Service>() { service });
@@ -640,10 +640,10 @@ public class SchedulerTest
         var employee = EmployeeBuilder.Build();
         branch.AddEmployee(employee);
 
-        var service = ServiceBuilder.Build(branch.Id, TimeSpan.FromMinutes(defaultInterval + 15));
+        var service = ServiceBuilder.Build(TimeSpan.FromMinutes(defaultInterval + 15));
         branch.AddService(service);
         branch.AddService(service.Id, employee.Id);
-        var serviceToRemoveAllTimes = ServiceBuilder.Build(branch.Id, TimeSpan.FromMinutes(2 * defaultInterval));
+        var serviceToRemoveAllTimes = ServiceBuilder.Build(TimeSpan.FromMinutes(2 * defaultInterval));
 
         var order = OrderBuilder.Build(nowMinusSomeHour.AddMinutes(defaultInterval), branch, employee, new List<Service>() { serviceToRemoveAllTimes });
 
@@ -677,11 +677,11 @@ public class SchedulerTest
         var employee = EmployeeBuilder.Build();
         branch.AddEmployee(employee);
 
-        var service = ServiceBuilder.Build(branch.Id, TimeSpan.FromMinutes(defaultInterval));
+        var service = ServiceBuilder.Build(TimeSpan.FromMinutes(defaultInterval));
         branch.AddService(service);
         branch.AddService(service.Id, employee.Id);
 
-        var serviceThatOverflows = ServiceBuilder.Build(branch.Id, TimeSpan.FromMinutes(3 * defaultInterval + 10));
+        var serviceThatOverflows = ServiceBuilder.Build(TimeSpan.FromMinutes(3 * defaultInterval + 10));
         branch.AddService(serviceThatOverflows);
         branch.AddService(serviceThatOverflows.Id, employee.Id);
 
@@ -720,11 +720,11 @@ public class SchedulerTest
         var employee = EmployeeBuilder.Build();
         branch.AddEmployee(employee);
 
-        var service = ServiceBuilder.Build(branch.Id, TimeSpan.FromMinutes(defaultInterval));
+        var service = ServiceBuilder.Build(TimeSpan.FromMinutes(defaultInterval));
         branch.AddService(service);
         branch.AddService(service.Id, employee.Id);
 
-        var serviceThatOverflows = ServiceBuilder.Build(branch.Id, TimeSpan.FromMinutes(2 * defaultInterval));
+        var serviceThatOverflows = ServiceBuilder.Build(TimeSpan.FromMinutes(2 * defaultInterval));
         branch.AddService(serviceThatOverflows);
         branch.AddService(serviceThatOverflows.Id, employee.Id);
 
@@ -762,7 +762,7 @@ public class SchedulerTest
         var employee = EmployeeBuilder.Build();
         branch.AddEmployee(employee);
 
-        var service = ServiceBuilder.Build(branch.Id, TimeSpan.FromMinutes(defaultInterval));
+        var service = ServiceBuilder.Build(TimeSpan.FromMinutes(defaultInterval));
         branch.AddService(service);
         branch.AddService(service.Id, employee.Id);
 
@@ -800,7 +800,7 @@ public class SchedulerTest
         var employee = EmployeeBuilder.Build();
         branch.AddEmployee(employee);
 
-        var service = ServiceBuilder.Build(branch.Id, TimeSpan.FromMinutes(defaultInterval + 15));
+        var service = ServiceBuilder.Build(TimeSpan.FromMinutes(defaultInterval + 15));
         branch.AddService(service);
         branch.AddService(service.Id, employee.Id);
 
@@ -836,11 +836,11 @@ public class SchedulerTest
         var employee = EmployeeBuilder.Build();
         branch.AddEmployee(employee);
 
-        var service = ServiceBuilder.Build(branch.Id, TimeSpan.FromMinutes(defaultInterval));
+        var service = ServiceBuilder.Build(TimeSpan.FromMinutes(defaultInterval));
         branch.AddService(service);
         branch.AddService(service.Id, employee.Id);
 
-        var serviceThatOverflows = ServiceBuilder.Build(branch.Id, TimeSpan.FromMinutes(3 * defaultInterval));
+        var serviceThatOverflows = ServiceBuilder.Build(TimeSpan.FromMinutes(3 * defaultInterval));
         branch.AddService(serviceThatOverflows);
         branch.AddService(serviceThatOverflows.Id, employee.Id);
 
@@ -878,12 +878,12 @@ public class SchedulerTest
         var employee = EmployeeBuilder.Build();
         branch.AddEmployee(employee);
 
-        var service = ServiceBuilder.Build(branch.Id, TimeSpan.FromMinutes(defaultInterval + 15));
+        var service = ServiceBuilder.Build(TimeSpan.FromMinutes(defaultInterval + 15));
         branch.AddService(service);
         branch.AddService(service.Id, employee.Id);
 
         var lunchInterval = new Schedule(new TimeOnly(nowMinusSomeHour.AddMinutes(defaultInterval).Hour, nowMinusSomeHour.AddMinutes(defaultInterval).Minute),
-                                         new TimeOnly(nowMinusSomeHour.AddMinutes(2 * defaultInterval).Hour, nowMinusSomeHour.AddMinutes(2 * defaultInterval).Minute), 
+                                         new TimeOnly(nowMinusSomeHour.AddMinutes(2 * defaultInterval).Hour, nowMinusSomeHour.AddMinutes(2 * defaultInterval).Minute),
                                          nowMinusSomeHour.AddMinutes(defaultInterval).DayOfWeek);
         branch.AddEmployeeLunchInterval(lunchInterval, employee.Id);
 

@@ -7,18 +7,16 @@ namespace Domain.Entities.Barbers.Service;
 internal class Category
 {
     public Guid Id { get; private set; }
-    public Guid CompanyId { get; }
     public string Name { get; set; }
 
     public Category()
     {
         Name = string.Empty;
     }
-    public Category(string name, Guid companyId)
+    public Category(string name)
     {
         SetId();
         Name = name;
-        CompanyId = companyId;
     }
 
     public void SetId()

@@ -119,7 +119,7 @@ public class OrderPolicyTest
         var employee = EmployeeBuilder.Build();
         branch.AddEmployee(employee);
 
-        var order = OrderBuilder.Build(now.AddHours(1.5), branch, employee, new List<Service>() { ServiceBuilder.Build(branch.Id, TimeSpan.FromMinutes(40)) });
+        var order = OrderBuilder.Build(now.AddHours(1.5), branch, employee, new List<Service>() { ServiceBuilder.Build(TimeSpan.FromMinutes(40)) });
 
         var scheduler = new Mock<IScheduler>();
 
@@ -132,7 +132,7 @@ public class OrderPolicyTest
         var orders = new List<Order>() {
             OrderBuilder.Build(now.AddHours(1), branch, employee,
                 new List<Service>() {
-                ServiceBuilder.Build(branch.Id, TimeSpan.FromMinutes(40))
+                ServiceBuilder.Build(TimeSpan.FromMinutes(40))
                 }
             )
         };
@@ -263,7 +263,7 @@ public class OrderPolicyTest
 
         branch.AddEmployeeLunchInterval(new Schedule(new TimeOnly(now.Hour, now.Minute), new TimeOnly(now.Hour, now.Minute).AddHours(1), now.DayOfWeek), employee.Id);
 
-        var order = OrderBuilder.Build(now.AddMinutes(-30), branch, employee, new List<Service>() { ServiceBuilder.Build(branch.Id, TimeSpan.FromMinutes(32)) });
+        var order = OrderBuilder.Build(now.AddMinutes(-30), branch, employee, new List<Service>() { ServiceBuilder.Build(TimeSpan.FromMinutes(32)) });
 
         var scheduler = new Mock<IScheduler>();
 
@@ -291,7 +291,7 @@ public class OrderPolicyTest
 
         branch.AddEmployeeLunchInterval(new Schedule(new TimeOnly(now.Hour, now.Minute), new TimeOnly(now.Hour, now.Minute).AddHours(1), now.DayOfWeek), employee.Id);
 
-        var order = OrderBuilder.Build(now.AddMinutes(-30), branch, employee, new List<Service>() { ServiceBuilder.Build(branch.Id, TimeSpan.FromMinutes(40)) });
+        var order = OrderBuilder.Build(now.AddMinutes(-30), branch, employee, new List<Service>() { ServiceBuilder.Build(TimeSpan.FromMinutes(40)) });
 
         var scheduler = new Mock<IScheduler>();
 
@@ -317,7 +317,7 @@ public class OrderPolicyTest
 
         branch.AddEmployee(employee);
 
-        var order = OrderBuilder.Build(now.AddHours(1.5), branch, employee, new List<Service>() { ServiceBuilder.Build(branch.Id, TimeSpan.FromMinutes(40)) });
+        var order = OrderBuilder.Build(now.AddHours(1.5), branch, employee, new List<Service>() { ServiceBuilder.Build(TimeSpan.FromMinutes(40)) });
 
         var scheduler = new Mock<IScheduler>();
 
@@ -343,7 +343,7 @@ public class OrderPolicyTest
 
         branch.AddEmployee(employee);
 
-        var order = OrderBuilder.Build(now, branch, employee, new List<Service>() { ServiceBuilder.Build(branch.Id, TimeSpan.FromMinutes(40)) });
+        var order = OrderBuilder.Build(now, branch, employee, new List<Service>() { ServiceBuilder.Build(TimeSpan.FromMinutes(40)) });
 
         var scheduler = new Mock<IScheduler>();
         scheduler.Setup(scheduler =>
@@ -384,7 +384,7 @@ public class OrderPolicyTest
         var orders = new List<Order>() {
                                 OrderBuilder.Build(now.AddHours(-0.5),
                                 branch, employee,
-                                new List<Service>() { ServiceBuilder.Build(branch.Id, TimeSpan.FromMinutes(40)) })
+                                new List<Service>() { ServiceBuilder.Build(TimeSpan.FromMinutes(40)) })
                                 };
         var isAllowed = orderPolicy.IsAllowed(order, orders, out var reason);
 
@@ -406,7 +406,7 @@ public class OrderPolicyTest
         var employee = EmployeeBuilder.Build();
         branch.AddEmployee(employee);
 
-        var services = new List<Service>() { ServiceBuilder.Build(branch.Id, TimeSpan.FromMinutes(120)) };
+        var services = new List<Service>() { ServiceBuilder.Build(TimeSpan.FromMinutes(120)) };
 
         var order = OrderBuilder.Build(new DateTime(now.Year, now.AddDays(1).Month, now.AddDays(1).Day, 1, 0, 0), branch, employee, services);
 
@@ -438,12 +438,12 @@ public class OrderPolicyTest
         branch.AddEmployee(employee);
 
         var order = OrderBuilder.Build(new DateTime(now.Year, now.Month, now.Day, now.Hour, 0, 0), branch, employee,
-                           new List<Service> { ServiceBuilder.Build(Guid.NewGuid(), TimeSpan.FromMinutes(30)) });
+                           new List<Service> { ServiceBuilder.Build(TimeSpan.FromMinutes(30)) });
 
         var allOrders = new List<Order>()
         {
             OrderBuilder.Build(new DateTime(now.Year, now.Month, now.AddHours(-1).Day, now.AddHours(-1).Hour, 0, 0), branch, employee,
-                           new List<Service>() { ServiceBuilder.Build(Guid.NewGuid(), TimeSpan.FromMinutes(2*60)) }),
+                           new List<Service>() { ServiceBuilder.Build(TimeSpan.FromMinutes(2*60)) }),
         };
 
         var scheduler = new Mock<IScheduler>();
@@ -474,9 +474,9 @@ public class OrderPolicyTest
         branch.AddEmployee(employee);
 
         var order = OrderBuilder.Build(new DateTime(now.Year, now.Month, now.Day, now.Hour, 0, 0), branch, employee,
-                                      new List<Service> { ServiceBuilder.Build(Guid.NewGuid(), TimeSpan.FromMinutes(0)) });
+                                      new List<Service> { ServiceBuilder.Build(TimeSpan.FromMinutes(0)) });
 
-        var allOrders = new List<Order>() { OrderBuilder.Build(new DateTime(now.Year, now.Month, now.Day, now.Hour, 0, 0), branch, employee, new List<Service> { ServiceBuilder.Build(Guid.NewGuid(), TimeSpan.FromMinutes(30)) }), };
+        var allOrders = new List<Order>() { OrderBuilder.Build(new DateTime(now.Year, now.Month, now.Day, now.Hour, 0, 0), branch, employee, new List<Service> { ServiceBuilder.Build(TimeSpan.FromMinutes(30)) }), };
 
         var scheduler = new Mock<IScheduler>();
         scheduler.Setup(scheduler =>
@@ -575,11 +575,11 @@ public class OrderPolicyTest
         var employee = EmployeeBuilder.Build();
         branch.AddEmployee(employee);
 
-        var order = OrderBuilder.Build(Now.AddHours(1), branch, employee, new List<Service> { ServiceBuilder.Build(Guid.NewGuid(), TimeSpan.FromMinutes(60)) });
+        var order = OrderBuilder.Build(Now.AddHours(1), branch, employee, new List<Service> { ServiceBuilder.Build(TimeSpan.FromMinutes(60)) });
 
         var allOrders = new List<Order>()
             {
-                OrderBuilder.Build(Now, branch, employee, new List<Service> { ServiceBuilder.Build(Guid.NewGuid(), TimeSpan.FromMinutes(60)) })
+                OrderBuilder.Build(Now, branch, employee, new List<Service> { ServiceBuilder.Build(TimeSpan.FromMinutes(60)) })
             };
 
         return new OrderPolicyTestData(order, allOrders, "QueueOrderWithPreviousOrderAlmostClosing");
@@ -595,7 +595,7 @@ public class OrderPolicyTest
         var employee = EmployeeBuilder.Build();
         branch.AddEmployee(employee);
 
-        var order = OrderBuilder.Build(Now.AddHours(1), branch, employee, new List<Service> { ServiceBuilder.Build(Guid.NewGuid(), TimeSpan.FromMinutes(60)) });
+        var order = OrderBuilder.Build(Now.AddHours(1), branch, employee, new List<Service> { ServiceBuilder.Build(TimeSpan.FromMinutes(60)) });
 
         var allOrders = new List<Order>();
 
@@ -612,7 +612,7 @@ public class OrderPolicyTest
         var employee = EmployeeBuilder.Build();
         branch.AddEmployee(employee);
 
-        var order = OrderBuilder.Build(Now.AddHours(1), branch, employee, new List<Service> { ServiceBuilder.Build(Guid.NewGuid(), TimeSpan.FromMinutes(60)) });
+        var order = OrderBuilder.Build(Now.AddHours(1), branch, employee, new List<Service> { ServiceBuilder.Build(TimeSpan.FromMinutes(60)) });
 
         var allOrders = new List<Order>();
 
@@ -632,7 +632,7 @@ public class OrderPolicyTest
         branch.AddEmployeeLunchInterval(new Schedule(new TimeOnly(Now.Hour, Now.Minute).AddHours(1),
             new TimeOnly(Now.Hour, Now.Minute).AddHours(2), Now.DayOfWeek), employee.Id);
 
-        var order = OrderBuilder.Build(Now, branch, employee, new List<Service> { ServiceBuilder.Build(Guid.NewGuid(), TimeSpan.FromMinutes(60)) });
+        var order = OrderBuilder.Build(Now, branch, employee, new List<Service> { ServiceBuilder.Build(TimeSpan.FromMinutes(60)) });
 
         var allOrders = new List<Order>();
 
@@ -649,7 +649,7 @@ public class OrderPolicyTest
         var employee = EmployeeBuilder.Build();
         branch.AddEmployee(employee);
 
-        var order = OrderBuilder.Build(Now.AddHours(1), branch, employee, new List<Service> { ServiceBuilder.Build(Guid.NewGuid(), TimeSpan.FromMinutes(60)) });
+        var order = OrderBuilder.Build(Now.AddHours(1), branch, employee, new List<Service> { ServiceBuilder.Build(TimeSpan.FromMinutes(60)) });
 
         var allOrders = new List<Order>();
 
@@ -667,7 +667,7 @@ public class OrderPolicyTest
         var employee = EmployeeBuilder.Build();
         branch.AddEmployee(employee);
 
-        var order = OrderBuilder.Build(Now, branch, employee, new List<Service> { ServiceBuilder.Build(Guid.NewGuid(), TimeSpan.FromMinutes(30)) });
+        var order = OrderBuilder.Build(Now, branch, employee, new List<Service> { ServiceBuilder.Build(TimeSpan.FromMinutes(30)) });
 
         var allOrders = new List<Order>() { OrderBuilder.Build(Now.AddMinutes(30), branch, employee) };
 
@@ -685,10 +685,10 @@ public class OrderPolicyTest
         branch.AddEmployee(employee);
 
         var order = OrderBuilder.Build(Now, branch, employee,
-                new List<Service> { ServiceBuilder.Build(Guid.NewGuid(), TimeSpan.FromMinutes(30)) });
+                new List<Service> { ServiceBuilder.Build(TimeSpan.FromMinutes(30)) });
 
         var allOrders = new List<Order>() {
-                OrderBuilder.Build(Now.AddMinutes(-30), branch, employee, new List<Service>() { ServiceBuilder.Build(Guid.NewGuid(), TimeSpan.FromMinutes(30))})
+                OrderBuilder.Build(Now.AddMinutes(-30), branch, employee, new List<Service>() { ServiceBuilder.Build(TimeSpan.FromMinutes(30))})
             };
 
         return new OrderPolicyTestData(order, allOrders, "QueueScheduleCloseToPreviousOrder");
@@ -705,12 +705,12 @@ public class OrderPolicyTest
         branch.AddEmployee(employee);
 
         var order = OrderBuilder.Build(Now, branch, employee,
-                new List<Service> { ServiceBuilder.Build(Guid.NewGuid(), TimeSpan.FromMinutes(30)) });
+                new List<Service> { ServiceBuilder.Build(TimeSpan.FromMinutes(30)) });
 
         var allOrders = new List<Order>() {
                 OrderBuilder.Build(
                     Now.AddMinutes(-30), branch, employee,
-                    new List<Service>() { ServiceBuilder.Build(Guid.NewGuid(), TimeSpan.FromMinutes(30))}
+                    new List<Service>() { ServiceBuilder.Build(TimeSpan.FromMinutes(30))}
                 ),
                 OrderBuilder.Build(Now.AddMinutes(30), branch)
             };
@@ -728,12 +728,12 @@ public class OrderPolicyTest
         branch.AddEmployee(employee);
 
         var order = OrderBuilder.Build(Now.AddDays(7), branch, employee,
-                           new List<Service> { ServiceBuilder.Build(Guid.NewGuid(), TimeSpan.FromMinutes(30)) });
+                           new List<Service> { ServiceBuilder.Build(TimeSpan.FromMinutes(30)) });
 
         var allOrders = new List<Order>()
         {
             OrderBuilder.Build(Now.AddHours(-1), branch, employee,
-                           new List<Service>() { ServiceBuilder.Build(Guid.NewGuid(), TimeSpan.FromMinutes(3*60)) }),
+                           new List<Service>() { ServiceBuilder.Build(TimeSpan.FromMinutes(3*60)) }),
         };
 
         return new OrderPolicyTestData(order, allOrders, "QueueScheduleWithFullScheduleTodayButFreeAWeekAfter");
@@ -749,7 +749,7 @@ public class OrderPolicyTest
         branch.AddEmployee(employee);
 
         var order = OrderBuilder.Build(Now.AddDays(1), branch, employee,
-                           new List<Service> { ServiceBuilder.Build(Guid.NewGuid(), TimeSpan.FromMinutes(30)) });
+                           new List<Service> { ServiceBuilder.Build(TimeSpan.FromMinutes(30)) });
 
         var allOrders = new List<Order>()
         {

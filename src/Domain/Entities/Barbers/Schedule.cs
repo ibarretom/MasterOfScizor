@@ -122,6 +122,7 @@ internal class Schedule
     {
         return (WeekDay - day.DayOfWeek + 7) % 7;
     }
+
     public override int GetHashCode()
     {
         return WeekDay.GetHashCode() + OverflowingDay.GetHashCode();

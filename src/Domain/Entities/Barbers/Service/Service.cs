@@ -7,8 +7,7 @@ namespace Domain.Entities.Barbers.Service;
 
 internal class Service
 {
-    public Guid Id { get; private set; }
-    public Guid BranchId { get; private set; }
+    public Guid Id { get; private set; } 
     public Category? Category { get; set; }
     public string Name { get; set; }
     public string Description { get; set; }
@@ -18,10 +17,9 @@ internal class Service
     public bool Active { get; set; }
     public TimeSpan Duration { get; set; }
 
-    public Service(Guid branchId, Category? category, string name, string description, decimal price, decimal promotionalPrice, bool isPromotionActive, bool active, TimeSpan duration)
+    public Service(Category? category, string name, string description, decimal price, decimal promotionalPrice, bool isPromotionActive, bool active, TimeSpan duration)
     {
         SetId();
-        SetBranchId(branchId);
         Category = category;
         Name = name;
         Description = description;
@@ -35,14 +33,6 @@ internal class Service
     {
         if (Id == Guid.Empty)
             Id = Guid.NewGuid();
-    }
-
-    private void SetBranchId(Guid branchId)
-    {
-        if(branchId == Guid.Empty)
-            throw new ServiceException(ServiceExceptionMessagesResource.BRANCH_ID_MUST_BE_VALID);
-
-        BranchId = branchId;
     }
 
     public void SetPrices(decimal regularPrice, decimal promotionalPrice)

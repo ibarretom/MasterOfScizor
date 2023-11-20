@@ -30,7 +30,7 @@ internal class BranchService
         if (await _serviceRepository.Exists(service.BranchId, service.Name, service.Category?.Id ?? Guid.Empty))
             throw new CompanyException(CompanyExceptionMessagesResource.SERVICE_ALREADY_EXISTS);
 
-        var serviceCreated = new Service(service.BranchId, service.Category is not null ? new Category(service.Category.Name, service.Category.CompanyId) : null, service.Name, service.Description, service.Price, service.PromotionalPrice, service.IsPromotionActive, service.Active, service.Duration);
+        var serviceCreated = new Service(service.Category is not null ? new Category(service.Category.Name) : null, service.Name, service.Description, service.Price, service.PromotionalPrice, service.IsPromotionActive, service.Active, service.Duration);
 
         await _serviceRepository.Add(serviceCreated);
     }
