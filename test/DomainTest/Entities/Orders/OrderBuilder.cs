@@ -17,9 +17,7 @@ internal class OrderBuilder
         var employee = EmployeeBuilder.Build();
         branch.AddEmployee(employee);
 
-        var user = UserBuilder.Build();
-
-        return new Order(branch, employee, new List<Service>(), user, OrderStatus.Pending, DateTime.Now);
+        return new Order(branch, employee, new List<Service>(), OrderStatus.Pending, DateTime.Now);
     }    
     
     public static Order Build(List<Service> services)
@@ -30,9 +28,7 @@ internal class OrderBuilder
         var employee = EmployeeBuilder.Build();
         branch.AddEmployee(employee);
 
-        var user = UserBuilder.Build();
-
-        return new Order(branch, employee, services, user, OrderStatus.Pending, DateTime.Now);
+        return new Order(branch, employee, services, OrderStatus.Pending, DateTime.Now);
     }
 
     public static Order Build(DateTime orderTime, Branch branch)
@@ -40,21 +36,17 @@ internal class OrderBuilder
         var employee = EmployeeBuilder.Build();
         branch.AddEmployee(employee);
 
-        var user = UserBuilder.Build();
-
-        return new Order(branch, employee, new List<Service>(), user, OrderStatus.Pending, orderTime);
+        return new Order(branch, employee, new List<Service>(), OrderStatus.Pending, orderTime);
     }
 
     public static Order Build(DateTime orderTime, Branch branch, Employee worker)
     {
-        var user = UserBuilder.Build();
-        return new Order(branch, worker, new List<Service>(), user, OrderStatus.Pending, orderTime);
+        return new Order(branch, worker, new List<Service>(), OrderStatus.Pending, orderTime);
     }
 
     public static Order Build(DateTime orderTime, Branch branch, Employee employee, List<Service> services)
     {
-        var user = UserBuilder.Build();
-        var order = new Order(branch, employee, services, user, OrderStatus.Pending, orderTime)
+        var order = new Order(branch, employee, services, OrderStatus.Pending, orderTime)
         {
             RelocatedSchedule = orderTime
         };

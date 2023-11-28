@@ -1,22 +1,53 @@
-﻿using Domain.Exceptions;
+﻿using Domain.Entities.Orders;
+using Domain.Exceptions;
 using Domain.Exceptions.Messages;
 using Domain.Services.Encription;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json;
 
 namespace Domain.Entities.Barbers.Service;
 
 internal class Service
 {
-    public Guid Id { get; private set; } 
+    [Column("id")]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    public Guid Id { get; private set; }
+
     public Category? Category { get; set; }
+
+    [Required]
+    [Column("name")]
     public string Name { get; set; }
+
+    [Column("description")]
     public string Description { get; set; }
+
+    [Required]
+    [Column("price")]
     public decimal Price { get; private set; }
+
+
+    [Column("promotional_price")]
     public decimal PromotionalPrice { get; private set; }
+    
+    [Required]
+    [Column("is_promotion_active")]
     public bool IsPromotionActive { get; set; }
+
+    [Required]
+    [Column("is_active")]
     public bool Active { get; set; }
+
+    [Required]
+    [Column("duration")]
     public TimeSpan Duration { get; set; }
 
+    public List<Employee> Workers { get; set; } = new List<Employee>();
+
+    public Branch? Branch { get; init; }
+
+    public Service() { }
     public Service(Category? category, string name, string description, decimal price, decimal promotionalPrice, bool isPromotionActive, bool active, TimeSpan duration)
     {
         SetId();

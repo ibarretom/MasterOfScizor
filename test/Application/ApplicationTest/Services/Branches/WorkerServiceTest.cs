@@ -27,7 +27,7 @@ public class WorkerServiceTest
         var createdWorker = EmployeeBuilder.Build();
 
         var workerRepository = new Mock<IWorkerRepository>();
-        workerRepository.Setup(repository => repository.Exists(worker.BranchId, worker.Document, worker.Phone, worker.Email).Result).Returns(false);
+        workerRepository.Setup(repository => repository.Exists(worker.Branch.Id, worker.Document, worker.Phone, worker.Email).Result).Returns(false);
         workerRepository.Setup(repository => repository.Add(It.IsAny<Employee>()))
             .Callback<Employee>(employee =>
             {
@@ -51,7 +51,7 @@ public class WorkerServiceTest
         Assert.True(createdWorker.Avatar.Equals(worker.Avatar));
         Assert.True(createdWorker.Active.Equals(worker.Active));
         Assert.True(createdWorker.Password.Equals("hash"));
-        Assert.Contains(UserRole.Customer, createdWorker.Roles);
+        Assert.Contains(UserRole.Customer, createdWorker.Roles.Select(role => role.Role).ToHashSet());
         Assert.True(createdWorker.Roles.Count.Equals(worker.UserRoles.Count + 1));
     }
 
@@ -62,7 +62,7 @@ public class WorkerServiceTest
         var createdWorker = EmployeeBuilder.Build();
 
         var workerRepository = new Mock<IWorkerRepository>();
-        workerRepository.Setup(repository => repository.Exists(worker.BranchId, worker.Document, worker.Phone, worker.Email).Result).Returns(true);
+        workerRepository.Setup(repository => repository.Exists(worker.Branch.Id, worker.Document, worker.Phone, worker.Email).Result).Returns(true);
 
         var encryptService = new Mock<IEncryptService>();
 

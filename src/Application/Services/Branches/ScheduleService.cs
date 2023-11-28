@@ -74,12 +74,12 @@ internal class ScheduleService
 
     public async Task<HashSet<TimeOnly>> GetAllAvailableTimes(DateTime day, Employee employee)
     {
-        var schedule = await _scheduleRepository.GetByDay(employee.BranchId, day.DayOfWeek);
+        var schedule = await _scheduleRepository.GetByDay(employee.Branch.Id, day.DayOfWeek);
 
         if (schedule is null)
             return new HashSet<TimeOnly>();
 
-        var branch = await _branchRepository.GetBy(employee.BranchId) ?? throw new CompanyException(CompanyExceptionMessagesResource.BRANCH_NOT_FOUND);
+        var branch = await _branchRepository.GetBy(employee.Branch.Id) ?? throw new CompanyException(CompanyExceptionMessagesResource.BRANCH_NOT_FOUND);
 
         return _scheduler.GetAllPossible(schedule, branch.Configuration);
     }

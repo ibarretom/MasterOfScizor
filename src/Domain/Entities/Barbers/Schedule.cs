@@ -1,15 +1,32 @@
 ﻿using Domain.Exceptions;
 using Domain.Exceptions.Messages;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Domain.Entities.Barbers;
 
 internal class Schedule
 {
+    [Column("id")]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    public Guid Id { get; private set; }
+
+    [Column("start_time")]
     public TimeOnly StartTime { get; private set; }
+
+    [Column("end_time")]
     public TimeOnly EndTime { get; private set; }
+
+    [Column("week_day")]
     public DayOfWeek WeekDay { get; private set; }
+
+    [Column("overflowing_day")]
     public DayOfWeek? OverflowingDay { get; private set; }
 
+    public Employee? Employee { get; private set; }
+
+    public Branch? Branch { get; private set; }
+
+    public Schedule() { }
     public Schedule(TimeOnly startTime, TimeOnly endTime, DayOfWeek dayOfWeek)
     {
         WeekDay = dayOfWeek;

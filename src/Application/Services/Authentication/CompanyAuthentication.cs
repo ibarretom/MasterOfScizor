@@ -28,9 +28,10 @@ internal class CompanyAuthentication : ICompanyAuthentication
 
         if (!_encryptService.Verify(employee.Password, User.GetPasswordToBeHashed(employee, employee.Password)))
             throw new AuthenticationException(AuthenticationExceptionMessagesResource.CREDENTIALS_DOES_NOT_MATCH);
-        
-        var token = _tokenService.Sign(new TokenPayload(employee.Id, employee.BranchId, employee.Roles, DateTime.UtcNow.AddHours(2)));
-        var refreshToken = _tokenService.Sign(new TokenPayload(employee.Id, employee.BranchId, employee.Roles, DateTime.UtcNow.AddDays(30)));
+
+        var roles = employee.Roles.Select(role => role.Role).ToHashSet();
+        var token = _tokenService.Sign(new TokenPayload(employee.Id, employee.Branch.Id, roles , DateTime.UtcNow.AddHours(2)));
+        var refreshToken = _tokenService.Sign(new TokenPayload(employee.Id, employee.Branch.Id, roles, DateTime.UtcNow.AddDays(30)));
 
         return new TokenResponse(token, refreshToken, employee.Name);
     }

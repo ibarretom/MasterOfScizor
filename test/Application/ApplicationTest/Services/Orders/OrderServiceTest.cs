@@ -26,11 +26,9 @@ public class OrderServiceTest
         var employee = EmployeeBuilder.Build();
         branch.AddEmployee(employee);
         
-        var user = UserBuilder.Build();
-        
-        var order = new Order(branch, employee, new List<Service>(), user, OrderStatus.Pending, DateTime.UtcNow);
+        var order = new Order(branch, employee, new List<Service>(), OrderStatus.Pending, DateTime.UtcNow);
 
-        var emptyOrder = new Order(BranchBuilder.Build(configuration), EmployeeBuilder.Build(), new List<Service>(), UserBuilder.Build(), OrderStatus.Pending, DateTime.UtcNow);
+        var emptyOrder = new Order(BranchBuilder.Build(configuration), EmployeeBuilder.Build(), new List<Service>(), OrderStatus.Pending, DateTime.UtcNow);
 
         var orderRepository = new Mock<IOrderRepository>();
         orderRepository
@@ -65,7 +63,6 @@ public class OrderServiceTest
             Assert.Contains(service, emptyOrder.Services);
         });
 
-        Assert.True(emptyOrder.User.Id.Equals(emptyOrder.User.Id), "User Id does not matches");
         Assert.True(emptyOrder.Worker.Id.Equals(emptyOrder.Worker.Id), "Worker Id does not matches");
         Assert.True(emptyOrder.Branch.Id.Equals(emptyOrder.Branch.Id), "Branch Id does not matches");
         Assert.True(emptyOrder.ScheduleTime.Equals(emptyOrder.ScheduleTime), "Schedule Time does not Matches");

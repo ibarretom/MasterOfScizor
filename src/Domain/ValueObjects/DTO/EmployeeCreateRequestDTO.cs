@@ -1,10 +1,11 @@
-﻿using Domain.ValueObjects.Enums;
+﻿using Domain.Entities.Barbers;
+using Domain.ValueObjects.Enums;
 
 namespace Domain.ValueObjects.DTO;
 
 internal class EmployeeCreateRequestDTO
 {
-    public Guid BranchId { get; }
+    public Branch Branch { get; }
     public string Name { get; }
     public string Email { get; }
     public string Phone { get; }
@@ -14,9 +15,9 @@ internal class EmployeeCreateRequestDTO
     public string Avatar { get; set; }
     public HashSet<UserRole> UserRoles { get; }
 
-    public EmployeeCreateRequestDTO(Guid branchId, string name, string email, string phone, string password, string avatar, bool active, string document, HashSet<UserRole> userRoles)
+    public EmployeeCreateRequestDTO(Branch branch, string name, string email, string phone, string password, string avatar, bool active, string document, HashSet<UserRole> userRoles)
     {
-        BranchId = branchId;
+        Branch = branch;
         Name = name;
         Email = email;
         Phone = phone;

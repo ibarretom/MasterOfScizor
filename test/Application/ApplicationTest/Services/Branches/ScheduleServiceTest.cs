@@ -236,7 +236,7 @@ public class ScheduleServiceTest
 
         var scheduleService = new ScheduleService(scheduleRepository.Object, scheduler.Object, branchRepository.Object);
 
-        var employee = EmployeeBuilder.Build(branch.Id);
+        var employee = EmployeeBuilder.Build(branch);
 
         await scheduleService.GetAllAvailableTimes(now, employee);
 
@@ -283,7 +283,7 @@ public class ScheduleServiceTest
 
         var scheduleService = new ScheduleService(scheduleRepository.Object, scheduler.Object, branchRepository.Object);
 
-        var employee = EmployeeBuilder.Build(branch.Id);
+        var employee = EmployeeBuilder.Build(branch);
 
         var exception = await Assert.ThrowsAsync<CompanyException>(async () => await scheduleService.GetAllAvailableTimes(now, employee));
 

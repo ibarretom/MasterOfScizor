@@ -1,29 +1,45 @@
-﻿namespace Domain.ValueObjects.Addresses;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace Domain.ValueObjects.Addresses;
 
 internal class AddressLocalization
 {
-    public Guid Id { get; private set; }
-    public string Country { get; }
-    public string State { get; }
-    public string City { get; }
-    public string Neighborhood { get; }
-    public string Street { get; }
-    public string ZipCode { get; }
+    [Column("id")]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    public Guid Id { get; init; }
+
+    [Required]
+    [Column("country")]
+    public string Country { get; init; }
+
+    [Required]
+    [Column("state")]
+    public string State { get; init; }
+
+    [Required]
+    [Column("city")]
+    public string City { get; init; }
+
+    [Required]
+    [Column("neighborhood")]
+    public string Neighborhood { get; init; }
+
+    [Required]
+    [Column("street")]
+    public string Street { get; init; }
+
+    [Required]
+    [Column("zip_code")]
+    public string ZipCode { get; init; }
 
     public AddressLocalization(string country, string state, string city, string neighborhood, string street, string zipCode)
     {
-        SetId();
         Country = country;
         State = state;
         City = city;
         Neighborhood = neighborhood;
         Street = street;
         ZipCode = zipCode;
-    }
-
-    private void SetId()
-    {
-        if(Guid.Empty == Id)
-            Id = Guid.NewGuid();
     }
 }

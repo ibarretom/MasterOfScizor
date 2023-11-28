@@ -15,15 +15,15 @@ internal class AddressService
 
     public async Task<AddressLocalization> AddOrRetrieve(AddressLocalizationCreateDTO address) 
     {
-        var registredAddress = await _addressLocalizationRepository.GetByZipCode(address.ZipCode);
+        var registeredAddress = await _addressLocalizationRepository.GetByZipCode(address.ZipCode);
 
-        if (registredAddress is not null)
-            return registredAddress;
+        if (registeredAddress is not null)
+            return registeredAddress;
 
-        registredAddress = new AddressLocalization(address.Country, address.State, address.City, address.Neighborhood, address.Street, address.ZipCode);
+        registeredAddress = new AddressLocalization(address.Country, address.State, address.City, address.Neighborhood, address.Street, address.ZipCode);
 
-        registredAddress = await _addressLocalizationRepository.Add(registredAddress);
+        registeredAddress = await _addressLocalizationRepository.Add(registeredAddress);
 
-        return registredAddress;
+        return registeredAddress;
     }
 }

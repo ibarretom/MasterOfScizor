@@ -21,13 +21,13 @@ internal class CompanyService
 
     public async Task Create(CreateCompanyRequestDTO company)
     {
-        if (await _addressLocalizationRepository.GetById(company.Branch.Address.AddressId) is null)
+        if (await _addressLocalizationRepository.GetById(company.Branch.Address.Localization.Id) is null)
             throw new AddressException(AddressExceptionMessagesResource.ADDRESS_NOT_FOUND);
 
         if(await _companyRepository.GetByCompanyIdentifier(company.Identifier) is not null)
             throw new CompanyException(CompanyExceptionMessagesResource.COMPANY_ALREADY_EXISTS);
 
-        var companyCreated = new Barber(company.OwnerId, company.Name, company.Identifier, string.Empty);
+        var companyCreated = new Barber(company.Owner, company.Name, company.Identifier, string.Empty);
 
         var branchConfig = new Configuration(OrderQueueType.Schedule, true, null, new TimeSpan(20), true);
 

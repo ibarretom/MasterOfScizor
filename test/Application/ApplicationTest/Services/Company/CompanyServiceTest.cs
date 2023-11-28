@@ -3,6 +3,7 @@ using Domain.Entities.Barbers;
 using Domain.Exceptions;
 using Domain.Exceptions.Messages;
 using Domain.ValueObjects.Addresses;
+using DomainTest.Entities;
 using DomainTest.Entities.Barbers;
 using DomainTest.ValueObjects.DTO;
 using Infra.Repositories.Addresses;
@@ -16,7 +17,9 @@ public class CompanyServiceTest
     [Fact]
     public async void ShouldBeAbleToCreateACompany()
     {
-        var result = new Barber(Guid.Empty, string.Empty, string.Empty, string.Empty);
+        var user = UserBuilder.Build();
+
+        var result = new Barber(user, string.Empty, string.Empty, string.Empty);
         var companyDTO = CreateCompanyDTOBuilder.Build();
 
         var addressLocalizationRepositoryMock = new Mock<IAddressLocalizationRepository>();
@@ -37,9 +40,9 @@ public class CompanyServiceTest
         companyRepositoryMock.Verify(repository => repository.Create(It.IsAny<Barber>()), Times.Once);
         Assert.Equal(result.Name, companyDTO.Name);
         Assert.Equal(result.Identifier, companyDTO.Identifier);
-        Assert.Equal(result.OwnerId, companyDTO.OwnerId);
+        Assert.Equal(result.Owner.Id, companyDTO.Owner.Id);
         Assert.Equal(result.Branch.First().Identifier, companyDTO.Branch.Identifier);
-        Assert.Equal(result.Branch.First().Address.AddressId, companyDTO.Branch.Address.AddressId);
+        Assert.Equal(result.Branch.First().Address.Localization.Id, companyDTO.Branch.Address.Localization.Id);
         Assert.Equal(result.Branch.First().Address.Identifier.Number, companyDTO.Branch.Address.Identifier.Number);
         Assert.Equal(result.Branch.First().Address.Identifier.Complement, companyDTO.Branch.Address.Identifier.Complement);
         Assert.Equal(result.Branch.First().Phone, companyDTO.Branch.Phone);
@@ -55,13 +58,15 @@ public class CompanyServiceTest
         addressLocalizationRepositoryMock.Setup(repository => repository.GetById(It.IsAny<Guid>()).Result)
             .Returns(new AddressLocalization(string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty));
 
+        var user = UserBuilder.Build();
+
         var companyRepositoryMock = new Mock<ICompanyRepository>();
         companyRepositoryMock.Setup(repository => repository.GetByCompanyIdentifier(It.IsAny<string>()).Result)
-            .Returns(new Barber(Guid.Empty, string.Empty, string.Empty, string.Empty));
+            .Returns(new Barber(user, string.Empty, string.Empty, string.Empty));
 
         var companyService = new CompanyService(companyRepositoryMock.Object, addressLocalizationRepositoryMock.Object);
 
-        Func<Task> action = async () => await companyService.Create(companyDTO);
+        async Task action() => await companyService.Create(companyDTO);
         var error = await Assert.ThrowsAsync<CompanyException>(action);
 
         Assert.Equal(CompanyExceptionMessagesResource.COMPANY_ALREADY_EXISTS, error.Message);
@@ -77,7 +82,7 @@ public class CompanyServiceTest
 
         var companyService = new CompanyService(companyRepositoryMock.Object, addressLocalizationRepositoryMock.Object);
 
-        Func<Task> action = async () => await companyService.Create(companyDTO);
+        async Task action() => await companyService.Create(companyDTO);
         var error = await Assert.ThrowsAsync<AddressException>(action);
 
         Assert.Equal(AddressExceptionMessagesResource.ADDRESS_NOT_FOUND, error.Message);

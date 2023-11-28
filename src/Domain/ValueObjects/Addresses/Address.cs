@@ -1,13 +1,25 @@
-﻿namespace Domain.ValueObjects.Addresses;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace Domain.ValueObjects.Addresses;
+
 
 internal class Address
 {
-    public Guid AddressId { get; set; }
+    [Column("id")]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    public Guid Id { get; private set; }
+
+    [Required]
+    public AddressLocalization Localization { get; }
+    
+    [Required]
     public AddressIdentifier Identifier { get; set; }
 
-    public Address(Guid addressId, AddressIdentifier identifier)
+    private Address() { }
+    public Address(AddressLocalization localization, AddressIdentifier identifier)
     {
-        AddressId = addressId;
+        Localization = localization;
         Identifier = identifier;
     }
 }

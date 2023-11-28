@@ -3,26 +3,43 @@ using Domain.Entities.Orders;
 using Domain.Exceptions;
 using Domain.Exceptions.Messages;
 using Domain.ValueObjects.Addresses;
+using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("Infra")]
 namespace Domain.Entities.Barbers;
 
+[PrimaryKey(nameof(Id))]
 internal class Branch
 {
+    [Column("id")]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public Guid Id { get; }
-    public string Identifier { get; }
+
+    [Column("identifier")]
+    public string Identifier { get; init; }
+
     public Address Address { get; set; }
+
+    [Required]
+    [Column("phone")]
     public string Phone { get; set; }
-    public string Email { get; }
-    private readonly HashSet<Schedule> Schedule = new();
+
+    [Required]
+    [Column("email")]
+    public string Email { get; init; }
+    public HashSet<Schedule> Schedule { get; } = new();
     public HashSet<Category> Category { get; } = new HashSet<Category>();
     public HashSet<Service.Service> Service { get; } = new HashSet<Service.Service>();
     public HashSet<Employee> Barber { get; } = new HashSet<Employee>();
     public List<Order> Orders { get; } = new List<Order>();
     public bool IsOpened { get; set; }
     public Configuration Configuration { get; private set; }
+    public Barber Company { get; init; }
 
+    private Branch() { }
     public Branch(string identifier, Address address, string phone, string email, bool isOpened, Configuration configuration)
     {
         Id = Guid.NewGuid();

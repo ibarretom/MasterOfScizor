@@ -1,0 +1,19 @@
+version: '3'
+
+services:
+  mysql:
+    image: mysql:latest
+    container_name: barbapp_mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: 3VDctJbxeciM4cKb07b2
+      MYSQL_DATABASE: barbapp
+      MYSQL_USER: barbapp
+      MYSQL_PASSWORD: mvyjeaaziAQcNkK7P93V
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql:/data/mysql
+
+volumes:
+  mysql:
+    driver: local

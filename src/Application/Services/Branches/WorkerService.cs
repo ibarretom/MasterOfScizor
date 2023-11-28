@@ -30,10 +30,10 @@ internal class WorkerService
 
     public async Task Add(EmployeeCreateRequestDTO worker)
     {
-        if (await _workerRepository.Exists(worker.BranchId, worker.Document, worker.Phone, worker.Email))
+        if (await _workerRepository.Exists(worker.Branch.Id, worker.Document, worker.Phone, worker.Email))
             throw new CompanyException(CompanyExceptionMessagesResource.WORKER_ALREADY_EXISTS);
 
-        var workerCreated = new Employee(worker.BranchId, worker.Active, worker.Avatar, worker.Document, worker.Name, worker.Email, worker.Phone);
+        var workerCreated = new Employee(worker.Branch, worker.Active, worker.Avatar, worker.Document, worker.Name, worker.Email, worker.Phone);
         workerCreated.SetPassword(worker.Password, _encryptService);
 
         workerCreated.AddRoles(UserRole.Customer);

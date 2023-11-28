@@ -1,15 +1,17 @@
-﻿namespace Domain.ValueObjects.DTO.Barber;
+﻿using Domain.Entities;
+
+namespace Domain.ValueObjects.DTO.Barber;
 
 internal class CreateCompanyRequestDTO
 {
-    public Guid OwnerId { get; set; }
+    public User Owner { get; set; }
     public string Identifier { get; set; }
     public string Name { get; set; }
     public BranchDTO Branch { get; set; }
 
-    public CreateCompanyRequestDTO(Guid ownerId, string identifier, string name, BranchDTO branch)
+    public CreateCompanyRequestDTO(User owner, string identifier, string name, BranchDTO branch)
     {
-        OwnerId = ownerId;
+        Owner = owner;
         Identifier = identifier;
         Name = name;
         Branch = branch;

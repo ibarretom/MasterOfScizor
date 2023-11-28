@@ -1,4 +1,6 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("Application")]
 [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
@@ -6,17 +8,30 @@ namespace Domain.Entities.Barbers;
 
 internal class Barber
 {
-    public Guid Id { get; set; }
-    public Guid OwnerId { get; set; }
-    public string Name { get; set; }
-    public string Identifier { get; set; }
-    public string Avatar { get; set; }
-    public HashSet<Branch> Branch { get; } = new HashSet<Branch>();
+    [Column("id")]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    public Guid Id { get; private set; }
 
-    public Barber(Guid ownerId, string name, string identifier, string avatar)
+    public User Owner { get; init;  }
+
+    [Required]
+    [Column("name")]
+    public string Name { get; set; }
+
+    [Column("identifier")]
+    public string Identifier { get; }
+
+    [Column("avatar")]
+    public string Avatar { get; set; }
+
+    public HashSet<Branch> Branch { get; } = new HashSet<Branch>();
+    
+    private Barber () { }
+    
+    public Barber(User owner, string name, string identifier, string avatar)
     {
         SetId();
-        OwnerId = ownerId;
+        Owner = owner;
         Name = name;
         Identifier = identifier;
         Avatar = avatar;

@@ -1,24 +1,36 @@
 ﻿using Domain.Entities.Barbers;
 using Domain.Entities.Barbers.Service;
+using Domain.Entities.Orders;
 using Domain.Exceptions;
 using Domain.Exceptions.Messages;
 using Domain.Services.Encription;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json;
 
 namespace Domain.Entities;
 
 internal class Employee : User
 {
-    public Guid BranchId { get; private set; }
+    public Branch Branch { get; private set; }
+
+    [Column("active")]
     public bool Active { get; set; }
+
+    [Column("avatar")]
     public string Avatar { get; set; }
+
+    [Column("Document")]
     public string Document { get; set; }
+
     public HashSet<Schedule> LunchInterval { get; private set; } = new HashSet<Schedule>();
+    
     public HashSet<Service> Services { get; private set; } = new HashSet<Service>();
     
-    public Employee(Guid branchId, bool active, string avatar, string document, string name, string email, string phone) : base(name, email, phone)
+    public List<Order> Orders { get; } = new List<Order>();
+    private Employee() : base() { }
+    public Employee(Branch branch, bool active, string avatar, string document, string name, string email, string phone) : base(name, email, phone)
     {
-        SetBranchId(branchId);
+        Branch = branch;
         Active = active;
         Avatar = avatar;
         Document = document;
@@ -32,14 +44,6 @@ internal class Employee : User
     public void AddLunchInterval(HashSet<Schedule> schedules)
     {
         LunchInterval.UnionWith(schedules);
-    }
-
-    private void SetBranchId(Guid branchId)
-    {
-        if (branchId == Guid.Empty)
-            throw new UserException(CompanyExceptionMessagesResource.INVALID_BRANCH_ID);
-
-        BranchId = branchId;
     }
 
     public void AddServices(List<Service> services)

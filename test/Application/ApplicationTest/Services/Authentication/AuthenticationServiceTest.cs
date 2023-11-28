@@ -54,8 +54,7 @@ public class AuthenticationServiceTest
         Assert.True(userSaved.Phone.Equals(user.Phone));
         Assert.True(userSaved.Password.Equals(hashedPass));
         Assert.True(userSaved.Roles.Count.Equals(1));
-        Assert.True(userSaved.Roles.First().Equals(UserRole.Customer));
-        Assert.True(DateTime.Compare(userSaved.CreatedAt, timeInTestBegining) > 0);
+        Assert.True(userSaved.Roles.First().Role.Equals(UserRole.Customer));
     }
 
     [Fact]

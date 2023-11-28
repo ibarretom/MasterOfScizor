@@ -40,7 +40,7 @@ internal class OrderService
        
         var allOrders = await _orderRepository.GetBy(order.Branch.Id, order.Worker.Id);
 
-        var createdOrder = new Order(order.Branch, order.Worker, order.Services, order.User, OrderStatus.Accepted, order.ScheduleTime);
+        var createdOrder = new Order(order.Branch, order.Worker, order.Services, OrderStatus.Accepted, order.ScheduleTime);
 
         if (!_orderPolicy.IsAllowed(createdOrder, allOrders, out var reason))
             throw new OrderException(reason);

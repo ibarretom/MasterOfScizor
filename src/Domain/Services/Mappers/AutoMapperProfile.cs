@@ -14,7 +14,6 @@ internal class AutoMapperProfile : Profile
             CreateMap<UserRequestDTO, User>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
                 .ForMember(dest => dest.Roles, opt => opt.Ignore())
-                .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
                 .ForMember(dest => dest.Password, opt => opt.Ignore());
         }
 }

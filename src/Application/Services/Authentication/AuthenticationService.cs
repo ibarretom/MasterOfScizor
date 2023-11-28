@@ -44,8 +44,9 @@ internal class AuthenticationService : IAuthenticationService
         if (!_encryptService.Verify(User.GetPasswordToBeHashed(existentUser, user.Password), existentUser.Password))
             throw new AuthenticationException(AuthenticationExceptionMessagesResource.CREDENTIALS_DOES_NOT_MATCH);
 
-        var token = _tokenService.Sign(new TokenPayload(existentUser.Id, Guid.Empty, existentUser.Roles, DateTime.UtcNow.AddHours(2)));
-        var refreshToken = _tokenService.Sign(new TokenPayload(existentUser.Id, Guid.Empty, existentUser.Roles, DateTime.UtcNow.AddDays(30)));
+        var roles = existentUser.Roles.Select(role => role.Role).ToHashSet();
+        var token = _tokenService.Sign(new TokenPayload(existentUser.Id, Guid.Empty, roles, DateTime.UtcNow.AddHours(2)));
+        var refreshToken = _tokenService.Sign(new TokenPayload(existentUser.Id, Guid.Empty, roles, DateTime.UtcNow.AddDays(30)));
 
         return new TokenResponse(token, refreshToken, existentUser.Name);
     }
